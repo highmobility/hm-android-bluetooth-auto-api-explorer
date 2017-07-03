@@ -1,3 +1,3 @@
 ### Telematics Companion Android ###
 
-* This is the Android app that uses the h-m web api.
+* This is an Android Studio app that uses SDK init with a snippet and can handle some AutoAPIs
