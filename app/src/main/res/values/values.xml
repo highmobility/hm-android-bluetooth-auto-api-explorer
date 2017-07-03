@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr format="dimension" name="sc_corner_radius"/>
+    <attr format="dimension" name="sc_border_width"/>
+    <attr format="color" name="sc_tint_color"/>
+    <attr format="color" name="sc_checked_text_color"/>
+</resources>

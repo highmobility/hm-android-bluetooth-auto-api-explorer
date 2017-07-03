@@ -1,0 +1,109 @@
+[
+  {
+    "id": 0,
+    "name": "bmw",
+    "brand": "bmw",
+    "model": "x5",
+    "oem_id": 0,
+    "authorized_services": [
+      {
+        "telematics_service_id": "ac0fd56c-df27-42ab-9206-28810182deeb",
+        "id": "86a7be1a-15d6-480d-9ca9-8db5e19ecc84",
+        "connected_service_name": "Mobility Service #1",
+        "connected_service_id": "44ecb5aa-25c6-4ba4-b1bb-66690e39a494",
+        "app_name": "Default App",
+        "app_id": "BCF4A79FEA8C4A7DCE59D804",
+        "access_token": "Jee6AuUiHOzaYoUts7HAgAdJMT5IirNOZjePKKQeWWaWsa5ZDtetxTmSBc8S3U6tvKZrkXL2VzNTlk8GJXrFJthBIkGBPEuNoSrorLj0Hh6yiFkYrIzwf2LMVQOepjZ5Pw"
+      },
+      {
+        "telematics_service_id": "ac0fd56c-df27-42ab-9206-28810182deeb",
+        "id": "83d54755-5897-4235-9305-52b0c3d687b5",
+        "connected_service_name": "Mobility Service #1",
+        "connected_service_id": "44ecb5aa-25c6-4ba4-b1bb-66690e39a494",
+        "app_name": "Default App",
+        "app_id": "BCF4A79FEA8C4A7DCE59D804",
+        "access_token": "jqaX-RSllc-xvB_a2pTYT-N92SHzt3a1jyCZXmI6zHuNXtpl5s0B2aGvbAQLr9nZOI_-CnaNE0hWVVAn-m0D7iAtSL5Xnp1HE4dzkEcK5rKPBfhn9R6iItnGJWZMNtQRGA"
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "name": "audi",
+    "brand": "audi",
+    "model": "q7",
+    "oem_id": 0,
+    "authorized_services": []
+  },
+  {
+    "id": 2,
+    "name": "porsche",
+    "brand": "porsche",
+    "model": "cayenne",
+    "oem_id": 0,
+    "authorized_services": [
+      {
+        "telematics_service_id": "ac0fd56c-df27-42ab-9206-28810182deeb",
+        "id": "86a7be1a-15d6-480d-9ca9-8db5e19ecc84",
+        "connected_service_name": "Mobility Service #1",
+        "connected_service_id": "44ecb5aa-25c6-4ba4-b1bb-66690e39a494",
+        "app_name": "Default App",
+        "app_id": "BCF4A79FEA8C4A7DCE59D804",
+        "access_token": "Jee6AuUiHOzaYoUts7HAgAdJMT5IirNOZjePKKQeWWaWsa5ZDtetxTmSBc8S3U6tvKZrkXL2VzNTlk8GJXrFJthBIkGBPEuNoSrorLj0Hh6yiFkYrIzwf2LMVQOepjZ5Pw"
+      },
+      {
+        "telematics_service_id": "ac0fd56c-df27-42ab-9206-28810182deeb",
+        "id": "83d54755-5897-4235-9305-52b0c3d687b5",
+        "connected_service_name": "Mobility Service #1",
+        "connected_service_id": "44ecb5aa-25c6-4ba4-b1bb-66690e39a494",
+        "app_name": "Default App",
+        "app_id": "BCF4A79FEA8C4A7DCE59D804",
+        "access_token": "jqaX-RSllc-xvB_a2pTYT-N92SHzt3a1jyCZXmI6zHuNXtpl5s0B2aGvbAQLr9nZOI_-CnaNE0hWVVAn-m0D7iAtSL5Xnp1HE4dzkEcK5rKPBfhn9R6iItnGJWZMNtQRGA"
+      },
+      {
+        "telematics_service_id": "ac0fd56c-df27-42ab-9206-28810182deeb",
+        "id": "88ae6563-2ee8-4cf5-822f-82dc7098d15c",
+        "connected_service_name": "Mobility Service #1",
+        "connected_service_id": "44ecb5aa-25c6-4ba4-b1bb-66690e39a494",
+        "app_name": "Default App",
+        "app_id": "BCF4A79FEA8C4A7DCE59D804",
+        "access_token": "lt1eDMi8GoMn0Vj7ZYXYeD__atbtm2JQnlwr2tM3YCBFnzNwEf2GBvTjnTz5ff84MpWvNeGFq439Sdzhsz4Y8DVztoBLcmsVCE7qDvuaFenBGSL08kSKrCnHGryuRBT9lQ"
+      },
+      {
+        "telematics_service_id": "ac0fd56c-df27-42ab-9206-28810182deeb",
+        "id": "0677a29a-1546-4fb0-91dc-d33f95d300d0",
+        "connected_service_name": "Mobility Service #1",
+        "connected_service_id": "44ecb5aa-25c6-4ba4-b1bb-66690e39a494",
+        "app_name": "Default App",
+        "app_id": "BCF4A79FEA8C4A7DCE59D804",
+        "access_token": "HuH45QrEWoQaJw7C8irnUpIbqhzNqcTSFuX91Rnod6XjbbxzsOqiUHNPSY2cLLt0qHMwNtPOByzrHp5X619oTvZ4dOIUp7DGJSIjII4Gtk6eY658-f0AzxOZqsyyrx3JtA"
+      },
+      {
+        "telematics_service_id": "ac0fd56c-df27-42ab-9206-28810182deeb",
+        "id": "8b1726cb-346c-4727-8ae5-98606d8f7ed0",
+        "connected_service_name": "Mobility Service #1",
+        "connected_service_id": "44ecb5aa-25c6-4ba4-b1bb-66690e39a494",
+        "app_name": "Default App",
+        "app_id": "BCF4A79FEA8C4A7DCE59D804",
+        "access_token": "yqMXQ-L0AEl3VLvQhkxgOcrJoLehZ7HeN92U-q2Lu58NMcrFaUtGgT4NEJvo7bmSEqnoYuWK-BbC4jveDI2Vn5Vdm_zUQ6_vJkIR6KpbImFgMh0_vrQftb9kkJD-yi_w4A"
+      },
+      {
+        "telematics_service_id": "ac0fd56c-df27-42ab-9206-28810182deeb",
+        "id": "dd9fc264-f306-470d-ba24-93b460e84850",
+        "connected_service_name": "Mobility Service #1",
+        "connected_service_id": "44ecb5aa-25c6-4ba4-b1bb-66690e39a494",
+        "app_name": "Default App",
+        "app_id": "BCF4A79FEA8C4A7DCE59D804",
+        "access_token": "OqLUKQqT3fK6BFZrdI6LiTZ4nhA4JlONb3sIHIkkyyqfk_07U_DTCIYS0m4vdCXzgKjm7L098GTPM4DbkniBsa2uVq0McqN3ItzSUp9gK23_a586HIqWb1YP0LcKi9O1Fw"
+      },
+      {
+        "telematics_service_id": "ac0fd56c-df27-42ab-9206-28810182deeb",
+        "id": "ab498576-4720-41ca-af74-f54f0e51a547",
+        "connected_service_name": "Mobility Service #1",
+        "connected_service_id": "44ecb5aa-25c6-4ba4-b1bb-66690e39a494",
+        "app_name": "Default App",
+        "app_id": "BCF4A79FEA8C4A7DCE59D804",
+        "access_token": "9m0aDWKmm7EmZINkQSjnLotyMNhMR_zkP88J4RGSuUDfEWNsNTpPHhrylCP1aXHC10x2y_2GxMXs-QTi-LRL0RuXEmlan9AvahyunEjfoF2g7LncrpVitBRlXyc5a_fUnA"
+      }
+    ]
+  }
+]

@@ -1,0 +1,33 @@
+[
+  {
+    "website": "",
+    "telematics_services": [
+      {
+        "user_creation_mode": "name_only",
+        "name": "Telematic Mater",
+        "id": "123",
+        "car_access_mode": "all_cars"
+      }
+    ],
+    "name": "High Mobility",
+    "id": 1,
+    "connected_services": [
+      {
+        "type": "trunk_delivery",
+        "telematics_service_id": "123",
+        "name": "Mobility Service #1",
+        "issuer_public_key": "TkCToN8V9MkKhR6eEF5pFkJv8gT4pTHh+0PoAtd0vCD47JAlhdM8KuVdJm8aUDKeAy+66d2BO4b6Vd/OoR56YQ==",
+        "id": "123",
+        "app_id": "1234"
+      },
+      {
+        "type": "remote control",
+        "telematics_service_id": "1234",
+        "name": "Mobility Service #2",
+        "issuer_public_key": "TkCToN8V9MkKhR6eEF5pFkJv8gT4pTHh+0PoAtd0vCD47JAlhdM8KuVdJm8aUDKeAy+66d2BO4b6Vd/OoR56YQ==",
+        "id": "1234",
+        "app_id": "12345"
+      }
+    ]
+  }
+]

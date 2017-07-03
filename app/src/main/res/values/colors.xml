@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="highlight">#FDDA43</color>
+    <color name="pale">#8A909A</color>
+    <color name="lightClay">#555960</color>
+    <color name="clay">#52565C</color>
+    <color name="edge">#50545B</color>
+    <color name="midClay">#4B4F55</color>
+    <color name="darkClay">#313439</color>
+    <color name="nocturne">#1F2225</color>
+</resources>
