@@ -58,7 +58,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
         );
 
         this.view = view;
-        vehicle = new VehicleStatus();
+        vehicle = VehicleStatus.getInstance();
 
         broadcaster = Manager.getInstance().getBroadcaster();
         broadcaster.setListener(this);
@@ -149,7 +149,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                 break;
             case BROADCASTING:
                 if (link == null) {
-                    view.showBleInfoView(true, "Looking for links... " + manager.getBroadcaster().getName()); // TODO: 31/05/2017 delete name
+                    view.showBleInfoView(true, "Looking for links... " + manager.getBroadcaster().getName());
                 }
                 break;
         }
@@ -196,6 +196,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
         Log.d(TAG, "link state changed " + link.getState());
         if (link == this.link ) {
             if (link.getState() == Link.State.AUTHENTICATED) {
+                vehicle.reset();
                 view.showBleInfoView(false, "link: " + "authenticated");
                 view.showLoadingView(true);
                 initializing = true;

@@ -42,7 +42,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
 
     public RemoteControlController(IRemoteControlView view) {
         this.view = view;
-        // TODO: make vehiclestatus static
+        vehicle = VehicleStatus.getInstance();
 
         Intent intent = view.getActivity().getIntent();
         byte[] serial = intent.getByteArrayExtra(LINK_IDENTIFIER_MESSAGE);

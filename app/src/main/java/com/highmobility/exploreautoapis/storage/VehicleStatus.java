@@ -51,10 +51,32 @@ public class VehicleStatus {
     public FeatureCapability[] exteriorCapabilities;
     public FeatureCapability[] overviewCapabilities;
 
+    static VehicleStatus instance;
+    public static VehicleStatus getInstance() {
+        if (instance == null) {
+            instance = new VehicleStatus();
+        }
+
+        return instance;
+    }
+
+    public void reset() {
+        insideTemperature = 0f;
+        batteryPercentage = 0f;
+        doorsLocked = false;
+        trunkLockState = null;
+        trunkLockPosition = null;
+        isWindshieldDefrostingActive = false;
+        rooftopDimmingPercentage = 0f;
+        rooftopOpenPercentage = 0f;
+        exteriorCapabilities = null;
+        overviewCapabilities = null;
+    }
+
     public void update(IncomingCommand command) {
         if (command.is(Command.VehicleStatus.VEHICLE_STATUS)) {
             com.highmobility.hmkit.Command.Incoming.VehicleStatus status = (com.highmobility.hmkit.Command.Incoming.VehicleStatus)command;
-            FeatureState[] featureStates = status.getFeatureStates();;
+            FeatureState[] featureStates = status.getFeatureStates();
             if (featureStates == null) {
                 Log.e(TAG, "update: null featureStates");
                 return;
