@@ -15,9 +15,10 @@ import com.highmobility.hmkit.Command.Capability.ClimateCapability;
 import com.highmobility.hmkit.Command.Capability.FeatureCapability;
 import com.highmobility.hmkit.Command.Capability.RooftopCapability;
 import com.highmobility.hmkit.Command.Capability.TrunkAccessCapability;
-import com.highmobility.hmkit.Command.Constants;
+
 import com.highmobility.exploreautoapis.storage.VehicleStatus;
 import com.highmobility.exploreautoapis.view.CircleButton;
+import com.highmobility.hmkit.Command.Incoming.TrunkState;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -181,13 +182,13 @@ public class VehicleOverviewFragment extends Fragment {
             }
             else if (capability.getIdentifier() == TRUNK_ACCESS) {
                 TrunkAccessCapability trunkAccessCapability = (TrunkAccessCapability)capability;
-                Constants.TrunkLockState state = vehicle.trunkLockState;
+                TrunkState.LockState state = vehicle.trunkLockState;
 
                 if (trunkAccessCapability.getLockCapability() != TrunkAccessCapability.LockCapability.UNAVAILABLE
-                    || state == Constants.TrunkLockState.UNSUPPORTED) {
+                    || state == TrunkState.LockState.UNSUPPORTED) {
                     trunkButton.setVisibility(View.VISIBLE);
 
-                    if (state == Constants.TrunkLockState.LOCKED) {
+                    if (state == TrunkState.LockState.LOCKED) {
                         trunkButton.setImageResource(R.drawable.ovr_trunklockedhdpi);
                     }
                     else {

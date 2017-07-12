@@ -10,6 +10,7 @@ import com.highmobility.hmkit.Command.CommandParseException;
 import com.highmobility.hmkit.Command.Incoming.Capabilities;
 import com.highmobility.hmkit.Command.Incoming.Failure;
 import com.highmobility.hmkit.Command.Incoming.IncomingCommand;
+import com.highmobility.hmkit.Command.Incoming.TrunkState;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
 import com.highmobility.hmkit.Constants;
@@ -23,7 +24,6 @@ import com.highmobility.exploreautoapis.storage.VehicleStatus;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.highmobility.hmkit.Command.Constants.TrunkLockState;
 import static com.highmobility.exploreautoapis.VehicleActivity.REQUEST_CODE_REMOTE_CONTROL;
 import static com.highmobility.exploreautoapis.VehicleActivity.TAG;
 import static com.highmobility.exploreautoapis.remotecontrol.RemoteControlController.LINK_IDENTIFIER_MESSAGE;
@@ -51,11 +51,12 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     public VehicleController(IVehicleView view) {
         manager = Manager.getInstance();
         Manager.getInstance().initialize(
-                "dGVzdIvKUwG9f5n6Ecvql8AAaI0jemi8XwhG5Acf6zcmVKOaMjUkRijxaovhsHtEHsPVzLZWGXYGfnnnhS0qemu7pxqU5/qDGy/dpeZ6zloiN/4OnC234azF5rEakNWtQ4f5vDV2ji1JzCWYa1/+g8CJOLuqa+qBIrP8CzqklTCER3wE2YsMzH4u6zqJq5kFyEv5vP3OY6u6",
-                "P2hvDNWo1/TatePGjKYkVvOY38zr86VQ8Qfe6pJOwH8=",
-                "qQMAui2c/PJX898ZVJNdCfJXh8hs41yOT0URcThBEXsfBkvrKV8072XluC1YaE25arNKXv8Ig5+XyDTbCfVGOg==",
+                "dGVzdC0muSfLxLwpmAfsj+A+HkDsIIRDu8QFrP3fKA/9jtVg/4CgvH10rV8mp9OomFgUJhj65MS2Bbs/zcO1RQhi7XVmfzQNP1W5qfMHOEHwJw5qKc7Q5yvDvRhv0GAn+OdkQgq53Lq2ghrMWpUy4BIuMPyDfU4B4Yh8PtEf1C9xvLhWVRD8n+ajJL3UOOQPdm9GKMgkw1qN",
+                "4UjMKQOEFOlsDcGJX83geon91M7MDaFZrow98p9ylHM=",
+                "9YZA1GxGYpCCRCrSW572ijmZNiSMtzTaNwrEugSlDW6jQA3M1hxWo3c4eqF9FK84H68gfW1QWnCip5nxO0RW9g==",
                 view.getActivity()
         );
+
 
         this.view = view;
         vehicle = VehicleStatus.getInstance();
@@ -89,12 +90,12 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     public void onLockTrunkClicked() {
         view.showLoadingView(true);
         sentCommand = Command.TrunkAccess.OPEN_CLOSE;
-        TrunkLockState newLockState;
-        if (vehicle.trunkLockState == TrunkLockState.LOCKED) {
-            newLockState = TrunkLockState.UNLOCKED;
+        TrunkState.LockState newLockState;
+        if (vehicle.trunkLockState == TrunkState.LockState.LOCKED) {
+            newLockState = TrunkState.LockState.UNLOCKED;
         }
         else {
-            newLockState = TrunkLockState.LOCKED;
+            newLockState = TrunkState.LockState.LOCKED;
         }
 
         byte[] command = Command.TrunkAccess.setTrunkState(newLockState, vehicle.trunkLockPosition);
@@ -182,7 +183,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     }
 
     @Override
-    public void onAuthorizationRequested(ConnectedLink connectedLink, ConnectedLink.AuthorizationCallback callback) {
+    public void onAuthorizationRequested(ConnectedLink connectedLink, ConnectedLinkListener.AuthorizationCallback callback) {
         callback.approve();
     }
 
@@ -241,7 +242,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     void onCommandReceived(byte[] bytes) {
         try {
             IncomingCommand command = IncomingCommand.create(bytes);
-
+            
             if (command.is(Command.Capabilities.CAPABILITIES)) {
                 vehicle.onCapabilitiesReceived(((Capabilities) command).getCapabilites(), true);
                 view.onCapabilitiesUpdate(vehicle);

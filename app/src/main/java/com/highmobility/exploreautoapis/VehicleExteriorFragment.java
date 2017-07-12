@@ -18,8 +18,9 @@ import com.highmobility.hmkit.Command.Capability.ClimateCapability;
 import com.highmobility.hmkit.Command.Capability.FeatureCapability;
 import com.highmobility.hmkit.Command.Capability.RooftopCapability;
 import com.highmobility.hmkit.Command.Capability.TrunkAccessCapability;
-import com.highmobility.hmkit.Command.Constants;
+
 import com.highmobility.exploreautoapis.storage.VehicleStatus;
+import com.highmobility.hmkit.Command.Incoming.TrunkState;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -237,7 +238,7 @@ public class VehicleExteriorFragment extends Fragment {
 
                     if (trunkAccessCapability.getLockCapability() == TrunkAccessCapability.LockCapability.AVAILABLE
                             || trunkAccessCapability.getLockCapability() == TrunkAccessCapability.LockCapability.GET_STATE_UNLOCK_AVAILABLE) {
-                        if (vehicle.trunkLockState == Constants.TrunkLockState.LOCKED) {
+                        if (vehicle.trunkLockState == TrunkState.LockState.LOCKED) {
                             firstButton.setText("UNLOCK");
                             secondButton.setText("LOCKED");
                             secondButton.toggle();
@@ -264,7 +265,7 @@ public class VehicleExteriorFragment extends Fragment {
                     else {
                         segmentedGroup.setVisibility(View.GONE);
                         stateTitle.setVisibility(View.VISIBLE);
-                        stateTitle.setText(vehicle.trunkLockState == Constants.TrunkLockState.LOCKED ? "LOCKED" : "UNLOCKED");
+                        stateTitle.setText(vehicle.trunkLockState == TrunkState.LockState.LOCKED ? "LOCKED" : "UNLOCKED");
                     }
                 }
             }

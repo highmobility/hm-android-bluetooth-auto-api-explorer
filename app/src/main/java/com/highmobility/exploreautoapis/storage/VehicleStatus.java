@@ -9,7 +9,7 @@ import com.highmobility.hmkit.Command.Capability.FeatureCapability;
 import com.highmobility.hmkit.Command.Capability.RooftopCapability;
 import com.highmobility.hmkit.Command.Capability.TrunkAccessCapability;
 import com.highmobility.hmkit.Command.Command;
-import com.highmobility.hmkit.Command.Constants;
+
 import com.highmobility.hmkit.Command.Incoming.ChargeState;
 import com.highmobility.hmkit.Command.Incoming.ClimateState;
 import com.highmobility.hmkit.Command.Incoming.IncomingCommand;
@@ -42,8 +42,8 @@ public class VehicleStatus {
     public float batteryPercentage;
 
     public boolean doorsLocked;
-    public Constants.TrunkLockState trunkLockState;
-    public Constants.TrunkPosition trunkLockPosition;
+    public TrunkState.LockState trunkLockState;
+    public TrunkState.Position trunkLockPosition;
     public boolean isWindshieldDefrostingActive;
     public float rooftopDimmingPercentage;
     public float rooftopOpenPercentage;

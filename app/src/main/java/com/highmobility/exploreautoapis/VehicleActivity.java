@@ -24,7 +24,6 @@ import static android.view.View.VISIBLE;
 
 public class VehicleActivity extends FragmentActivity implements IVehicleView {
     public static final String TAG = "HMKit Reference App";
-    public static final String EXTRA_VEHICLE_ID = "EXTRA_VEHICLE_ID";
     static final int REQUEST_CODE_REMOTE_CONTROL = 12;
 
     @BindView(R.id.page_indicator) PageIndicatorView pageIndicatorView;
