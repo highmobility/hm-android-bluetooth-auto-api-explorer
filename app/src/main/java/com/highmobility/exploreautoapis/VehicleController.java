@@ -51,12 +51,11 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     public VehicleController(IVehicleView view) {
         manager = Manager.getInstance();
         Manager.getInstance().initialize(
-                "dGVzdC0muSfLxLwpmAfsj+A+HkDsIIRDu8QFrP3fKA/9jtVg/4CgvH10rV8mp9OomFgUJhj65MS2Bbs/zcO1RQhi7XVmfzQNP1W5qfMHOEHwJw5qKc7Q5yvDvRhv0GAn+OdkQgq53Lq2ghrMWpUy4BIuMPyDfU4B4Yh8PtEf1C9xvLhWVRD8n+ajJL3UOOQPdm9GKMgkw1qN",
-                "4UjMKQOEFOlsDcGJX83geon91M7MDaFZrow98p9ylHM=",
+                "dGVzdBaAn20KaiitfzfdTgfMbJZkQd/OsBQBcmFcH8QWXWIthhQkfLTJpgpduscMdHDGGtcSvLp2o1ODUNwf4wVDRW+Gqn6SLfr+0NAR962Wup744MXlNGcaYYHV01Gz2/VnZO4N4p7FkLrBBTRC0xOIxBhbuhT3M5KXMTm4mqrGLzPkT1+pLpIAJ1FhSSq03q6+9yS8F7jd",
+                "1HtJqor0CR2aFSzWOVD+dRwdUOmfXeB5vFP2BXn4Uyo=",
                 "9YZA1GxGYpCCRCrSW572ijmZNiSMtzTaNwrEugSlDW6jQA3M1hxWo3c4eqF9FK84H68gfW1QWnCip5nxO0RW9g==",
                 view.getActivity()
         );
-
 
         this.view = view;
         vehicle = VehicleStatus.getInstance();
@@ -76,6 +75,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     public void onReturnFromRemoteControl() {
         if (link != null) {
             // take over the link listener, update the views.
+            link.setListener(this);
             view.onVehicleStatusUpdate(vehicle);
         }
         // else link disconnected
@@ -317,7 +317,6 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                 view.getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d(TAG, "send vs");
                         sendCommand(Command.VehicleStatus.getVehicleStatus());
                         if (initTimer != null) rescheduleInitTimer(); // no timer for telematics
                     }
@@ -326,7 +325,6 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                 view.getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d(TAG, "send capa");
                         sendCommand(Command.Capabilities.getCapabilities());
                         if (initTimer != null) rescheduleInitTimer();
                     }
@@ -359,7 +357,6 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                 || sentCommand == Command.Capabilities.GET_CAPABILITIES )) {
             Log.d(TAG, "initialize, onCommandError: " + errorCode + " " + message);
             failedToSendInitCommand(message);
-            view.onError(true, "Cannot get data from vehicle: " + errorCode);
         }
         else if (sentCommand != null) {
             Log.d(TAG, "onCommandError: " + initializing);
