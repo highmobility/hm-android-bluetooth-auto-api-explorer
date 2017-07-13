@@ -51,9 +51,9 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     public VehicleController(IVehicleView view) {
         manager = Manager.getInstance();
         Manager.getInstance().initialize(
-                "dGVzdBaAn20KaiitfzfdTgfMbJZkQd/OsBQBcmFcH8QWXWIthhQkfLTJpgpduscMdHDGGtcSvLp2o1ODUNwf4wVDRW+Gqn6SLfr+0NAR962Wup744MXlNGcaYYHV01Gz2/VnZO4N4p7FkLrBBTRC0xOIxBhbuhT3M5KXMTm4mqrGLzPkT1+pLpIAJ1FhSSq03q6+9yS8F7jd",
-                "1HtJqor0CR2aFSzWOVD+dRwdUOmfXeB5vFP2BXn4Uyo=",
-                "9YZA1GxGYpCCRCrSW572ijmZNiSMtzTaNwrEugSlDW6jQA3M1hxWo3c4eqF9FK84H68gfW1QWnCip5nxO0RW9g==",
+                "dGVzdPvHnDYCtq0VRgiu99awaqMQAJ5635fC0SYDLBtSyF6T61m7JLYVtbuSw7TtmGE/9y8Om5FxTTJnrjaF0ZPXD8nuW8Umg97SE9uYl/IGfa/hECaxeCuW53HokBxF62l7eE9OYzCiZXri0idXV2iVRr0vZvrMbbm6HQ0x/owW7kLCgO/BROOCriY3i8+Pu2VwXXEel0yg",
+                "zhYxSv7TNUipyINravpzmpotN9L7ePGrYw0KhQuBU9I=",
+                "HJS8Wh+Gjh2JRB8pMOmQdTMfVR7JoPLVF1U85xjSg7puYoTwLf+DO9Zs67jw+6pXmtkYxynMQm0rfcBU0XFF5A==",
                 view.getActivity()
         );
 
@@ -91,14 +91,18 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
         view.showLoadingView(true);
         sentCommand = Command.TrunkAccess.OPEN_CLOSE;
         TrunkState.LockState newLockState;
+        TrunkState.Position newPosition;
+
         if (vehicle.trunkLockState == TrunkState.LockState.LOCKED) {
             newLockState = TrunkState.LockState.UNLOCKED;
+            newPosition = TrunkState.Position.OPEN;
         }
         else {
             newLockState = TrunkState.LockState.LOCKED;
+            newPosition = TrunkState.Position.CLOSED;
         }
 
-        byte[] command = Command.TrunkAccess.setTrunkState(newLockState, vehicle.trunkLockPosition);
+        byte[] command = Command.TrunkAccess.setTrunkState(newLockState, newPosition);
         sendCommand(command);
     }
 
