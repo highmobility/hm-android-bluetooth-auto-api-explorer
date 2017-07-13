@@ -6,6 +6,7 @@ import com.highmobility.hmkit.Command.Capability.AvailableCapability;
 import com.highmobility.hmkit.Command.Capability.AvailableGetStateCapability;
 import com.highmobility.hmkit.Command.Capability.ClimateCapability;
 import com.highmobility.hmkit.Command.Capability.FeatureCapability;
+import com.highmobility.hmkit.Command.Capability.LightsCapability;
 import com.highmobility.hmkit.Command.Capability.RooftopCapability;
 import com.highmobility.hmkit.Command.Capability.TrunkAccessCapability;
 import com.highmobility.hmkit.Command.Command;
@@ -13,12 +14,14 @@ import com.highmobility.hmkit.Command.Command;
 import com.highmobility.hmkit.Command.Incoming.ChargeState;
 import com.highmobility.hmkit.Command.Incoming.ClimateState;
 import com.highmobility.hmkit.Command.Incoming.IncomingCommand;
+import com.highmobility.hmkit.Command.Incoming.LightsState;
 import com.highmobility.hmkit.Command.Incoming.LockState;
 import com.highmobility.hmkit.Command.Incoming.TrunkState;
 import com.highmobility.hmkit.Command.VehicleStatus.Charging;
 import com.highmobility.hmkit.Command.VehicleStatus.Climate;
 import com.highmobility.hmkit.Command.VehicleStatus.DoorLocks;
 import com.highmobility.hmkit.Command.VehicleStatus.FeatureState;
+import com.highmobility.hmkit.Command.VehicleStatus.Lights;
 import com.highmobility.hmkit.Command.VehicleStatus.RooftopState;
 import com.highmobility.hmkit.Command.VehicleStatus.TrunkAccess;
 
@@ -27,6 +30,7 @@ import java.util.ArrayList;
 import static com.highmobility.hmkit.Command.Command.Identifier.CHARGING;
 import static com.highmobility.hmkit.Command.Command.Identifier.CLIMATE;
 import static com.highmobility.hmkit.Command.Command.Identifier.DOOR_LOCKS;
+import static com.highmobility.hmkit.Command.Command.Identifier.LIGHTS;
 import static com.highmobility.hmkit.Command.Command.Identifier.REMOTE_CONTROL;
 import static com.highmobility.hmkit.Command.Command.Identifier.ROOFTOP;
 import static com.highmobility.hmkit.Command.Command.Identifier.TRUNK_ACCESS;
@@ -47,6 +51,10 @@ public class VehicleStatus {
     public boolean isWindshieldDefrostingActive;
     public float rooftopDimmingPercentage;
     public float rooftopOpenPercentage;
+    public LightsState.FrontExteriorLightState frontExteriorLightState;
+    public boolean isRearExteriorLightActive;
+    public boolean isInteriorLightActive;
+    public int lightsAmbientColor;
 
     public FeatureCapability[] exteriorCapabilities;
     public FeatureCapability[] overviewCapabilities;
@@ -71,6 +79,10 @@ public class VehicleStatus {
         rooftopOpenPercentage = 0f;
         exteriorCapabilities = null;
         overviewCapabilities = null;
+        frontExteriorLightState = LightsState.FrontExteriorLightState.INACTIVE;
+        isRearExteriorLightActive = false;
+        isInteriorLightActive = false;
+        lightsAmbientColor = 0;
     }
 
     public void update(IncomingCommand command) {
@@ -105,6 +117,12 @@ public class VehicleStatus {
                     rooftopDimmingPercentage = state.getDimmingPercentage();
                     rooftopOpenPercentage = state.getOpenPercentage();
                 }
+                else if (featureState.getFeature() == LIGHTS) {
+                    Lights lights = (Lights) featureState;
+                    frontExteriorLightState = lights.getFrontExteriorLightState();
+                    isRearExteriorLightActive = lights.isRearExteriorLightActive();
+                    isInteriorLightActive = lights.isInteriorLightActive();
+                }
             }
         }
         else if (command.is(Command.VehicleLocation.VEHICLE_LOCATION)) {
@@ -136,6 +154,13 @@ public class VehicleStatus {
         else if (command.is(Command.Charging.CHARGE_STATE)) {
             ChargeState state = (ChargeState)command;
             batteryPercentage = state.getBatteryLevel();
+        }
+        else if (command.is(Command.Lights.LIGHTS_STATE)) {
+            LightsState state = (LightsState)command;
+            frontExteriorLightState = state.getFrontExteriorLightState();
+            isRearExteriorLightActive = state.isRearExteriorLightActive();
+            isInteriorLightActive = state.isInteriorLightActive();
+            lightsAmbientColor = state.getAmbientColor();
         }
     }
 
@@ -195,20 +220,15 @@ public class VehicleStatus {
                     overviewCapabilities.add(capability);
                 }
             }
+            else if (feature == LIGHTS) {
+                LightsCapability lightsCapability = (LightsCapability)capability;
+                if (lightsCapability.getExteriorLightsCapability() != AvailableGetStateCapability.Capability.UNAVAILABLE) {
+                    exteriorCapabilities.add(lightsCapability);
+                }
+            }
         }
 
         this.exteriorCapabilities = exteriorCapabilities.toArray(new FeatureCapability[exteriorCapabilities.size()]);
         this.overviewCapabilities = overviewCapabilities.toArray(new FeatureCapability[overviewCapabilities.size()]);
-    }
-
-    public FeatureCapability getCapability(Command.Identifier identifier) {
-        for (int i = 0; i < exteriorCapabilities.length; i++) {
-            FeatureCapability capability = exteriorCapabilities[i];
-            if (capability.getIdentifier() == identifier) {
-                return capability;
-            }
-        }
-
-        return null;
     }
 }

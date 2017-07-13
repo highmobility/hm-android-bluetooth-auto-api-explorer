@@ -16,10 +16,12 @@ import android.widget.TextView;
 import com.highmobility.hmkit.Command.Capability.AvailableGetStateCapability;
 import com.highmobility.hmkit.Command.Capability.ClimateCapability;
 import com.highmobility.hmkit.Command.Capability.FeatureCapability;
+import com.highmobility.hmkit.Command.Capability.LightsCapability;
 import com.highmobility.hmkit.Command.Capability.RooftopCapability;
 import com.highmobility.hmkit.Command.Capability.TrunkAccessCapability;
 
 import com.highmobility.exploreautoapis.storage.VehicleStatus;
+import com.highmobility.hmkit.Command.Incoming.LightsState;
 import com.highmobility.hmkit.Command.Incoming.TrunkState;
 
 import butterknife.BindView;
@@ -198,6 +200,72 @@ public class VehicleExteriorFragment extends Fragment {
                     segmentedGroup.setVisibility(View.GONE);
                     stateTitle.setVisibility(View.VISIBLE);
                     stateTitle.setText(vehicle.rooftopOpenPercentage == 0f ? "CLOSED" : "OPEN");
+                }
+            }
+            else if (capability.getIdentifier() == LIGHTS) {
+                LightsCapability lightsCapability = (LightsCapability)capability;
+
+                convertView = inflater.inflate(R.layout.list_item_exterior_item_three_segments, null, false);
+                ImageView image = (ImageView) convertView.findViewById(R.id.icon);
+                TextView title = (TextView)convertView.findViewById(R.id.title);
+                image.setImageResource(R.drawable.ext_remotehdpi);
+                title.setText("FRONT LIGHTS");
+
+                if (lightsCapability.getExteriorLightsCapability() == AvailableGetStateCapability.Capability.AVAILABLE) {
+                    RadioButton firstButton = (RadioButton)convertView.findViewById(R.id.first_button);
+                    RadioButton secondButton = (RadioButton) convertView.findViewById(R.id.second_button);
+                    RadioButton thirdButton = (RadioButton) convertView.findViewById(R.id.third_button);
+                    firstButton.setText("INACTIVE");
+                    secondButton.setText("ACTIVE");
+                    thirdButton.setText("FULL BEAM");
+
+
+                    if (vehicle.frontExteriorLightState == LightsState.FrontExteriorLightState.INACTIVE) {
+                        firstButton.toggle();
+                    }
+                    else if (vehicle.frontExteriorLightState == LightsState.FrontExteriorLightState.ACTIVE) {
+                        secondButton.toggle();
+                    }
+                    else if (vehicle.frontExteriorLightState == LightsState.FrontExteriorLightState.ACTIVE_WITH_FULL_BEAM) {
+                        thirdButton.toggle();
+                    }
+
+                    firstButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            VehicleExteriorFragment.this.parent.controller.onFrontExteriorLightClicked(LightsState.FrontExteriorLightState.INACTIVE);
+                        }
+                    });
+
+                    secondButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            VehicleExteriorFragment.this.parent.controller.onFrontExteriorLightClicked(LightsState.FrontExteriorLightState.ACTIVE);
+                        }
+                    });
+
+                    thirdButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            VehicleExteriorFragment.this.parent.controller.onFrontExteriorLightClicked(LightsState.FrontExteriorLightState.ACTIVE_WITH_FULL_BEAM);
+                        }
+                    });
+                }
+                else {
+                    TextView stateTitle = (TextView)convertView.findViewById(R.id.state_title);
+                    SegmentedGroup segmentedGroup = (SegmentedGroup)convertView.findViewById(R.id.segment_group);
+                    segmentedGroup.setVisibility(View.GONE);
+                    stateTitle.setVisibility(View.VISIBLE);
+
+                    if (vehicle.frontExteriorLightState == LightsState.FrontExteriorLightState.INACTIVE) {
+                        stateTitle.setText("INACTIVE");
+                    }
+                    else if (vehicle.frontExteriorLightState == LightsState.FrontExteriorLightState.ACTIVE) {
+                        stateTitle.setText("ACTIVE");
+                    }
+                    else if (vehicle.frontExteriorLightState == LightsState.FrontExteriorLightState.ACTIVE_WITH_FULL_BEAM) {
+                        stateTitle.setText("FULL BEAM");
+                    }
                 }
             }
             else {
