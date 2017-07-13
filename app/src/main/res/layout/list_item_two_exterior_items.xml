@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/exterior_item_height"
+        android:paddingLeft="@dimen/exterior_item_padding"
+        android:paddingRight="@dimen/exterior_item_padding"
+        android:orientation="vertical">
+
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp">
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ext_sunroofopaquehdpi"
+                android:layout_gravity="center_vertical"/>
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="match_parent" />
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SUNROOF VISIBILITY"
+                android:layout_gravity="center_vertical"/>
+        </LinearLayout>
+
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/state_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:visibility="gone"
+                android:text="TRANSPARENT"/>
+
+            <info.hoang8f.android.segmented.SegmentedGroup
+                android:id="@+id/segment_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:sc_corner_radius="0dp"
+                app:sc_tint_color="@color/darkClay"
+                app:sc_checked_text_color="#ffffff">
+                <RadioButton
+                    android:id="@+id/first_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="TRANSPARENT"
+                    android:layout_weight="1"
+                    style="@style/RadioButton" />
+
+                <RadioButton
+                    android:id="@+id/second_button"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="OPAQUE"
+                    style="@style/RadioButton" />
+            </info.hoang8f.android.segmented.SegmentedGroup>
+        </RelativeLayout>
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/exterior_item_height"
+        android:paddingLeft="@dimen/exterior_item_padding"
+        android:paddingRight="@dimen/exterior_item_padding"
+        android:orientation="vertical">
+
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp">
+            <ImageView
+                android:id="@+id/icon2"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ext_sunroofopaquehdpi"
+                android:layout_gravity="center_vertical"/>
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="match_parent" />
+            <TextView
+                android:id="@+id/title2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SUNROOF VISIBILITY"
+                android:layout_gravity="center_vertical"/>
+        </LinearLayout>
+
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/state_title2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:visibility="gone"
+                android:text="TRANSPARENT"/>
+
+            <info.hoang8f.android.segmented.SegmentedGroup
+                android:id="@+id/segment_group2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:sc_corner_radius="0dp"
+                app:sc_tint_color="@color/darkClay"
+                app:sc_checked_text_color="#ffffff">
+                <RadioButton
+                    android:id="@+id/first_button2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="TRANSPARENT"
+                    android:layout_weight="1"
+                    style="@style/RadioButton" />
+
+                <RadioButton
+                    android:id="@+id/second_button2"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="OPAQUE"
+                    style="@style/RadioButton" />
+            </info.hoang8f.android.segmented.SegmentedGroup>
+        </RelativeLayout>
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+    </LinearLayout>
+</LinearLayout>

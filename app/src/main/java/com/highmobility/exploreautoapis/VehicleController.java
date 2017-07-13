@@ -122,6 +122,15 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
         sendCommand(command);
     }
 
+    public void onSunroofOpenClicked() {
+        view.showLoadingView(true);
+        sentCommand = Command.RooftopControl.CONTROL_ROOFTOP;
+
+        float openPercentage = vehicle.rooftopOpenPercentage == 0f ? 1f : 0f;
+        byte[] command = Command.RooftopControl.controlRooftop(vehicle.rooftopDimmingPercentage, openPercentage);
+        sendCommand(command);
+    }
+
     void sendCommand(byte[] command) {
         link.sendCommand(command, new Link.CommandCallback() {
             @Override

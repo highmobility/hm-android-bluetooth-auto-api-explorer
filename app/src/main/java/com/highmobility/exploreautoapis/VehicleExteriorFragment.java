@@ -111,6 +111,95 @@ public class VehicleExteriorFragment extends Fragment {
             if (capability.getIdentifier() == REMOTE_CONTROL) {
                 convertView = inflater.inflate(R.layout.list_item_exterior_remote_control, null, false);
             }
+            else if (capability.getIdentifier() == ROOFTOP) {
+                RooftopCapability rooftopCapability = (RooftopCapability)capability;
+                convertView = inflater.inflate(R.layout.list_item_two_exterior_items, null, false);
+
+                ImageView image = (ImageView) convertView.findViewById(R.id.icon);
+                ImageView imageTwo = (ImageView) convertView.findViewById(R.id.icon2);
+                TextView title = (TextView)convertView.findViewById(R.id.title);
+                TextView titleTwo = (TextView)convertView.findViewById(R.id.title2);
+
+                image.setImageResource(R.drawable.ext_sunroofopaquehdpi);
+                imageTwo.setImageResource(R.drawable.ext_sunroofopaquehdpi);
+                title.setText("ROOFTOP DIMMING");
+                titleTwo.setText("ROOFTOP OPENING");
+
+                // dimming
+                if (rooftopCapability.getDimmingCapability() == RooftopCapability.DimmingCapability.AVAILABLE
+                        || rooftopCapability.getDimmingCapability() == RooftopCapability.DimmingCapability.ONLY_OPAQUE_OR_TRANSPARENT) {
+                    // show segmnent
+                    RadioButton firstButton = (RadioButton)convertView.findViewById(R.id.first_button);
+                    RadioButton secondButton = (RadioButton) convertView.findViewById(R.id.second_button);
+
+                    firstButton.setText("TRANSPARENT");
+                    secondButton.setText("OPAQUE");
+                    // TODO: if these fail the segment is still changed
+                    if (vehicle.rooftopDimmingPercentage == 1f) {
+                        secondButton.toggle();
+                        firstButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                VehicleExteriorFragment.this.parent.controller.onSunroofVisibilityClicked();
+                            }
+                        });
+                    }
+                    else {
+                        firstButton.toggle();
+                        secondButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                VehicleExteriorFragment.this.parent.controller.onSunroofVisibilityClicked();
+                            }
+                        });
+                    }
+                }
+                else {
+                    TextView stateTitle = (TextView)convertView.findViewById(R.id.state_title);
+                    SegmentedGroup segmentedGroup = (SegmentedGroup)convertView.findViewById(R.id.segment_group);
+                    segmentedGroup.setVisibility(View.GONE);
+                    stateTitle.setVisibility(View.VISIBLE);
+                    stateTitle.setText(vehicle.rooftopDimmingPercentage == 1f ? "OPAQUE" : "TRANSPARENT");
+                }
+
+                // open/close
+                if (rooftopCapability.getOpenCloseCapability() == RooftopCapability.OpenCloseCapability.AVAILABLE
+                        || rooftopCapability.getOpenCloseCapability() == RooftopCapability.OpenCloseCapability.ONLY_FULLY_OPEN_OR_CLOSED) {
+                    RadioButton firstButton = (RadioButton)convertView.findViewById(R.id.first_button2);
+                    RadioButton secondButton = (RadioButton) convertView.findViewById(R.id.second_button2);
+
+                    if (vehicle.rooftopOpenPercentage == 0f) {
+                        firstButton.setText("OPEN");
+                        secondButton.setText("CLOSED");
+
+                        secondButton.toggle();
+                        firstButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                VehicleExteriorFragment.this.parent.controller.onSunroofOpenClicked();
+                            }
+                        });
+                    }
+                    else {
+                        firstButton.setText("OPEN");
+                        secondButton.setText("CLOSE");
+                        firstButton.toggle();
+                        secondButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                VehicleExteriorFragment.this.parent.controller.onSunroofOpenClicked();
+                            }
+                        });
+                    }
+                }
+                else {
+                    TextView stateTitle = (TextView)convertView.findViewById(R.id.state_title2);
+                    SegmentedGroup segmentedGroup = (SegmentedGroup)convertView.findViewById(R.id.segment_group2);
+                    segmentedGroup.setVisibility(View.GONE);
+                    stateTitle.setVisibility(View.VISIBLE);
+                    stateTitle.setText(vehicle.rooftopOpenPercentage == 0f ? "CLOSED" : "OPEN");
+                }
+            }
             else {
                 convertView = inflater.inflate(R.layout.list_item_exterior_item, null, false);
                 ImageView image = (ImageView) convertView.findViewById(R.id.icon);
@@ -120,48 +209,10 @@ public class VehicleExteriorFragment extends Fragment {
                 TextView stateTitle = (TextView)convertView.findViewById(R.id.state_title);
                 SegmentedGroup segmentedGroup = (SegmentedGroup)convertView.findViewById(R.id.segment_group);
 
-                if (capability.getIdentifier() == ROOFTOP) {
-                    RooftopCapability rooftopCapability = (RooftopCapability)capability;
-
-                    image.setImageResource(R.drawable.ext_sunroofopaquehdpi);
-                    title.setText("SUNROOF VISIBILTIY");
-
-                    if (rooftopCapability.getDimmingCapability() == RooftopCapability.DimmingCapability.AVAILABLE
-                        || rooftopCapability.getDimmingCapability() == RooftopCapability.DimmingCapability.ONLY_OPAQUE_OR_TRANSPARENT) {
-                        // show segmnent
-                        firstButton.setText("TRANSPARENT");
-                        secondButton.setText("OPAQUE");
-                        // TODO: if these fail the segment is still changed
-                        if (vehicle.rooftopDimmingPercentage == 1f) {
-                            secondButton.toggle();
-                            firstButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    VehicleExteriorFragment.this.parent.controller.onSunroofVisibilityClicked();
-                                }
-                            });
-                        }
-                        else {
-                            firstButton.toggle();
-                            secondButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    VehicleExteriorFragment.this.parent.controller.onSunroofVisibilityClicked();
-                                }
-                            });
-                        }
-                    }
-                    else {
-                        segmentedGroup.setVisibility(View.GONE);
-                        stateTitle.setVisibility(View.VISIBLE);
-                        stateTitle.setText(vehicle.rooftopDimmingPercentage == 1f ? "OPAQUE" : "TRANSPARENT");
-                    }
-
-                }
-                else if (capability.getIdentifier() == CLIMATE) {
+                if (capability.getIdentifier() == CLIMATE) {
                     ClimateCapability climateCapability = (ClimateCapability)capability;
                     image.setImageResource(R.drawable.ext_defrostactivehdpi);
-                    title.setText("WINDSHIELD DEFROSTING");
+                    title.setText("WINDSHIELD HEATING");
 
                     if (climateCapability.getClimateCapability() == AvailableGetStateCapability.Capability.AVAILABLE) {
                         if (vehicle.isWindshieldDefrostingActive) {
