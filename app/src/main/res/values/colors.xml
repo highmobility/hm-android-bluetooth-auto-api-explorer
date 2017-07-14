@@ -8,4 +8,9 @@
     <color name="midClay">#4B4F55</color>
     <color name="darkClay">#313439</color>
     <color name="nocturne">#1F2225</color>
+
+    <color name="background">@color/clay</color>
+    <color name="list_item_divider">@color/edge</color>
+    <color name="segment_active_text_color">@color/background</color>
+    <color name="segment_active_background_color">@color/darkClay</color>
 </resources>
