@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="yellow_highlight">#FDDA43</color>
+    <color name="highlight">#00ADEF</color>
     <color name="pale">#8A909A</color>
-    <color name="lightClay">#555960</color>
-    <color name="clay">#52565C</color>
-    <color name="edge">#50545B</color>
+    <color name="lightClay">#999999</color>
+    <color name="clay">#666666</color>
+    <color name="edge">#999999</color>
     <color name="midClay">#4B4F55</color>
-    <color name="darkClay">#313439</color>
-    <color name="nocturne">#1F2225</color>
+    <color name="darkClay">#333333</color>
+    <color name="nocturne">#333333</color>
 
-    <color name="highlight">@color/yellow_highlight</color>
+    <color name="navigationbar_background">@color/clay</color>
     <color name="background">@color/clay</color>
     <color name="list_item_divider">@color/edge</color>
     <color name="segment_active_text">@color/background</color>

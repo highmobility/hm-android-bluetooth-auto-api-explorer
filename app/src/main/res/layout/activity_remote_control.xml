@@ -6,7 +6,7 @@
         android:id="@+id/navigation_bar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/navigation_bar_height"
-        android:background="@color/lightClay">
+        android:background="@color/navigationbar_background">
 
         <TextView
             android:id="@+id/title"

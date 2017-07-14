@@ -3,7 +3,8 @@
     android:layout_marginTop="-10dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.highmobility.exploreautoapis.VehicleActivity">
+    tools:context="com.highmobility.exploreautoapis.VehicleActivity"
+    android:clipChildren="false">
 
     <ImageView
         android:layout_width="match_parent"
@@ -13,7 +14,7 @@
         android:layout_marginBottom="100dp" />
 
     <RelativeLayout
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="50dp"
         android:layout_centerHorizontal="true"
         android:layout_width="350dp"
         android:layout_height="350dp"
@@ -23,6 +24,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/hm_car"
+            android:scaleX="1.3"
+            android:scaleY="1.3"
             />
 
         <RelativeLayout
