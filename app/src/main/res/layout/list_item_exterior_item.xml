@@ -21,7 +21,7 @@
                 android:id="@+id/icon"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/ext_sunroofopaquehdpi"
+                android:src="@drawable/ext_roof_opaque"
                 android:layout_gravity="center_vertical"/>
             <Space
                 android:layout_width="10dp"

@@ -13,7 +13,7 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/ext_remotehdpi"
+            android:src="@drawable/ext_remote"
             android:layout_gravity="center_vertical"/>
         <Space
             android:layout_width="10dp"
