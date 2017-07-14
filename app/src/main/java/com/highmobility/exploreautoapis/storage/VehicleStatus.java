@@ -98,6 +98,7 @@ public class VehicleStatus {
                 if (featureState.getFeature() == CLIMATE) {
                     Climate state = (Climate) featureState;
                     insideTemperature = state.getInsideTemperature();
+                    isWindshieldDefrostingActive = state.isDefrostingActive();
                 }
                 else if (featureState.getFeature() == CHARGING) {
                     Charging state = (Charging) featureState;

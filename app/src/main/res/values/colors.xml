@@ -11,6 +11,9 @@
 
     <color name="background">@color/clay</color>
     <color name="list_item_divider">@color/edge</color>
-    <color name="segment_active_text_color">@color/background</color>
-    <color name="segment_active_background_color">@color/darkClay</color>
+    <color name="segment_active_text">@color/background</color>
+    <color name="segment_active_background">@color/darkClay</color>
+    <color name="overview_status_background">@color/lightClay</color>
+    <color name="overview_status_text">#ffffffff</color>
+
 </resources>
