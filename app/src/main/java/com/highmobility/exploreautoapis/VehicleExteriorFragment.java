@@ -122,8 +122,6 @@ public class VehicleExteriorFragment extends Fragment {
                 TextView title = (TextView)convertView.findViewById(R.id.title);
                 TextView titleTwo = (TextView)convertView.findViewById(R.id.title2);
 
-                image.setImageResource(R.drawable.ext_sunroofopaquehdpi);
-                imageTwo.setImageResource(R.drawable.ext_sunroofopaquehdpi);
                 title.setText("ROOFTOP DIMMING");
                 titleTwo.setText("ROOFTOP OPENING");
 
@@ -138,6 +136,8 @@ public class VehicleExteriorFragment extends Fragment {
                     secondButton.setText("OPAQUE");
                     // TODO: if these fail the segment is still changed
                     if (vehicle.rooftopDimmingPercentage == 1f) {
+                        image.setImageResource(R.drawable.ext_roof_opaque);
+
                         secondButton.toggle();
                         firstButton.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -147,6 +147,7 @@ public class VehicleExteriorFragment extends Fragment {
                         });
                     }
                     else {
+                        image.setImageResource(R.drawable.ext_roof_transparent);
                         firstButton.toggle();
                         secondButton.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -161,7 +162,14 @@ public class VehicleExteriorFragment extends Fragment {
                     SegmentedGroup segmentedGroup = (SegmentedGroup)convertView.findViewById(R.id.segment_group);
                     segmentedGroup.setVisibility(View.GONE);
                     stateTitle.setVisibility(View.VISIBLE);
-                    stateTitle.setText(vehicle.rooftopDimmingPercentage == 1f ? "OPAQUE" : "TRANSPARENT");
+                    if (vehicle.rooftopDimmingPercentage == 1f) {
+                        stateTitle.setText("OPAQUE");
+                        image.setImageResource(R.drawable.ext_roof_opaque);
+                    }
+                    else {
+                        stateTitle.setText("TRANSPARENT");
+                        image.setImageResource(R.drawable.ext_roof_transparent);
+                    }
                 }
 
                 // open/close
@@ -171,6 +179,7 @@ public class VehicleExteriorFragment extends Fragment {
                     RadioButton secondButton = (RadioButton) convertView.findViewById(R.id.second_button2);
 
                     if (vehicle.rooftopOpenPercentage == 0f) {
+                        imageTwo.setImageResource(R.drawable.ext_rooftop_closed);
                         firstButton.setText("OPEN");
                         secondButton.setText("CLOSED");
 
@@ -183,6 +192,7 @@ public class VehicleExteriorFragment extends Fragment {
                         });
                     }
                     else {
+                        imageTwo.setImageResource(R.drawable.ext_rooftop_open);
                         firstButton.setText("OPEN");
                         secondButton.setText("CLOSE");
                         firstButton.toggle();
@@ -199,7 +209,14 @@ public class VehicleExteriorFragment extends Fragment {
                     SegmentedGroup segmentedGroup = (SegmentedGroup)convertView.findViewById(R.id.segment_group2);
                     segmentedGroup.setVisibility(View.GONE);
                     stateTitle.setVisibility(View.VISIBLE);
-                    stateTitle.setText(vehicle.rooftopOpenPercentage == 0f ? "CLOSED" : "OPEN");
+                    if (vehicle.rooftopOpenPercentage == 0f) {
+                        stateTitle.setText("CLOSED");
+                        imageTwo.setImageResource(R.drawable.ext_rooftop_closed);
+                    }
+                    else {
+                        stateTitle.setText("OPEN");
+                        imageTwo.setImageResource(R.drawable.ext_rooftop_open);
+                    }
                 }
             }
             else if (capability.getIdentifier() == LIGHTS) {
@@ -208,26 +225,28 @@ public class VehicleExteriorFragment extends Fragment {
                 convertView = inflater.inflate(R.layout.list_item_exterior_item_three_segments, null, false);
                 ImageView image = (ImageView) convertView.findViewById(R.id.icon);
                 TextView title = (TextView)convertView.findViewById(R.id.title);
-                image.setImageResource(R.drawable.ext_remotehdpi);
                 title.setText("FRONT LIGHTS");
 
                 if (lightsCapability.getExteriorLightsCapability() == AvailableGetStateCapability.Capability.AVAILABLE) {
                     RadioButton firstButton = (RadioButton)convertView.findViewById(R.id.first_button);
                     RadioButton secondButton = (RadioButton) convertView.findViewById(R.id.second_button);
                     RadioButton thirdButton = (RadioButton) convertView.findViewById(R.id.third_button);
+
                     firstButton.setText("INACTIVE");
                     secondButton.setText("ACTIVE");
                     thirdButton.setText("FULL BEAM");
 
-
                     if (vehicle.frontExteriorLightState == LightsState.FrontExteriorLightState.INACTIVE) {
                         firstButton.toggle();
+                        image.setImageResource(R.drawable.ext_front_lights_off);
                     }
                     else if (vehicle.frontExteriorLightState == LightsState.FrontExteriorLightState.ACTIVE) {
                         secondButton.toggle();
+                        image.setImageResource(R.drawable.ext_front_lights_on);
                     }
                     else if (vehicle.frontExteriorLightState == LightsState.FrontExteriorLightState.ACTIVE_WITH_FULL_BEAM) {
                         thirdButton.toggle();
+                        image.setImageResource(R.drawable.ext_front_lights_full_beam);
                     }
 
                     firstButton.setOnClickListener(new View.OnClickListener() {
@@ -252,18 +271,21 @@ public class VehicleExteriorFragment extends Fragment {
                     });
                 }
                 else {
-                    TextView stateTitle = (TextView)convertView.findViewById(R.id.state_title);
                     SegmentedGroup segmentedGroup = (SegmentedGroup)convertView.findViewById(R.id.segment_group);
                     segmentedGroup.setVisibility(View.GONE);
+                    TextView stateTitle = (TextView)convertView.findViewById(R.id.state_title);
                     stateTitle.setVisibility(View.VISIBLE);
 
                     if (vehicle.frontExteriorLightState == LightsState.FrontExteriorLightState.INACTIVE) {
+                        image.setImageResource(R.drawable.ext_front_lights_off);
                         stateTitle.setText("INACTIVE");
                     }
                     else if (vehicle.frontExteriorLightState == LightsState.FrontExteriorLightState.ACTIVE) {
+                        image.setImageResource(R.drawable.ext_front_lights_on);
                         stateTitle.setText("ACTIVE");
                     }
                     else if (vehicle.frontExteriorLightState == LightsState.FrontExteriorLightState.ACTIVE_WITH_FULL_BEAM) {
+                        image.setImageResource(R.drawable.ext_front_lights_full_beam);
                         stateTitle.setText("FULL BEAM");
                     }
                 }
@@ -279,11 +301,12 @@ public class VehicleExteriorFragment extends Fragment {
 
                 if (capability.getIdentifier() == CLIMATE) {
                     ClimateCapability climateCapability = (ClimateCapability)capability;
-                    image.setImageResource(R.drawable.ext_defrostactivehdpi);
+
                     title.setText("WINDSHIELD HEATING");
 
                     if (climateCapability.getClimateCapability() == AvailableGetStateCapability.Capability.AVAILABLE) {
                         if (vehicle.isWindshieldDefrostingActive) {
+                            image.setImageResource(R.drawable.ext_windshield_heating_on);
                             secondButton.toggle();
                             secondButton.setText("ACTIVE");
                             firstButton.setText("INACTIVATE");
@@ -295,6 +318,7 @@ public class VehicleExteriorFragment extends Fragment {
                             });
                         }
                         else {
+                            image.setImageResource(R.drawable.ext_windshield_heating_off);
                             firstButton.toggle();
                             secondButton.setText("ACTIVATE");
                             firstButton.setText("INACTIVE");
@@ -309,18 +333,26 @@ public class VehicleExteriorFragment extends Fragment {
                     else {
                         segmentedGroup.setVisibility(View.GONE);
                         stateTitle.setVisibility(View.VISIBLE);
-                        stateTitle.setText(vehicle.isWindshieldDefrostingActive == true ? "ACTIVE" : "INACTIVE");
+
+                        if (vehicle.isWindshieldDefrostingActive) {
+                            image.setImageResource(R.drawable.ext_windshield_heating_on);
+                            stateTitle.setText("ACTIVE");
+                        }
+                        else {
+                            image.setImageResource(R.drawable.ext_windshield_heating_off);
+                            stateTitle.setText("INACTIVE");
+                        }
+
                     }
                 }
                 else if (capability.getIdentifier() == DOOR_LOCKS) {
                     AvailableGetStateCapability doorLocksCapability = (AvailableGetStateCapability)capability;
-
-                    image.setImageResource(R.drawable.ext_doorslockedhdpi);
                     title.setText("DOOR LOCKS");
 
                     if (doorLocksCapability.getCapability() == AvailableGetStateCapability.Capability.AVAILABLE) {
 
                         if (vehicle.doorsLocked == true) {
+                            image.setImageResource(R.drawable.ext_doors_locked);
                             firstButton.setText("UNLOCK");
                             secondButton.setText("LOCKED");
                             secondButton.toggle();
@@ -332,6 +364,7 @@ public class VehicleExteriorFragment extends Fragment {
                             });
                         }
                         else {
+                            image.setImageResource(R.drawable.ext_doors_unlocked);
                             firstButton.setText("UNLOCKED");
                             secondButton.setText("LOCK");
                             firstButton.toggle();
@@ -346,18 +379,24 @@ public class VehicleExteriorFragment extends Fragment {
                     else {
                         segmentedGroup.setVisibility(View.GONE);
                         stateTitle.setVisibility(View.VISIBLE);
-                        stateTitle.setText(vehicle.doorsLocked == true ? "LOCKED" : "UNLOCKED");
+                        if (vehicle.doorsLocked == true) {
+                            stateTitle.setText("LOCKED");
+                            image.setImageResource(R.drawable.ext_doors_locked);
+                        }
+                        else {
+                            stateTitle.setText("UNLOCKED");
+                            image.setImageResource(R.drawable.ext_doors_unlocked);
+                        }
                     }
                 }
                 else if (capability.getIdentifier() == TRUNK_ACCESS) {
                     TrunkAccessCapability trunkAccessCapability = (TrunkAccessCapability)capability;
-
-                    image.setImageResource(R.drawable.ext_trunklockedhdpi);
                     title.setText("TRUNK LOCK");
 
                     if (trunkAccessCapability.getLockCapability() == TrunkAccessCapability.LockCapability.AVAILABLE
                             || trunkAccessCapability.getLockCapability() == TrunkAccessCapability.LockCapability.GET_STATE_UNLOCK_AVAILABLE) {
                         if (vehicle.trunkLockState == TrunkState.LockState.LOCKED) {
+                            image.setImageResource(R.drawable.ext_trunk_closed);
                             firstButton.setText("UNLOCK");
                             secondButton.setText("LOCKED");
                             secondButton.toggle();
@@ -370,6 +409,7 @@ public class VehicleExteriorFragment extends Fragment {
                             });
                         }
                         else {
+                            image.setImageResource(R.drawable.ext_trunk_open);
                             firstButton.setText("UNLOCKED");
                             secondButton.setText("LOCK");
                             firstButton.toggle();
@@ -384,7 +424,16 @@ public class VehicleExteriorFragment extends Fragment {
                     else {
                         segmentedGroup.setVisibility(View.GONE);
                         stateTitle.setVisibility(View.VISIBLE);
-                        stateTitle.setText(vehicle.trunkLockState == TrunkState.LockState.LOCKED ? "LOCKED" : "UNLOCKED");
+
+
+                        if (vehicle.trunkLockState == TrunkState.LockState.LOCKED) {
+                            stateTitle.setText("LOCKED");
+                            image.setImageResource(R.drawable.ext_trunk_closed);
+                        }
+                        else {
+                            stateTitle.setText("UNLOCKED");
+                            image.setImageResource(R.drawable.ext_trunk_open);
+                        }
                     }
                 }
             }

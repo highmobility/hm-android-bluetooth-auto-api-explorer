@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="highlight">#FDDA43</color>
+    <color name="yellow_highlight">#FDDA43</color>
     <color name="pale">#8A909A</color>
     <color name="lightClay">#555960</color>
     <color name="clay">#52565C</color>
@@ -9,6 +9,7 @@
     <color name="darkClay">#313439</color>
     <color name="nocturne">#1F2225</color>
 
+    <color name="highlight">@color/yellow_highlight</color>
     <color name="background">@color/clay</color>
     <color name="list_item_divider">@color/edge</color>
     <color name="segment_active_text">@color/background</color>
