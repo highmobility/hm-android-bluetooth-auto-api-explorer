@@ -26,7 +26,6 @@ public class VehicleActivity extends FragmentActivity implements IVehicleView {
     public static final String TAG = "HMKit Reference App";
     static final int REQUEST_CODE_REMOTE_CONTROL = 12;
 
-    @BindView(R.id.page_indicator) PageIndicatorView pageIndicatorView;
     @BindView(R.id.view_pager) ViewPager viewPager;
     @BindView(R.id.title) TextView title;
     @BindView(R.id.progress_bar) ProgressBar progressBar;
@@ -50,24 +49,6 @@ public class VehicleActivity extends FragmentActivity implements IVehicleView {
 
         viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager(), controller.vehicle));
         title.setText("Explore AutoAPIs");
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                pageIndicatorView.setSelection(position);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
-
     }
 
     @Override
@@ -92,11 +73,9 @@ public class VehicleActivity extends FragmentActivity implements IVehicleView {
 
     void showNormalView(boolean show) {
         if (show) {
-            pageIndicatorView.setCount(viewPager.getAdapter().getCount());
             viewPager.animate().alpha(1f).setDuration(200).setListener(null);
         }
         else {
-            pageIndicatorView.setCount(0);
             viewPager.animate().alpha(0f).setDuration(200).setListener(null);
         }
     }

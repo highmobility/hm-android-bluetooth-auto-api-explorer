@@ -59,16 +59,4 @@
         android:visibility="gone"
         android:layout_centerInParent="true"/>
 
-    <com.rd.PageIndicatorView
-        android:id="@+id/page_indicator"
-        app:piv_count="0"
-        app:piv_radius="4dp"
-        app:piv_animationType="fill"
-        app:piv_selectedColor="@color/pale"
-        android:layout_marginBottom="10dp"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
 </RelativeLayout>
