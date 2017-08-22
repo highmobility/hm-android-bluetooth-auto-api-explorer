@@ -51,10 +51,42 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
 
     public VehicleController(IVehicleView view) {
         manager = Manager.getInstance();
+        /*
+         Before using HMKit, you must initialise it with a snippet from the Developer Center:
+         - go to the Developer Center
+         - LOGIN
+         - choose DEVELOP (in top-left, the (2nd) button with a spanner)
+         - choose APPLICATIONS (in the left)
+         - look for SANDBOX app
+         - click on the "Device Certificates" on the app
+         - choose the SANDBOX DEVICE
+         - copy the whole snippet
+         - paste it below this comment box
+         - you made it!
+
+         Bonus steps after completing the above:
+         - relax
+         - celebrate
+         - explore the APIs
+
+
+         An example of a snippet copied from the Developer Center (do not use, will obviously not work):
+
+            Manager.getInstance().initialize(
+                Base64String,
+                Base64String,
+                Base64String,
+                view.getActivity()
+            );
+
+         */
+
+        // PASTE INIT SNIPPET HERE
+
         Manager.getInstance().initialize(
-                "dGVzdK3yMfkdtZ2ZsGPnJyri6E4yE7fntAYbT2niQAcX+3/9IqTi4R5yvQ0xbwBCN3qBkZkSSblFtxdtpYZSC7iPPY0j/cyAatwCySwGd1fuT1TcS/kpZQa7/WaapzSN2oH8bAzza2QCoqZhWoLViVYlsjCJk62oa6dpIMknMHniLzmYk2seUXmqn1d8vp6+nXo68/eFigfi",
-                "YYW+Fmdl0dK4AMqfMP0M+HKquMtO23OJCNk487cwAbs=",
-                "5oZwky7YgK1J4l9Ki6ihCP2SZarjkWskfXl2VKDHm4psR6BH/npYnyCOCzoWpin/MhJXHfhC9Pbrsp/mgu06xQ==",
+                "dGVzdONMSIMMjqVEJDdtT3Nv/rG6IX1ynaYJOhgRNDe4soavHAEL+MAZdDe/NrQNrXaqFs8SOKQiYaVTsxg2VqlePppdI6XySxZfB46eA6ilMcpn1jwWfsMjwpXQhma2TXiUpT0pnkZZlwm9fhZPAVGl03gjY8gqiG8D6tUH7oJ8AahzrpiyRp/VJkZqvQZTe7qnh44rlA/p",
+                "wNg+n3zxclgIeEUtFlK2rQ4uSVO6leal7PIBludtiac=",
+                "HJS8Wh+Gjh2JRB8pMOmQdTMfVR7JoPLVF1U85xjSg7puYoTwLf+DO9Zs67jw+6pXmtkYxynMQm0rfcBU0XFF5A==",
                 view.getActivity()
         );
 
@@ -372,12 +404,16 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                     if (sentCommand == Command.VehicleStatus.GET_VEHICLE_STATUS) {
                         Log.d(TAG, "send vs");
                         sendCommand(Command.VehicleStatus.getVehicleStatus());
-                        if (initTimer != null) rescheduleInitTimer(); // no timer for telematics
                     } else if (sentCommand == Command.Capabilities.GET_CAPABILITIES) {
                         Log.d(TAG, "send capa");
                         sendCommand(Command.Capabilities.getCapabilities());
-                        if (initTimer != null) rescheduleInitTimer();
                     }
+                    else if (sentCommand == Command.Lights.GET_LIGHTS_STATE) {
+                        Log.d(TAG, "send lights");
+                        sendCommand(Command.Lights.getLightsState());
+                    }
+
+                    if (initTimer != null) rescheduleInitTimer(); // no timer for telematics
                 }
             }
         });
@@ -395,7 +431,8 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     void onCommandError(int errorCode, String message) {
         if (initializing == true &&
                 (sentCommand == Command.VehicleStatus.GET_VEHICLE_STATUS
-                || sentCommand == Command.Capabilities.GET_CAPABILITIES )) {
+                || sentCommand == Command.Capabilities.GET_CAPABILITIES
+                || sentCommand == Command.Lights.GET_LIGHTS_STATE)) {
             Log.d(TAG, "initialize, onCommandError: " + errorCode + " " + message);
             failedToSendInitCommand(message);
         }
