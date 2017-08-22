@@ -52,9 +52,9 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     public VehicleController(IVehicleView view) {
         manager = Manager.getInstance();
         Manager.getInstance().initialize(
-                "dGVzdPvHnDYCtq0VRgiu99awaqMQAJ5635fC0SYDLBtSyF6T61m7JLYVtbuSw7TtmGE/9y8Om5FxTTJnrjaF0ZPXD8nuW8Umg97SE9uYl/IGfa/hECaxeCuW53HokBxF62l7eE9OYzCiZXri0idXV2iVRr0vZvrMbbm6HQ0x/owW7kLCgO/BROOCriY3i8+Pu2VwXXEel0yg",
-                "zhYxSv7TNUipyINravpzmpotN9L7ePGrYw0KhQuBU9I=",
-                "HJS8Wh+Gjh2JRB8pMOmQdTMfVR7JoPLVF1U85xjSg7puYoTwLf+DO9Zs67jw+6pXmtkYxynMQm0rfcBU0XFF5A==",
+                "dGVzdK3yMfkdtZ2ZsGPnJyri6E4yE7fntAYbT2niQAcX+3/9IqTi4R5yvQ0xbwBCN3qBkZkSSblFtxdtpYZSC7iPPY0j/cyAatwCySwGd1fuT1TcS/kpZQa7/WaapzSN2oH8bAzza2QCoqZhWoLViVYlsjCJk62oa6dpIMknMHniLzmYk2seUXmqn1d8vp6+nXo68/eFigfi",
+                "YYW+Fmdl0dK4AMqfMP0M+HKquMtO23OJCNk487cwAbs=",
+                "5oZwky7YgK1J4l9Ki6ihCP2SZarjkWskfXl2VKDHm4psR6BH/npYnyCOCzoWpin/MhJXHfhC9Pbrsp/mgu06xQ==",
                 view.getActivity()
         );
 
@@ -266,9 +266,10 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     }
 
     void onCommandReceived(byte[] bytes) {
+
         try {
             IncomingCommand command = IncomingCommand.create(bytes);
-            
+
             if (command.is(Command.Capabilities.CAPABILITIES)) {
                 vehicle.onCapabilitiesReceived(((Capabilities) command).getCapabilites(), true);
                 view.onCapabilitiesUpdate(vehicle);
@@ -321,6 +322,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
         catch (CommandParseException e) {
             Log.d(TAG, "IncomingCommand parse exception ", e);
         }
+
     }
 
     void continueInitAfterGetLightsState(LightsState state) {
@@ -352,43 +354,33 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
         };
     }
 
-    void failedToSendInitCommand(String message) {
-        retryCount++;
-        if (retryCount == 3) {
-            initializationFailed(message);
-            return;
-        }
+    void failedToSendInitCommand(final String message) {
+        view.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                retryCount++;
+                if (retryCount == 3) {
+                    initializing = false;
+                    view.onError(true, message);
+                    retryCount = 0;
+                    return;
+                }
 
-        Log.d(TAG, "init: try to send the command again " + (sentCommand != null ? sentCommand.getIdentifier() : "null command"));
-        if (sentCommand != null) {
-            // try to send command again
-            if (sentCommand == Command.VehicleStatus.GET_VEHICLE_STATUS) {
-                view.getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
+                Log.d(TAG, "init: try to send the command again " + (sentCommand != null ? sentCommand.getIdentifier() : "null command"));
+                if (sentCommand != null) {
+                    // try to send command again
+                    if (sentCommand == Command.VehicleStatus.GET_VEHICLE_STATUS) {
+                        Log.d(TAG, "send vs");
                         sendCommand(Command.VehicleStatus.getVehicleStatus());
                         if (initTimer != null) rescheduleInitTimer(); // no timer for telematics
-                    }
-                });
-            } else if (sentCommand == Command.Capabilities.GET_CAPABILITIES) {
-                view.getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
+                    } else if (sentCommand == Command.Capabilities.GET_CAPABILITIES) {
+                        Log.d(TAG, "send capa");
                         sendCommand(Command.Capabilities.getCapabilities());
                         if (initTimer != null) rescheduleInitTimer();
                     }
-                });
+                }
             }
-        }
-    }
-
-    void initializationFailed(String message) {
-        initializing = false;
-        retryCount = 0;
-        cancelInitTimer();
-        view.onError(true, message);
-        broadcaster.stopBroadcasting();
-        startBroadcasting();
+        });
     }
 
     void rescheduleInitTimer() {
