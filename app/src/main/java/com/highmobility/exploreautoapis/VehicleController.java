@@ -72,7 +72,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
 
          An example of a snippet copied from the Developer Center (do not use, will obviously not work):
 
-            Manager.getInstance().initialize(
+            manager.initialize(
                 Base64String,
                 Base64String,
                 Base64String,
@@ -82,13 +82,6 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
          */
 
         // PASTE INIT SNIPPET HERE
-
-        Manager.getInstance().initialize(
-                "dGVzdONMSIMMjqVEJDdtT3Nv/rG6IX1ynaYJOhgRNDe4soavHAEL+MAZdDe/NrQNrXaqFs8SOKQiYaVTsxg2VqlePppdI6XySxZfB46eA6ilMcpn1jwWfsMjwpXQhma2TXiUpT0pnkZZlwm9fhZPAVGl03gjY8gqiG8D6tUH7oJ8AahzrpiyRp/VJkZqvQZTe7qnh44rlA/p",
-                "wNg+n3zxclgIeEUtFlK2rQ4uSVO6leal7PIBludtiac=",
-                "HJS8Wh+Gjh2JRB8pMOmQdTMfVR7JoPLVF1U85xjSg7puYoTwLf+DO9Zs67jw+6pXmtkYxynMQm0rfcBU0XFF5A==",
-                view.getActivity()
-        );
 
         this.view = view;
         vehicle = VehicleStatus.getInstance();
