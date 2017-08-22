@@ -51,6 +51,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
 
     public VehicleController(IVehicleView view) {
         manager = Manager.getInstance();
+
         /*
          Before using HMKit, you must initialise it with a snippet from the Developer Center:
          - go to the Developer Center
@@ -78,7 +79,6 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                 Base64String,
                 view.getActivity()
             );
-
          */
 
         // PASTE INIT SNIPPET HERE
