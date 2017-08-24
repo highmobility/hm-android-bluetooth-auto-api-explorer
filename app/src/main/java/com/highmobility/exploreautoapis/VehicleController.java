@@ -21,6 +21,7 @@ import com.highmobility.hmkit.Link;
 import com.highmobility.hmkit.Manager;
 import com.highmobility.exploreautoapis.remotecontrol.RemoteControlActivity;
 import com.highmobility.exploreautoapis.storage.VehicleStatus;
+import com.highmobility.hmkit.Storage;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -227,6 +228,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
         if (connectedLink == link) {
             link.setListener(null);
             link = null;
+            onStateChanged(broadcaster.getState());
         }
         else {
             Log.d(TAG, "unknown link lost");
@@ -257,10 +259,6 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
             }
             else if (link.getState() == Link.State.CONNECTED) {
                 view.showBleInfoView(true, "link: " + "connected");
-            }
-            else {
-                this.link = null;
-                onStateChanged(broadcaster.getState());
             }
         }
     }
