@@ -156,7 +156,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
 
             @Override
             public void onCommandFailed(LinkError linkError) {
-                onInitializeFinished(linkError.getCode(), "Cant get control mode"); // TODO: use type here
+                onInitializeFinished(1, linkError.getType() + ": Cant get control mode");
             }
         });
     }
@@ -174,7 +174,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
 
                     @Override
                     public void onCommandFailed(LinkError linkError) {
-                        onInitializeFinished(linkError.getCode(), ""); // TODO: use type here
+                        onInitializeFinished(1, linkError.getType() + ": Cant start control mode");
                     }
                 });
             }

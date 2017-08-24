@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.highmobility.hmkit.Broadcaster;
 import com.highmobility.hmkit.BroadcasterListener;
+import com.highmobility.hmkit.ByteUtils;
 import com.highmobility.hmkit.Command.Command;
 import com.highmobility.hmkit.Command.CommandParseException;
 import com.highmobility.hmkit.Command.Incoming.Capabilities;
@@ -179,7 +180,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
 
             @Override
             public void onCommandFailed(LinkError linkError) {
-                onCommandError(linkError.getCode(), linkError.getMessage()); // TODO: use type
+                onCommandError(1, linkError.getType() + " " + linkError.getMessage());
             }
         });
     }
@@ -289,7 +290,6 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     }
 
     void onCommandReceived(byte[] bytes) {
-
         try {
             IncomingCommand command = IncomingCommand.create(bytes);
 
