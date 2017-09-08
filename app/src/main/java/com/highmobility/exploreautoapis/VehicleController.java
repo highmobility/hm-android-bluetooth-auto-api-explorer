@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.highmobility.hmkit.Broadcaster;
 import com.highmobility.hmkit.BroadcasterListener;
+import com.highmobility.hmkit.ByteUtils;
 import com.highmobility.hmkit.Command.Command;
 import com.highmobility.hmkit.Command.CommandParseException;
 import com.highmobility.hmkit.Command.Incoming.Capabilities;
@@ -21,6 +22,7 @@ import com.highmobility.hmkit.Link;
 import com.highmobility.hmkit.Manager;
 import com.highmobility.exploreautoapis.remotecontrol.RemoteControlActivity;
 import com.highmobility.exploreautoapis.storage.VehicleStatus;
+import com.highmobility.hmkit.Storage;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -82,7 +84,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
          */
 
         // PASTE INIT SNIPPET HERE
-
+        
         this.view = view;
         vehicle = VehicleStatus.getInstance();
 
@@ -178,7 +180,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
 
             @Override
             public void onCommandFailed(LinkError linkError) {
-                onCommandError(linkError.getCode(), linkError.getMessage()); // TODO: use type
+                onCommandError(1, linkError.getType() + " " + linkError.getMessage());
             }
         });
     }
@@ -227,6 +229,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
         if (connectedLink == link) {
             link.setListener(null);
             link = null;
+            onStateChanged(broadcaster.getState());
         }
         else {
             Log.d(TAG, "unknown link lost");
@@ -258,10 +261,6 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
             else if (link.getState() == Link.State.CONNECTED) {
                 view.showBleInfoView(true, "link: " + "connected");
             }
-            else {
-                this.link = null;
-                onStateChanged(broadcaster.getState());
-            }
         }
     }
 
@@ -291,7 +290,6 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     }
 
     void onCommandReceived(byte[] bytes) {
-
         try {
             IncomingCommand command = IncomingCommand.create(bytes);
 

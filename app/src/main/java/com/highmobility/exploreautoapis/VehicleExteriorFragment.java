@@ -134,7 +134,7 @@ public class VehicleExteriorFragment extends Fragment {
 
                     firstButton.setText("TRANSPARENT");
                     secondButton.setText("OPAQUE");
-                    // TODO: if these fail the segment is still changed
+
                     if (vehicle.rooftopDimmingPercentage == 1f) {
                         image.setImageResource(R.drawable.ext_roof_opaque);
 
