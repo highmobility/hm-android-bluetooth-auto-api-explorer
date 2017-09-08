@@ -84,7 +84,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
          */
 
         // PASTE INIT SNIPPET HERE
-
+        
         this.view = view;
         vehicle = VehicleStatus.getInstance();
 
