@@ -13,22 +13,22 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.highmobility.hmkit.Command.Capability.AvailableGetStateCapability;
-import com.highmobility.hmkit.Command.Capability.ClimateCapability;
-import com.highmobility.hmkit.Command.Capability.FeatureCapability;
-import com.highmobility.hmkit.Command.Capability.LightsCapability;
-import com.highmobility.hmkit.Command.Capability.RooftopCapability;
-import com.highmobility.hmkit.Command.Capability.TrunkAccessCapability;
+import com.highmobility.autoapi.capability.AvailableGetStateCapability;
+import com.highmobility.autoapi.capability.ClimateCapability;
+import com.highmobility.autoapi.capability.FeatureCapability;
+import com.highmobility.autoapi.capability.LightsCapability;
+import com.highmobility.autoapi.capability.RooftopCapability;
+import com.highmobility.autoapi.capability.TrunkAccessCapability;
 
 import com.highmobility.exploreautoapis.storage.VehicleStatus;
-import com.highmobility.hmkit.Command.Incoming.LightsState;
-import com.highmobility.hmkit.Command.Incoming.TrunkState;
+import com.highmobility.autoapi.incoming.LightsState;
+import com.highmobility.autoapi.incoming.TrunkState;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import info.hoang8f.android.segmented.SegmentedGroup;
 
-import static com.highmobility.hmkit.Command.Command.Identifier.*;
+import static com.highmobility.autoapi.Command.Identifier.*;
 
 public class VehicleExteriorFragment extends Fragment {
     @BindView(R.id.list_view) ListView listView;

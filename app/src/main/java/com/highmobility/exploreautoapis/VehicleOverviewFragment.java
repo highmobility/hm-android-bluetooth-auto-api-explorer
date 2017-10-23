@@ -9,27 +9,27 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.highmobility.hmkit.Command.Capability.AvailableCapability;
-import com.highmobility.hmkit.Command.Capability.AvailableGetStateCapability;
-import com.highmobility.hmkit.Command.Capability.ClimateCapability;
-import com.highmobility.hmkit.Command.Capability.FeatureCapability;
-import com.highmobility.hmkit.Command.Capability.RooftopCapability;
-import com.highmobility.hmkit.Command.Capability.TrunkAccessCapability;
+import com.highmobility.autoapi.capability.AvailableCapability;
+import com.highmobility.autoapi.capability.AvailableGetStateCapability;
+import com.highmobility.autoapi.capability.ClimateCapability;
+import com.highmobility.autoapi.capability.FeatureCapability;
+import com.highmobility.autoapi.capability.RooftopCapability;
+import com.highmobility.autoapi.capability.TrunkAccessCapability;
 
 import com.highmobility.exploreautoapis.storage.VehicleStatus;
 import com.highmobility.exploreautoapis.view.CircleButton;
-import com.highmobility.hmkit.Command.Incoming.TrunkState;
+import com.highmobility.autoapi.incoming.TrunkState;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.highmobility.hmkit.Command.Command.Identifier.CHARGING;
-import static com.highmobility.hmkit.Command.Command.Identifier.CLIMATE;
-import static com.highmobility.hmkit.Command.Command.Identifier.DOOR_LOCKS;
-import static com.highmobility.hmkit.Command.Command.Identifier.REMOTE_CONTROL;
-import static com.highmobility.hmkit.Command.Command.Identifier.ROOFTOP;
-import static com.highmobility.hmkit.Command.Command.Identifier.TRUNK_ACCESS;
-import static com.highmobility.hmkit.Command.Command.Identifier.VEHICLE_LOCATION;
+import static com.highmobility.autoapi.Command.Identifier.CHARGING;
+import static com.highmobility.autoapi.Command.Identifier.CLIMATE;
+import static com.highmobility.autoapi.Command.Identifier.DOOR_LOCKS;
+import static com.highmobility.autoapi.Command.Identifier.REMOTE_CONTROL;
+import static com.highmobility.autoapi.Command.Identifier.ROOFTOP;
+import static com.highmobility.autoapi.Command.Identifier.TRUNK_ACCESS;
+import static com.highmobility.autoapi.Command.Identifier.VEHICLE_LOCATION;
 
 public class VehicleOverviewFragment extends Fragment {
     @BindView(R.id.defrost_button) ImageButton defrostButton;

@@ -3,16 +3,17 @@ package com.highmobility.exploreautoapis;
 import android.content.Intent;
 import android.util.Log;
 
+import com.highmobility.autoapi.Command;
+import com.highmobility.autoapi.CommandParseException;
+import com.highmobility.autoapi.incoming.Capabilities;
+import com.highmobility.autoapi.incoming.Failure;
+import com.highmobility.autoapi.incoming.IncomingCommand;
+import com.highmobility.autoapi.incoming.LightsState;
+import com.highmobility.autoapi.incoming.TrunkState;
+import com.highmobility.exploreautoapis.remotecontrol.RemoteControlActivity;
+import com.highmobility.exploreautoapis.storage.VehicleStatus;
 import com.highmobility.hmkit.Broadcaster;
 import com.highmobility.hmkit.BroadcasterListener;
-import com.highmobility.hmkit.ByteUtils;
-import com.highmobility.hmkit.Command.Command;
-import com.highmobility.hmkit.Command.CommandParseException;
-import com.highmobility.hmkit.Command.Incoming.Capabilities;
-import com.highmobility.hmkit.Command.Incoming.Failure;
-import com.highmobility.hmkit.Command.Incoming.IncomingCommand;
-import com.highmobility.hmkit.Command.Incoming.LightsState;
-import com.highmobility.hmkit.Command.Incoming.TrunkState;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
 import com.highmobility.hmkit.Constants;
@@ -20,9 +21,6 @@ import com.highmobility.hmkit.Error.BroadcastError;
 import com.highmobility.hmkit.Error.LinkError;
 import com.highmobility.hmkit.Link;
 import com.highmobility.hmkit.Manager;
-import com.highmobility.exploreautoapis.remotecontrol.RemoteControlActivity;
-import com.highmobility.exploreautoapis.storage.VehicleStatus;
-import com.highmobility.hmkit.Storage;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -84,6 +82,13 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
          */
 
         // PASTE INIT SNIPPET HERE
+
+        Manager.getInstance().initialize(
+                "dGVzdBaAn20KaiitfzfdTgq3phuX8uyNzalfgo/Pfq65dldEGxyO5kOvRFyK3uWGW5deQWVCCG8HzxVL7nUKchxt5k1ruuqUMzy7j/2bktUPEKEYp4DsQY1a9KL7ox5RRuH5a/NXHyCgrr94afdt/cR/Tsy4ZoBXrgbTVCnrGwzaVwHwCqgi3YmBRWI72w4DlkYCZUoHwRkV",
+                "rqcS2QBovIdwPKOYOYLO9cYCNjHMpsOq6/O97fukFJ4=",
+                "9YZA1GxGYpCCRCrSW572ijmZNiSMtzTaNwrEugSlDW6jQA3M1hxWo3c4eqF9FK84H68gfW1QWnCip5nxO0RW9g==",
+                view.getActivity()
+        );
         
         this.view = view;
         vehicle = VehicleStatus.getInstance();
@@ -110,9 +115,12 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     }
 
     public void onLockDoorsClicked() {
-        view.showLoadingView(true);
-        sentCommand = Command.DoorLocks.LOCK_UNLOCK;
-        sendCommand(Command.DoorLocks.lockDoors(vehicle.doorsLocked == true ? false : true));
+        byte[] command = Command.HeartRate.sendHeartRate(89);
+        sentCommand = Command.HeartRate.SEND_HEART_RATE;
+        sendCommand(command);
+//        view.showLoadingView(true);
+//        sentCommand = Command.DoorLocks.LOCK_UNLOCK;
+//        sendCommand(Command.DoorLocks.lockDoors(vehicle.doorsLocked == true ? false : true));
     }
 
     public void onLockTrunkClicked() {

@@ -5,12 +5,12 @@ import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.highmobility.hmkit.ByteUtils;
-import com.highmobility.hmkit.Command.Command;
-import com.highmobility.hmkit.Command.CommandParseException;
-import com.highmobility.hmkit.Command.Incoming.ControlMode;
-import com.highmobility.hmkit.Command.Incoming.Failure;
-import com.highmobility.hmkit.Command.Incoming.IncomingCommand;
+import com.highmobility.autoapi.Command;
+import com.highmobility.autoapi.CommandParseException;
+import com.highmobility.utils.Bytes;
+import com.highmobility.autoapi.incoming.ControlMode;
+import com.highmobility.autoapi.incoming.Failure;
+import com.highmobility.autoapi.incoming.IncomingCommand;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
 import com.highmobility.hmkit.Constants;
@@ -96,7 +96,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
                 Failure failure = (Failure)command;
                 Log.d(TAG, "failure " + failure.getFailureReason().toString());
                 if (initializing) {
-                    onInitializeFinished(1, ByteUtils.hexFromBytes(failure.getFailedType().getIdentifierAndType())
+                    onInitializeFinished(1, Bytes.hexFromBytes(failure.getFailedType().getIdentifierAndType())
                             + " failed: " + failure.getFailureReason().toString());
                 }
                 else {

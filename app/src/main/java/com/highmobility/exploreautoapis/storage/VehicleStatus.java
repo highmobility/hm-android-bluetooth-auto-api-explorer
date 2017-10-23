@@ -2,39 +2,38 @@ package com.highmobility.exploreautoapis.storage;
 
 import android.util.Log;
 
-import com.highmobility.hmkit.Command.Capability.AvailableCapability;
-import com.highmobility.hmkit.Command.Capability.AvailableGetStateCapability;
-import com.highmobility.hmkit.Command.Capability.ClimateCapability;
-import com.highmobility.hmkit.Command.Capability.FeatureCapability;
-import com.highmobility.hmkit.Command.Capability.LightsCapability;
-import com.highmobility.hmkit.Command.Capability.RooftopCapability;
-import com.highmobility.hmkit.Command.Capability.TrunkAccessCapability;
-import com.highmobility.hmkit.Command.Command;
-
-import com.highmobility.hmkit.Command.Incoming.ChargeState;
-import com.highmobility.hmkit.Command.Incoming.ClimateState;
-import com.highmobility.hmkit.Command.Incoming.IncomingCommand;
-import com.highmobility.hmkit.Command.Incoming.LightsState;
-import com.highmobility.hmkit.Command.Incoming.LockState;
-import com.highmobility.hmkit.Command.Incoming.TrunkState;
-import com.highmobility.hmkit.Command.VehicleStatus.Charging;
-import com.highmobility.hmkit.Command.VehicleStatus.Climate;
-import com.highmobility.hmkit.Command.VehicleStatus.DoorLocks;
-import com.highmobility.hmkit.Command.VehicleStatus.FeatureState;
-import com.highmobility.hmkit.Command.VehicleStatus.Lights;
-import com.highmobility.hmkit.Command.VehicleStatus.RooftopState;
-import com.highmobility.hmkit.Command.VehicleStatus.TrunkAccess;
+import com.highmobility.autoapi.Command;
+import com.highmobility.autoapi.capability.AvailableCapability;
+import com.highmobility.autoapi.capability.AvailableGetStateCapability;
+import com.highmobility.autoapi.capability.ClimateCapability;
+import com.highmobility.autoapi.capability.FeatureCapability;
+import com.highmobility.autoapi.capability.LightsCapability;
+import com.highmobility.autoapi.capability.RooftopCapability;
+import com.highmobility.autoapi.capability.TrunkAccessCapability;
+import com.highmobility.autoapi.incoming.ChargeState;
+import com.highmobility.autoapi.incoming.ClimateState;
+import com.highmobility.autoapi.incoming.IncomingCommand;
+import com.highmobility.autoapi.incoming.LightsState;
+import com.highmobility.autoapi.incoming.LockState;
+import com.highmobility.autoapi.incoming.TrunkState;
+import com.highmobility.autoapi.vehiclestatus.Charging;
+import com.highmobility.autoapi.vehiclestatus.Climate;
+import com.highmobility.autoapi.vehiclestatus.DoorLocks;
+import com.highmobility.autoapi.vehiclestatus.FeatureState;
+import com.highmobility.autoapi.vehiclestatus.Lights;
+import com.highmobility.autoapi.vehiclestatus.RooftopState;
+import com.highmobility.autoapi.vehiclestatus.TrunkAccess;
 
 import java.util.ArrayList;
 
-import static com.highmobility.hmkit.Command.Command.Identifier.CHARGING;
-import static com.highmobility.hmkit.Command.Command.Identifier.CLIMATE;
-import static com.highmobility.hmkit.Command.Command.Identifier.DOOR_LOCKS;
-import static com.highmobility.hmkit.Command.Command.Identifier.LIGHTS;
-import static com.highmobility.hmkit.Command.Command.Identifier.REMOTE_CONTROL;
-import static com.highmobility.hmkit.Command.Command.Identifier.ROOFTOP;
-import static com.highmobility.hmkit.Command.Command.Identifier.TRUNK_ACCESS;
-import static com.highmobility.hmkit.Command.Command.Identifier.VEHICLE_LOCATION;
+import static com.highmobility.autoapi.Command.Identifier.CHARGING;
+import static com.highmobility.autoapi.Command.Identifier.CLIMATE;
+import static com.highmobility.autoapi.Command.Identifier.DOOR_LOCKS;
+import static com.highmobility.autoapi.Command.Identifier.LIGHTS;
+import static com.highmobility.autoapi.Command.Identifier.REMOTE_CONTROL;
+import static com.highmobility.autoapi.Command.Identifier.ROOFTOP;
+import static com.highmobility.autoapi.Command.Identifier.TRUNK_ACCESS;
+import static com.highmobility.autoapi.Command.Identifier.VEHICLE_LOCATION;
 import static com.highmobility.exploreautoapis.VehicleActivity.TAG;
 
 /**
@@ -54,7 +53,7 @@ public class VehicleStatus {
     public LightsState.FrontExteriorLightState frontExteriorLightState;
     public boolean isRearExteriorLightActive;
     public boolean isInteriorLightActive;
-    public int lightsAmbientColor;
+    public int[] lightsAmbientColor;
 
     public FeatureCapability[] exteriorCapabilities;
     public FeatureCapability[] overviewCapabilities;
@@ -82,12 +81,12 @@ public class VehicleStatus {
         frontExteriorLightState = LightsState.FrontExteriorLightState.INACTIVE;
         isRearExteriorLightActive = false;
         isInteriorLightActive = false;
-        lightsAmbientColor = 0;
+        lightsAmbientColor = null;
     }
 
     public void update(IncomingCommand command) {
         if (command.is(Command.VehicleStatus.VEHICLE_STATUS)) {
-            com.highmobility.hmkit.Command.Incoming.VehicleStatus status = (com.highmobility.hmkit.Command.Incoming.VehicleStatus)command;
+            com.highmobility.autoapi.incoming.VehicleStatus status = (com.highmobility.autoapi.incoming.VehicleStatus)command;
             FeatureState[] featureStates = status.getFeatureStates();
             if (featureStates == null) {
                 Log.e(TAG, "update: null featureStates");
@@ -112,7 +111,7 @@ public class VehicleStatus {
                     TrunkAccess state = (TrunkAccess) featureState;
                     trunkLockState = state.getLockState();
                     trunkLockPosition = state.getPosition();
-                }
+                    }
                 else if (featureState.getFeature() == ROOFTOP) {
                     RooftopState state = (RooftopState) featureState;
                     rooftopDimmingPercentage = state.getDimmingPercentage();
@@ -148,7 +147,7 @@ public class VehicleStatus {
             trunkLockPosition = state.getPosition();
         }
         else if (command.is(Command.RooftopControl.ROOFTOP_STATE)) {
-            com.highmobility.hmkit.Command.Incoming.RooftopState state = (com.highmobility.hmkit.Command.Incoming.RooftopState)command;
+            com.highmobility.autoapi.incoming.RooftopState state = (com.highmobility.autoapi.incoming.RooftopState)command;
             rooftopDimmingPercentage = state.getDimmingPercentage();
             rooftopOpenPercentage = state.getOpenPercentage();
         }
