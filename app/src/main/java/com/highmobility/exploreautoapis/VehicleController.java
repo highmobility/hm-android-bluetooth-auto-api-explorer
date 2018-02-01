@@ -84,10 +84,10 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
         // PASTE INIT SNIPPET HERE
 
         Manager.getInstance().initialize(
-                "dGVzdBaAn20KaiitfzfdTgq3phuX8uyNzalfgo/Pfq65dldEGxyO5kOvRFyK3uWGW5deQWVCCG8HzxVL7nUKchxt5k1ruuqUMzy7j/2bktUPEKEYp4DsQY1a9KL7ox5RRuH5a/NXHyCgrr94afdt/cR/Tsy4ZoBXrgbTVCnrGwzaVwHwCqgi3YmBRWI72w4DlkYCZUoHwRkV",
-                "rqcS2QBovIdwPKOYOYLO9cYCNjHMpsOq6/O97fukFJ4=",
+                "dGVzdC0muSfLxLwpmAfsj0u6GoerEtN9mZSfUQckWCYELzf+DkgzqneA8CyDfnJUCjAVt8VyxmHo/Wz57GqH/hiyniOlK+DlZ97W91qoFgUnWDTRYbeD7qYBMcqU5OFbceAP041by8jhWRmxyPbu2nOlA+qYsdLVyJiJlq0QYeKBGH+9nbPv5q7tkmXWeC9WKQ9BKQKILKAM",
+                "mxtKequtjcg+agR0qJnjfKhvUX3ebXdioX3joMJZ9t4=",
                 "9YZA1GxGYpCCRCrSW572ijmZNiSMtzTaNwrEugSlDW6jQA3M1hxWo3c4eqF9FK84H68gfW1QWnCip5nxO0RW9g==",
-                view.getActivity()
+                view.getActivity().getApplicationContext()
         );
         
         this.view = view;
@@ -302,43 +302,48 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
             IncomingCommand command = IncomingCommand.create(bytes);
 
             if (command.is(Command.Capabilities.CAPABILITIES)) {
-                vehicle.onCapabilitiesReceived(((Capabilities) command).getCapabilites(), true);
+                rescheduleInitTimer();
+                vehicle.onCapabilitiesReceived(((Capabilities) command).getCapabilities(),
+                        true);
                 view.onCapabilitiesUpdate(vehicle);
-                // capabilities are asked only on initialization, follow it by get VS
 
-                sentCommand = Command.Lights.GET_LIGHTS_STATE;
-                sendCommand(Command.Lights.getLightsState());
-            }
-            else if (command.is(Command.FailureMessage.FAILURE_MESSAGE)) {
-                Failure failure = (Failure)command;
-                Log.d(TAG, "failure " + failure.getFailureReason().toString());
+                // capabilities are asked only on initialization, follow it by get Lights
+                if (vehicle.isCapable(Command.Identifier.LIGHTS)) {
+                    sentCommand = Command.Lights.GET_LIGHTS_STATE;
+                    sendCommand(Command.Lights.getLightsState());
+                } else {
+                    continueInitAfterGetLightsState(null);
+                }
+            } else if (command.is(Command.FailureMessage.FAILURE_MESSAGE)) {
+                Failure failure = (Failure) command;
+                Log.d(TAG, "failure " + failure.getFailureReason());
+
                 if (sentCommand != null) {
                     if (initializing) {
-                        if (sentCommand == Command.Lights.GET_LIGHTS_STATE && failure.getFailureReason() == Failure.Reason.UNSUPPORTED_CAPABILITY) {
+                        if (sentCommand == Command.Lights.GET_LIGHTS_STATE && failure
+                                .getFailureReason() == Failure.Reason.UNSUPPORTED_CAPABILITY) {
                             // never mind that there is no lights capa, continue with init
                             continueInitAfterGetLightsState(null);
-                        }
-                        else {
+                        } else {
                             // initialization failed
                             initializing = false;
                             cancelInitTimer();
-                            view.onError(true, "Cannot get vehicle data");
+                            view.onError(true, "Cannot get vehicle data: " + failure
+                                    .getFailureReason());
                         }
-                    }
-                    else {
+                    } else {
                         view.showLoadingView(false);
-                        view.onError(false, failure.getFailedType().getIdentifier() + " failed: " + failure.getFailureReason());
+                        view.onError(false, failure.getFailedType().getIdentifier() + " failed: "
+                                + failure.getFailureReason());
                         sentCommand = null;
                     }
                 }
-            }
-            else {
+            } else {
                 if (initializing) {
                     if (command.is(Command.Lights.LIGHTS_STATE)) {
                         continueInitAfterGetLightsState((LightsState) command);
                         return;
-                    }
-                    else if (command.is(Command.VehicleStatus.VEHICLE_STATUS)) {
+                    } else if (command.is(Command.VehicleStatus.VEHICLE_STATUS)) {
                         cancelInitTimer();
                         initializing = false;
                     }
@@ -349,11 +354,9 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                 view.onVehicleStatusUpdate(vehicle);
                 view.showLoadingView(false);
             }
-        }
-        catch (CommandParseException e) {
+        } catch (CommandParseException e) {
             Log.d(TAG, "IncomingCommand parse exception ", e);
         }
-
     }
 
     void continueInitAfterGetLightsState(LightsState state) {
