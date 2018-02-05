@@ -27,7 +27,8 @@ import java.util.TimerTask;
 
 import static com.highmobility.exploreautoapis.VehicleActivity.REQUEST_CODE_REMOTE_CONTROL;
 import static com.highmobility.exploreautoapis.VehicleActivity.TAG;
-import static com.highmobility.exploreautoapis.remotecontrol.RemoteControlController.LINK_IDENTIFIER_MESSAGE;
+import static com.highmobility.exploreautoapis.remotecontrol.RemoteControlController
+        .LINK_IDENTIFIER_MESSAGE;
 
 
 /**
@@ -71,7 +72,8 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
          - explore the APIs
 
 
-         An example of a snippet copied from the Developer Center (do not use, will obviously not work):
+         An example of a snippet copied from the Developer Center (do not use, will obviously not
+          work):
 
             manager.initialize(
                 Base64String,
@@ -83,13 +85,6 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
 
         // PASTE INIT SNIPPET HERE
 
-        Manager.getInstance().initialize(
-                "dGVzdC0muSfLxLwpmAfsj0u6GoerEtN9mZSfUQckWCYELzf+DkgzqneA8CyDfnJUCjAVt8VyxmHo/Wz57GqH/hiyniOlK+DlZ97W91qoFgUnWDTRYbeD7qYBMcqU5OFbceAP041by8jhWRmxyPbu2nOlA+qYsdLVyJiJlq0QYeKBGH+9nbPv5q7tkmXWeC9WKQ9BKQKILKAM",
-                "mxtKequtjcg+agR0qJnjfKhvUX3ebXdioX3joMJZ9t4=",
-                "9YZA1GxGYpCCRCrSW572ijmZNiSMtzTaNwrEugSlDW6jQA3M1hxWo3c4eqF9FK84H68gfW1QWnCip5nxO0RW9g==",
-                view.getActivity().getApplicationContext()
-        );
-        
         this.view = view;
         vehicle = VehicleStatus.getInstance();
 
@@ -115,12 +110,9 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     }
 
     public void onLockDoorsClicked() {
-        byte[] command = Command.HeartRate.sendHeartRate(89);
-        sentCommand = Command.HeartRate.SEND_HEART_RATE;
-        sendCommand(command);
-//        view.showLoadingView(true);
-//        sentCommand = Command.DoorLocks.LOCK_UNLOCK;
-//        sendCommand(Command.DoorLocks.lockDoors(vehicle.doorsLocked == true ? false : true));
+        view.showLoadingView(true);
+        sentCommand = Command.DoorLocks.LOCK_UNLOCK;
+        sendCommand(Command.DoorLocks.lockDoors(vehicle.doorsLocked == true ? false : true));
     }
 
     public void onLockTrunkClicked() {
@@ -132,8 +124,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
         if (vehicle.trunkLockState == TrunkState.LockState.LOCKED) {
             newLockState = TrunkState.LockState.UNLOCKED;
             newPosition = TrunkState.Position.OPEN;
-        }
-        else {
+        } else {
             newLockState = TrunkState.LockState.LOCKED;
             newPosition = TrunkState.Position.CLOSED;
         }
@@ -145,7 +136,8 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     public void onWindshieldDefrostingClicked() {
         view.showLoadingView(true);
         sentCommand = Command.Climate.START_STOP_DEFROSTING;
-        byte[] command = Command.Climate.startDefrost(vehicle.isWindshieldDefrostingActive ? false : true);
+        byte[] command = Command.Climate.startDefrost(vehicle.isWindshieldDefrostingActive ?
+                false : true);
         sendCommand(command);
     }
 
@@ -154,7 +146,8 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
         sentCommand = Command.RooftopControl.CONTROL_ROOFTOP;
 
         float dimPercentage = vehicle.rooftopDimmingPercentage == 1f ? 0f : 1f;
-        byte[] command = Command.RooftopControl.controlRooftop(dimPercentage, vehicle.rooftopOpenPercentage);
+        byte[] command = Command.RooftopControl.controlRooftop(dimPercentage, vehicle
+                .rooftopOpenPercentage);
         sendCommand(command);
     }
 
@@ -163,7 +156,8 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
         sentCommand = Command.RooftopControl.CONTROL_ROOFTOP;
 
         float openPercentage = vehicle.rooftopOpenPercentage == 0f ? 1f : 0f;
-        byte[] command = Command.RooftopControl.controlRooftop(vehicle.rooftopDimmingPercentage, openPercentage);
+        byte[] command = Command.RooftopControl.controlRooftop(vehicle.rooftopDimmingPercentage,
+                openPercentage);
         sendCommand(command);
     }
 
@@ -211,7 +205,8 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                 break;
             case BROADCASTING:
                 if (link == null) {
-                    view.showBleInfoView(true, "Looking for links... " + manager.getBroadcaster().getName());
+                    view.showBleInfoView(true, "Looking for links... " + manager.getBroadcaster()
+                            .getName());
                 }
                 break;
         }
@@ -238,14 +233,14 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
             link.setListener(null);
             link = null;
             onStateChanged(broadcaster.getState());
-        }
-        else {
+        } else {
             Log.d(TAG, "unknown link lost");
         }
     }
 
     @Override
-    public void onAuthorizationRequested(ConnectedLink connectedLink, ConnectedLinkListener.AuthorizationCallback callback) {
+    public void onAuthorizationRequested(ConnectedLink connectedLink, ConnectedLinkListener
+            .AuthorizationCallback callback) {
         callback.approve();
     }
 
@@ -257,7 +252,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     @Override
     public void onStateChanged(Link link, Link.State state) {
         Log.d(TAG, "link state changed " + link.getState());
-        if (link == this.link ) {
+        if (link == this.link) {
             if (link.getState() == Link.State.AUTHENTICATED) {
                 vehicle.reset();
                 view.showBleInfoView(false, "link: " + "authenticated");
@@ -265,8 +260,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                 initializing = true;
                 sentCommand = Command.Capabilities.GET_CAPABILITIES;
                 sendCommand(Command.Capabilities.getCapabilities());
-            }
-            else if (link.getState() == Link.State.CONNECTED) {
+            } else if (link.getState() == Link.State.CONNECTED) {
                 view.showBleInfoView(true, "link: " + "connected");
             }
         }
@@ -400,7 +394,8 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                     return;
                 }
 
-                Log.d(TAG, "init: try to send the command again " + (sentCommand != null ? sentCommand.getIdentifier() : "null command"));
+                Log.d(TAG, "init: try to send the command again " + (sentCommand != null ?
+                        sentCommand.getIdentifier() : "null command"));
                 if (sentCommand != null) {
                     // try to send command again
                     if (sentCommand == Command.VehicleStatus.GET_VEHICLE_STATUS) {
@@ -409,8 +404,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                     } else if (sentCommand == Command.Capabilities.GET_CAPABILITIES) {
                         Log.d(TAG, "send capa");
                         sendCommand(Command.Capabilities.getCapabilities());
-                    }
-                    else if (sentCommand == Command.Lights.GET_LIGHTS_STATE) {
+                    } else if (sentCommand == Command.Lights.GET_LIGHTS_STATE) {
                         Log.d(TAG, "send lights");
                         sendCommand(Command.Lights.getLightsState());
                     }
@@ -433,12 +427,11 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
     void onCommandError(int errorCode, String message) {
         if (initializing == true &&
                 (sentCommand == Command.VehicleStatus.GET_VEHICLE_STATUS
-                || sentCommand == Command.Capabilities.GET_CAPABILITIES
-                || sentCommand == Command.Lights.GET_LIGHTS_STATE)) {
+                        || sentCommand == Command.Capabilities.GET_CAPABILITIES
+                        || sentCommand == Command.Lights.GET_LIGHTS_STATE)) {
             Log.d(TAG, "initialize, onCommandError: " + errorCode + " " + message);
             failedToSendInitCommand(message);
-        }
-        else if (sentCommand != null) {
+        } else if (sentCommand != null) {
             Log.d(TAG, "onCommandError: " + initializing);
             view.showLoadingView(false);
             view.onError(false, message);

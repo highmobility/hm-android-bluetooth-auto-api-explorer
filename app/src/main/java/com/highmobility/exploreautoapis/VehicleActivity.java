@@ -74,8 +74,7 @@ public class VehicleActivity extends FragmentActivity implements IVehicleView {
     void showNormalView(boolean show) {
         if (show) {
             viewPager.animate().alpha(1f).setDuration(200).setListener(null);
-        }
-        else {
+        } else {
             viewPager.animate().alpha(0f).setDuration(200).setListener(null);
         }
     }
@@ -104,8 +103,7 @@ public class VehicleActivity extends FragmentActivity implements IVehicleView {
 
         if (fatal) {
 
-        }
-        else {
+        } else {
             overviewFragment.onVehicleStatusUpdate();
             exteriorFragment.onVehicleStatusUpdate();
         }
@@ -118,6 +116,7 @@ public class VehicleActivity extends FragmentActivity implements IVehicleView {
 
     public class PagerAdapter extends FragmentPagerAdapter {
         VehicleStatus vehicle;
+
         public PagerAdapter(FragmentManager fragmentManager, VehicleStatus vehicle) {
             super(fragmentManager);
             this.vehicle = vehicle;
@@ -132,10 +131,12 @@ public class VehicleActivity extends FragmentActivity implements IVehicleView {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    overviewFragment = VehicleOverviewFragment.newInstance(vehicle, VehicleActivity.this);
+                    overviewFragment = VehicleOverviewFragment.newInstance(vehicle,
+                            VehicleActivity.this);
                     return overviewFragment;
                 case 1:
-                    exteriorFragment = VehicleExteriorFragment.newInstance(vehicle, VehicleActivity.this);
+                    exteriorFragment = VehicleExteriorFragment.newInstance(vehicle,
+                            VehicleActivity.this);
                     return exteriorFragment;
                 case 2:
                     return VehicleInteriorFragment.newInstance(vehicle, VehicleActivity.this);
