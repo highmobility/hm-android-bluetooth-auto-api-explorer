@@ -99,7 +99,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                 Base64String,
                 Base64String,
                 Base64String,
-                view.getActivity()
+                view.getActivity().getApplicationContext()
             );
          */
 
