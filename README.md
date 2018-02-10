@@ -1,7 +1,6 @@
 # Explore AutoAPIs
 
-This repository contains a sample app that uses HMKit to connect to a 
-vehicle/emulator via Bluetooth and send some commands like lock doors and turn on lights.
+This is a sample app that shows a possible use case for HMKit. We connect to a vehicle/emulator via Bluetooth and send some commands like lock doors and turn on lights.
 
 ### Dependencies
 
