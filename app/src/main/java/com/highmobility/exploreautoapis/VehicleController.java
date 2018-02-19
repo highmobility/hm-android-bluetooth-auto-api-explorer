@@ -25,6 +25,7 @@ import android.util.Log;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.CommandParseException;
+import com.highmobility.autoapi.capability.FeatureCapability;
 import com.highmobility.autoapi.incoming.Capabilities;
 import com.highmobility.autoapi.incoming.Failure;
 import com.highmobility.autoapi.incoming.IncomingCommand;
@@ -305,6 +306,13 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
             IncomingCommand command = IncomingCommand.create(bytes);
 
             if (command.is(Command.Capabilities.CAPABILITIES)) {
+                FeatureCapability[] capabilities = ((Capabilities) command).getCapabilities();
+                if (capabilities == null || capabilities.length == 0) {
+                    initializing = false;
+                    cancelInitTimer();
+                    view.onError(true, "No capabilities");
+                    return;
+                }
                 rescheduleInitTimer();
                 vehicle.onCapabilitiesReceived(((Capabilities) command).getCapabilities(),
                         true);
