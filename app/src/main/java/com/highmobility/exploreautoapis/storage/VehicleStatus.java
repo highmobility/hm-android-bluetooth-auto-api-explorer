@@ -22,63 +22,49 @@ package com.highmobility.exploreautoapis.storage;
 
 import android.util.Log;
 
+import com.highmobility.autoapi.Capabilities;
+import com.highmobility.autoapi.ChargeState;
+import com.highmobility.autoapi.ClimateState;
 import com.highmobility.autoapi.Command;
-import com.highmobility.autoapi.capability.AvailableCapability;
-import com.highmobility.autoapi.capability.AvailableGetStateCapability;
-import com.highmobility.autoapi.capability.ClimateCapability;
-import com.highmobility.autoapi.capability.FeatureCapability;
-import com.highmobility.autoapi.capability.LightsCapability;
-import com.highmobility.autoapi.capability.RooftopCapability;
-import com.highmobility.autoapi.capability.TrunkAccessCapability;
-import com.highmobility.autoapi.incoming.ChargeState;
-import com.highmobility.autoapi.incoming.ClimateState;
-import com.highmobility.autoapi.incoming.IncomingCommand;
-import com.highmobility.autoapi.incoming.LightsState;
-import com.highmobility.autoapi.incoming.LockState;
-import com.highmobility.autoapi.incoming.TrunkState;
-import com.highmobility.autoapi.vehiclestatus.Charging;
-import com.highmobility.autoapi.vehiclestatus.Climate;
-import com.highmobility.autoapi.vehiclestatus.DoorLocks;
-import com.highmobility.autoapi.vehiclestatus.FeatureState;
-import com.highmobility.autoapi.vehiclestatus.Lights;
-import com.highmobility.autoapi.vehiclestatus.RooftopState;
-import com.highmobility.autoapi.vehiclestatus.TrunkAccess;
+import com.highmobility.autoapi.CommandWithProperties;
+import com.highmobility.autoapi.ControlCommand;
+import com.highmobility.autoapi.LightsState;
+import com.highmobility.autoapi.LockState;
+import com.highmobility.autoapi.RooftopState;
+import com.highmobility.autoapi.TrunkState;
+import com.highmobility.autoapi.Type;
+import com.highmobility.autoapi.VehicleLocation;
+import com.highmobility.autoapi.property.CapabilityProperty;
+import com.highmobility.autoapi.property.FrontExteriorLightState;
+import com.highmobility.autoapi.property.TrunkLockState;
+import com.highmobility.autoapi.property.TrunkPosition;
 
 import java.util.ArrayList;
 
-import static com.highmobility.autoapi.Command.Identifier.CHARGING;
-import static com.highmobility.autoapi.Command.Identifier.CLIMATE;
-import static com.highmobility.autoapi.Command.Identifier.DOOR_LOCKS;
-import static com.highmobility.autoapi.Command.Identifier.LIGHTS;
-import static com.highmobility.autoapi.Command.Identifier.REMOTE_CONTROL;
-import static com.highmobility.autoapi.Command.Identifier.ROOFTOP;
-import static com.highmobility.autoapi.Command.Identifier.TRUNK_ACCESS;
-import static com.highmobility.autoapi.Command.Identifier.VEHICLE_LOCATION;
 import static com.highmobility.exploreautoapis.VehicleActivity.TAG;
 
 /**
  * Created by root on 30/05/2017.
  */
-
 public class VehicleStatus {
     public float insideTemperature;
     public float batteryPercentage;
 
     public boolean doorsLocked;
-    public TrunkState.LockState trunkLockState;
-    public TrunkState.Position trunkLockPosition;
+    public TrunkLockState trunkLockState;
+    public TrunkPosition trunkLockPosition;
     public boolean isWindshieldDefrostingActive;
     public float rooftopDimmingPercentage;
     public float rooftopOpenPercentage;
-    public LightsState.FrontExteriorLightState frontExteriorLightState;
+    public FrontExteriorLightState frontExteriorLightState;
     public boolean isRearExteriorLightActive;
     public boolean isInteriorLightActive;
     public int[] lightsAmbientColor;
 
-    public FeatureCapability[] exteriorCapabilities = new FeatureCapability[0];
-    public FeatureCapability[] overviewCapabilities = new FeatureCapability[0];
-
+    public CapabilityProperty[] exteriorCapabilities;
+    private Capabilities capabilities;
     static VehicleStatus instance;
+
     public static VehicleStatus getInstance() {
         if (instance == null) {
             instance = new VehicleStatus();
@@ -97,172 +83,108 @@ public class VehicleStatus {
         rooftopDimmingPercentage = 0f;
         rooftopOpenPercentage = 0f;
         exteriorCapabilities = null;
-        overviewCapabilities = null;
-        frontExteriorLightState = LightsState.FrontExteriorLightState.INACTIVE;
+        capabilities = null;
+        frontExteriorLightState = FrontExteriorLightState.INACTIVE;
         isRearExteriorLightActive = false;
         isInteriorLightActive = false;
         lightsAmbientColor = null;
     }
 
-    public void update(IncomingCommand command) {
-        if (command.is(Command.VehicleStatus.VEHICLE_STATUS)) {
-            com.highmobility.autoapi.incoming.VehicleStatus status = (com.highmobility.autoapi.incoming.VehicleStatus)command;
-            FeatureState[] featureStates = status.getFeatureStates();
+    public void update(Command command, boolean usingBle) {
+        if (command instanceof com.highmobility.autoapi.VehicleStatus) {
+            com.highmobility.autoapi.VehicleStatus status = (com.highmobility.autoapi
+                    .VehicleStatus) command;
+            CommandWithProperties[] states = status.getStates();
 
-            if (featureStates == null) {
+            if (states == null) {
                 Log.e(TAG, "update: null featureStates");
                 return;
             }
 
-            for (int i = 0; i < featureStates.length; i++) {
-                FeatureState featureState = featureStates[i];
-                if (featureState.getIdentifier() == CLIMATE) {
-                    Climate state = (Climate) featureState;
+            for (int i = 0; i < states.length; i++) {
+                CommandWithProperties subCommand = states[i];
+                if (subCommand instanceof ClimateState) {
+                    ClimateState state = (ClimateState) subCommand;
                     insideTemperature = state.getInsideTemperature();
                     isWindshieldDefrostingActive = state.isDefrostingActive();
-                }
-                else if (featureState.getIdentifier() == CHARGING) {
-                    Charging state = (Charging) featureState;
+                } else if (subCommand instanceof ChargeState) {
+                    ChargeState state = (ChargeState) subCommand;
                     batteryPercentage = state.getBatteryLevel();
-                }
-                else if (featureState.getIdentifier() == DOOR_LOCKS) {
-                    DoorLocks state = (DoorLocks) featureState;
+                } else if (subCommand instanceof LockState) {
+                    LockState state = (LockState) subCommand;
                     doorsLocked = state.isLocked();
-                }
-                else if (featureState.getIdentifier() == TRUNK_ACCESS) {
-                    TrunkAccess state = (TrunkAccess) featureState;
+                } else if (subCommand instanceof TrunkState) {
+                    TrunkState state = (TrunkState) subCommand;
                     trunkLockState = state.getLockState();
                     trunkLockPosition = state.getPosition();
-                }
-                else if (featureState.getIdentifier() == ROOFTOP) {
-                    RooftopState state = (RooftopState) featureState;
+                } else if (subCommand instanceof RooftopState) {
+                    RooftopState state = (RooftopState) subCommand;
                     rooftopDimmingPercentage = state.getDimmingPercentage();
                     rooftopOpenPercentage = state.getOpenPercentage();
-                }
-                else if (featureState.getIdentifier() == LIGHTS) {
-                    Lights lights = (Lights) featureState;
+                } else if (subCommand instanceof LightsState) {
+                    LightsState lights = (LightsState) subCommand;
                     frontExteriorLightState = lights.getFrontExteriorLightState();
                     isRearExteriorLightActive = lights.isRearExteriorLightActive();
                     isInteriorLightActive = lights.isInteriorLightActive();
                 }
             }
-        }
-        else if (command.is(Command.VehicleLocation.VEHICLE_LOCATION)) {
+        } else if (command instanceof VehicleLocation) {
             // nothing
-        }
-        else if (command.is(Command.Climate.CLIMATE_STATE)) {
-            ClimateState state = (ClimateState)command;
+        } else if (command instanceof ClimateState) {
+            ClimateState state = (ClimateState) command;
             isWindshieldDefrostingActive = state.isDefrostingActive();
             insideTemperature = state.getInsideTemperature();
-        }
-        else if (command.is(Command.RemoteControl.CONTROL_COMMAND)) {
+        } else if (command instanceof ControlCommand) {
 
-        }
-        else if (command.is(Command.DoorLocks.LOCK_STATE)) {
+        } else if (command instanceof LockState) {
             LockState state = (LockState) command;
             doorsLocked = state.isLocked();
-        }
-        else if (command.is(Command.TrunkAccess.TRUNK_STATE)) {
-            TrunkState state = (TrunkState)command;
+        } else if (command instanceof TrunkState) {
+            TrunkState state = (TrunkState) command;
 
             trunkLockState = state.getLockState();
             trunkLockPosition = state.getPosition();
-        }
-        else if (command.is(Command.RooftopControl.ROOFTOP_STATE)) {
-            com.highmobility.autoapi.incoming.RooftopState state = (com.highmobility.autoapi.incoming.RooftopState)command;
+        } else if (command instanceof RooftopState) {
+            RooftopState state = (RooftopState) command;
             rooftopDimmingPercentage = state.getDimmingPercentage();
             rooftopOpenPercentage = state.getOpenPercentage();
-        }
-        else if (command.is(Command.Charging.CHARGE_STATE)) {
-            ChargeState state = (ChargeState)command;
+        } else if (command instanceof ChargeState) {
+            ChargeState state = (ChargeState) command;
             batteryPercentage = state.getBatteryLevel();
-        }
-        else if (command.is(Command.Lights.LIGHTS_STATE)) {
-            LightsState state = (LightsState)command;
+        } else if (command instanceof LightsState) {
+            LightsState state = (LightsState) command;
             frontExteriorLightState = state.getFrontExteriorLightState();
             isRearExteriorLightActive = state.isRearExteriorLightActive();
             isInteriorLightActive = state.isInteriorLightActive();
             lightsAmbientColor = state.getAmbientColor();
+        } else if (command instanceof Capabilities) {
+            capabilities = (Capabilities) command;
+
+            ArrayList<CapabilityProperty> exteriorCapabilities = new ArrayList<>();
+            if (capabilities.isSupported(RooftopState.TYPE)) {
+                // if control is not available, then it will just fail
+                exteriorCapabilities.add(capabilities.getCapability(RooftopState.TYPE));
+            } else if (capabilities.isSupported(ControlCommand.TYPE) && usingBle) {
+                exteriorCapabilities.add(capabilities.getCapability(ControlCommand.TYPE));
+            } else if (capabilities.isSupported(ClimateState.TYPE)) {
+                exteriorCapabilities.add(capabilities.getCapability(ClimateState.TYPE));
+            } else if (capabilities.isSupported(LockState.TYPE)) {
+                exteriorCapabilities.add(capabilities.getCapability(LockState.TYPE));
+            } else if (capabilities.isSupported(TrunkState.TYPE)) {
+                exteriorCapabilities.add(capabilities.getCapability(TrunkState.TYPE));
+            } else if (capabilities.isSupported(LightsState.TYPE)) {
+                exteriorCapabilities.add(capabilities.getCapability(LightsState.TYPE));
+            }
+
+            this.exteriorCapabilities = exteriorCapabilities.toArray(new CapabilityProperty[exteriorCapabilities.size()]);
         }
     }
 
-    // if usingBle is false, remote control capability is not added.
-    public void onCapabilitiesReceived(FeatureCapability[] capabilities, boolean usingBle) {
-        ArrayList<FeatureCapability> exteriorCapabilities = new ArrayList<>();
-        ArrayList<FeatureCapability> overviewCapabilities = new ArrayList<>();
-
-        for (int i = 0; i < capabilities.length; i++) {
-            FeatureCapability capability = capabilities[i];
-            Command.Identifier feature = capability.getIdentifier();
-
-            if (feature == ROOFTOP) {
-                RooftopCapability rooftopCapability = (RooftopCapability)capability;
-                if (rooftopCapability.getDimmingCapability() != RooftopCapability.DimmingCapability.UNAVAILABLE) {
-                    overviewCapabilities.add(capability);
-                    exteriorCapabilities.add(capability);
-                }
-            }
-            else if (feature == REMOTE_CONTROL && usingBle) {
-                AvailableCapability remoteControlCapability = (AvailableCapability)capability;
-                if (remoteControlCapability.getCapability() == AvailableCapability.Capability.AVAILABLE) {
-                    overviewCapabilities.add(capability);
-                    exteriorCapabilities.add(capability);
-                }
-            }
-            else if (feature == CLIMATE) {
-                ClimateCapability climateCapability = (ClimateCapability) capability;
-                if (climateCapability.getClimateCapability() != AvailableGetStateCapability.Capability.UNAVAILABLE) {
-                    overviewCapabilities.add(capability);
-                    exteriorCapabilities.add(capability);
-                }
-            }
-            else if (feature == DOOR_LOCKS) {
-                AvailableGetStateCapability doorLocksCapability = (AvailableGetStateCapability)capability;
-                if (doorLocksCapability.getCapability() != AvailableGetStateCapability.Capability.UNAVAILABLE) {
-                    overviewCapabilities.add(capability);
-                    exteriorCapabilities.add(capability);
-                }
-            }
-            else if (feature == TRUNK_ACCESS) {
-                TrunkAccessCapability trunkAccessCapability = (TrunkAccessCapability)capability;
-                if (trunkAccessCapability.getLockCapability() != TrunkAccessCapability.LockCapability.UNAVAILABLE) {
-                    overviewCapabilities.add(capability);
-                    exteriorCapabilities.add(capability);
-                }
-            }
-            else if (feature == VEHICLE_LOCATION) {
-                AvailableCapability locationCapability = (AvailableCapability)capability;
-                if (locationCapability.getCapability() == AvailableCapability.Capability.AVAILABLE) {
-                    overviewCapabilities.add(capability);
-                }
-            }
-            else if (feature == CHARGING) {
-                AvailableGetStateCapability chargingCapability = (AvailableGetStateCapability)capability;
-                if (chargingCapability.getCapability() != AvailableGetStateCapability.Capability.UNAVAILABLE) {
-                    overviewCapabilities.add(capability);
-                }
-            }
-            else if (feature == LIGHTS) {
-                LightsCapability lightsCapability = (LightsCapability)capability;
-                if (lightsCapability.getExteriorLightsCapability() != AvailableGetStateCapability.Capability.UNAVAILABLE) {
-                    exteriorCapabilities.add(lightsCapability);
-                }
-            }
-        }
-
-        this.exteriorCapabilities = exteriorCapabilities.toArray(new FeatureCapability[exteriorCapabilities.size()]);
-        this.overviewCapabilities = overviewCapabilities.toArray(new FeatureCapability[overviewCapabilities.size()]);
+    public boolean isSupported(Type type) {
+        return capabilities.isSupported(type);
     }
 
-    public boolean isCapable(Command.Identifier feature) {
-        for (FeatureCapability capability : exteriorCapabilities) {
-            if (capability.getIdentifier() == feature) return true;
-        }
-
-        for (FeatureCapability capability : overviewCapabilities) {
-            if (capability.getIdentifier() == feature) return true;
-        }
-
-        return false;
+    public CapabilityProperty[] getCapabilities() {
+        return capabilities.getCapabilities();
     }
 }

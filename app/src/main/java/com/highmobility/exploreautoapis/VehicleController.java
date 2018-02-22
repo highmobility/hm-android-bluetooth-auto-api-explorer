@@ -23,14 +23,27 @@ package com.highmobility.exploreautoapis;
 import android.content.Intent;
 import android.util.Log;
 
+import com.highmobility.autoapi.Capabilities;
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.CommandParseException;
-import com.highmobility.autoapi.capability.FeatureCapability;
-import com.highmobility.autoapi.incoming.Capabilities;
-import com.highmobility.autoapi.incoming.Failure;
-import com.highmobility.autoapi.incoming.IncomingCommand;
-import com.highmobility.autoapi.incoming.LightsState;
-import com.highmobility.autoapi.incoming.TrunkState;
+
+import com.highmobility.autoapi.CommandResolver;
+import com.highmobility.autoapi.ControlLights;
+import com.highmobility.autoapi.ControlRooftop;
+import com.highmobility.autoapi.Failure;
+import com.highmobility.autoapi.GetCapabilities;
+import com.highmobility.autoapi.GetLightsState;
+import com.highmobility.autoapi.GetVehicleStatus;
+import com.highmobility.autoapi.LightsState;
+import com.highmobility.autoapi.LockUnlockDoors;
+import com.highmobility.autoapi.OpenCloseTrunk;
+import com.highmobility.autoapi.StartStopDefrosting;
+import com.highmobility.autoapi.Type;
+import com.highmobility.autoapi.property.DoorLockProperty;
+import com.highmobility.autoapi.property.FailureReason;
+import com.highmobility.autoapi.property.FrontExteriorLightState;
+import com.highmobility.autoapi.property.TrunkLockState;
+import com.highmobility.autoapi.property.TrunkPosition;
 import com.highmobility.exploreautoapis.remotecontrol.RemoteControlActivity;
 import com.highmobility.exploreautoapis.storage.VehicleStatus;
 import com.highmobility.hmkit.Broadcaster;
@@ -57,13 +70,13 @@ import static com.highmobility.exploreautoapis.remotecontrol.RemoteControlContro
  */
 
 public class VehicleController implements BroadcasterListener, ConnectedLinkListener {
+    private final IVehicleView view;
     Timer initTimer;
     int retryCount;
     VehicleStatus vehicle;
 
     Manager manager;
-    IVehicleView view;
-    Command.Type sentCommand;
+    Type sentCommand;
 
     TimerTask repeatTask;
     boolean initializing;
@@ -93,7 +106,7 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
          *   );
          */
 
-        // PASTE INIT SNIPPET HERE
+        // PASTE THE SNIPPET HERE
 
         this.view = view;
         vehicle = VehicleStatus.getInstance();
@@ -121,64 +134,68 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
 
     public void onLockDoorsClicked() {
         view.showLoadingView(true);
-        sentCommand = Command.DoorLocks.LOCK_UNLOCK;
-        sendCommand(Command.DoorLocks.lockDoors(vehicle.doorsLocked == true ? false : true));
+        sentCommand = LockUnlockDoors.TYPE;
+        DoorLockProperty.LockState lockState = vehicle.doorsLocked == true ? DoorLockProperty
+                .LockState.UNLOCKED : DoorLockProperty.LockState.LOCKED;
+        sendCommand(new LockUnlockDoors(lockState).getBytes());
     }
 
     public void onLockTrunkClicked() {
         view.showLoadingView(true);
-        sentCommand = Command.TrunkAccess.OPEN_CLOSE;
-        TrunkState.LockState newLockState;
-        TrunkState.Position newPosition;
+        sentCommand = OpenCloseTrunk.TYPE;
+        TrunkLockState newLockState;
+        TrunkPosition newPosition;
 
-        if (vehicle.trunkLockState == TrunkState.LockState.LOCKED) {
-            newLockState = TrunkState.LockState.UNLOCKED;
-            newPosition = TrunkState.Position.OPEN;
+        if (vehicle.trunkLockState == TrunkLockState.LOCKED) {
+            newLockState = TrunkLockState.UNLOCKED;
+            newPosition = TrunkPosition.OPEN;
         } else {
-            newLockState = TrunkState.LockState.LOCKED;
-            newPosition = TrunkState.Position.CLOSED;
+            newLockState = TrunkLockState.LOCKED;
+            newPosition = TrunkPosition.CLOSED;
         }
 
-        byte[] command = Command.TrunkAccess.setTrunkState(newLockState, newPosition);
+        byte[] command = new OpenCloseTrunk(newLockState, newPosition).getBytes();
         sendCommand(command);
     }
 
     public void onWindshieldDefrostingClicked() {
         view.showLoadingView(true);
-        sentCommand = Command.Climate.START_STOP_DEFROSTING;
-        byte[] command = Command.Climate.startDefrost(vehicle.isWindshieldDefrostingActive ?
-                false : true);
+        sentCommand = StartStopDefrosting.TYPE;
+
+        byte[] command = new StartStopDefrosting(vehicle.isWindshieldDefrostingActive ?
+                false : true).getBytes();
         sendCommand(command);
     }
 
     public void onSunroofVisibilityClicked() {
         view.showLoadingView(true);
-        sentCommand = Command.RooftopControl.CONTROL_ROOFTOP;
+        sentCommand = ControlRooftop.TYPE;
 
         float dimPercentage = vehicle.rooftopDimmingPercentage == 1f ? 0f : 1f;
-        byte[] command = Command.RooftopControl.controlRooftop(dimPercentage, vehicle
-                .rooftopOpenPercentage);
+        byte[] command = new ControlRooftop(dimPercentage, vehicle
+                .rooftopOpenPercentage).getBytes();
         sendCommand(command);
     }
 
     public void onSunroofOpenClicked() {
         view.showLoadingView(true);
-        sentCommand = Command.RooftopControl.CONTROL_ROOFTOP;
+        sentCommand = ControlRooftop.TYPE;
 
         float openPercentage = vehicle.rooftopOpenPercentage == 0f ? 1f : 0f;
-        byte[] command = Command.RooftopControl.controlRooftop(vehicle.rooftopDimmingPercentage,
-                openPercentage);
+        byte[] command = new ControlRooftop(vehicle
+                .rooftopDimmingPercentage, openPercentage).getBytes();
+
         sendCommand(command);
     }
 
-    public void onFrontExteriorLightClicked(LightsState.FrontExteriorLightState state) {
+    public void onFrontExteriorLightClicked(FrontExteriorLightState state) {
         view.showLoadingView(true);
-        sentCommand = Command.Lights.CONTROL_LIGHTS;
+        sentCommand = ControlLights.TYPE;
 
-        byte[] command = Command.Lights.controlLights(state,
+        byte[] command = new ControlLights(state,
                 vehicle.isRearExteriorLightActive,
                 vehicle.isInteriorLightActive,
-                vehicle.lightsAmbientColor);
+                vehicle.lightsAmbientColor).getBytes();
 
         sendCommand(command);
     }
@@ -268,8 +285,8 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                 view.showBleInfoView(false, "link: " + "authenticated");
                 view.showLoadingView(true);
                 initializing = true;
-                sentCommand = Command.Capabilities.GET_CAPABILITIES;
-                sendCommand(Command.Capabilities.getCapabilities());
+                sentCommand = GetCapabilities.TYPE;
+                sendCommand(new GetCapabilities().getBytes());
             } else if (link.getState() == Link.State.CONNECTED) {
                 view.showBleInfoView(true, "link: " + "connected");
             }
@@ -303,36 +320,29 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
 
     void onCommandReceived(byte[] bytes) {
         try {
-            IncomingCommand command = IncomingCommand.create(bytes);
+            Command command = CommandResolver.resolve(bytes);
+            vehicle.update(command, true);
 
-            if (command.is(Command.Capabilities.CAPABILITIES)) {
-                FeatureCapability[] capabilities = ((Capabilities) command).getCapabilities();
-                if (capabilities == null || capabilities.length == 0) {
-                    initializing = false;
-                    cancelInitTimer();
-                    view.onError(true, "No capabilities");
-                    return;
-                }
+            if (command instanceof Capabilities) {
                 rescheduleInitTimer();
-                vehicle.onCapabilitiesReceived(((Capabilities) command).getCapabilities(),
-                        true);
+
                 view.onCapabilitiesUpdate(vehicle);
 
                 // capabilities are asked only on initialization, follow it by get Lights
-                if (vehicle.isCapable(Command.Identifier.LIGHTS)) {
-                    sentCommand = Command.Lights.GET_LIGHTS_STATE;
-                    sendCommand(Command.Lights.getLightsState());
+                if (vehicle.isSupported(LightsState.TYPE)) {
+                    sentCommand = GetLightsState.TYPE;
+                    sendCommand(new GetLightsState().getBytes());
                 } else {
                     continueInitAfterGetLightsState(null);
                 }
-            } else if (command.is(Command.FailureMessage.FAILURE_MESSAGE)) {
+            } else if (command instanceof Failure) {
                 Failure failure = (Failure) command;
                 Log.d(TAG, "failure " + failure.getFailureReason());
 
                 if (sentCommand != null) {
                     if (initializing) {
-                        if (sentCommand == Command.Lights.GET_LIGHTS_STATE && failure
-                                .getFailureReason() == Failure.Reason.UNSUPPORTED_CAPABILITY) {
+                        if (sentCommand == GetLightsState.TYPE && failure
+                                .getFailureReason() == FailureReason.UNSUPPORTED_CAPABILITY) {
                             // never mind that there is no lights capa, continue with init
                             continueInitAfterGetLightsState(null);
                         } else {
@@ -344,27 +354,27 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                         }
                     } else {
                         view.showLoadingView(false);
-                        view.onError(false, failure.getFailedType().getIdentifier() + " failed: "
+                        view.onError(false, failure.getFailedType() + " failed: "
                                 + failure.getFailureReason());
                         sentCommand = null;
                     }
                 }
             } else {
                 if (initializing) {
-                    if (command.is(Command.Lights.LIGHTS_STATE)) {
+                    if (command instanceof LightsState) {
                         continueInitAfterGetLightsState((LightsState) command);
                         return;
-                    } else if (command.is(Command.VehicleStatus.VEHICLE_STATUS)) {
+                    } else if (command instanceof com.highmobility.autoapi.VehicleStatus) {
                         cancelInitTimer();
                         initializing = false;
                     }
                 }
 
                 sentCommand = null;
-                vehicle.update(command);
                 view.onVehicleStatusUpdate(vehicle);
                 view.showLoadingView(false);
             }
+
         } catch (CommandParseException e) {
             Log.d(TAG, "IncomingCommand parse exception ", e);
         }
@@ -372,10 +382,10 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
 
     void continueInitAfterGetLightsState(LightsState state) {
         rescheduleInitTimer();
-        sentCommand = Command.VehicleStatus.GET_VEHICLE_STATUS;
-        sendCommand(Command.VehicleStatus.getVehicleStatus());
+        sentCommand = GetVehicleStatus.TYPE;
+        sendCommand(new GetVehicleStatus().getBytes());
         if (state != null) {
-            vehicle.update(state);
+            vehicle.update(state, true);
             view.onVehicleStatusUpdate(vehicle);
         }
     }
@@ -412,18 +422,18 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
                 }
 
                 Log.d(TAG, "init: try to send the command again " + (sentCommand != null ?
-                        sentCommand.getIdentifier() : "null command"));
+                        sentCommand : "null command"));
                 if (sentCommand != null) {
                     // try to send command again
-                    if (sentCommand == Command.VehicleStatus.GET_VEHICLE_STATUS) {
+                    if (sentCommand == GetVehicleStatus.TYPE) {
                         Log.d(TAG, "send vs");
-                        sendCommand(Command.VehicleStatus.getVehicleStatus());
-                    } else if (sentCommand == Command.Capabilities.GET_CAPABILITIES) {
+                        sendCommand(new GetVehicleStatus().getBytes());
+                    } else if (sentCommand == GetCapabilities.TYPE) {
                         Log.d(TAG, "send capa");
-                        sendCommand(Command.Capabilities.getCapabilities());
-                    } else if (sentCommand == Command.Lights.GET_LIGHTS_STATE) {
+                        sendCommand(new GetCapabilities().getBytes());
+                    } else if (sentCommand == GetLightsState.TYPE) {
                         Log.d(TAG, "send lights");
-                        sendCommand(Command.Lights.getLightsState());
+                        sendCommand(new GetLightsState().getBytes());
                     }
 
                     if (initTimer != null) rescheduleInitTimer(); // no timer for telematics
@@ -438,18 +448,17 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
         initTimer = new Timer();
         if (repeatTask != null) repeatTask.cancel();
         repeatTask = repeatTask();
-        initTimer.schedule(repeatTask, (long) ((Constants.commandTimeout + 5) * 1000));
+        initTimer.schedule(repeatTask, (long) (120 * 1000));
     }
 
     void onCommandError(int errorCode, String message) {
         if (initializing == true &&
-                (sentCommand == Command.VehicleStatus.GET_VEHICLE_STATUS
-                        || sentCommand == Command.Capabilities.GET_CAPABILITIES
-                        || sentCommand == Command.Lights.GET_LIGHTS_STATE)) {
+                (sentCommand == GetVehicleStatus.TYPE
+                        || sentCommand == GetCapabilities.TYPE
+                        || sentCommand == GetLightsState.TYPE)) {
             Log.d(TAG, "initialize, onCommandError: " + errorCode + " " + message);
             failedToSendInitCommand(message);
         } else if (sentCommand != null) {
-            Log.d(TAG, "onCommandError: " + initializing);
             view.showLoadingView(false);
             view.onError(false, message);
             sentCommand = null;

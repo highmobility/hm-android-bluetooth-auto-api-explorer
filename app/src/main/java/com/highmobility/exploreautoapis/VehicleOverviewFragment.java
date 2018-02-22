@@ -29,27 +29,25 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.highmobility.autoapi.capability.AvailableCapability;
-import com.highmobility.autoapi.capability.AvailableGetStateCapability;
-import com.highmobility.autoapi.capability.ClimateCapability;
-import com.highmobility.autoapi.capability.FeatureCapability;
-import com.highmobility.autoapi.capability.RooftopCapability;
-import com.highmobility.autoapi.capability.TrunkAccessCapability;
-
+import com.highmobility.autoapi.ChargeState;
+import com.highmobility.autoapi.ClimateState;
+import com.highmobility.autoapi.ControlCommand;
+import com.highmobility.autoapi.ControlRooftop;
+import com.highmobility.autoapi.Identifier;
+import com.highmobility.autoapi.LockState;
+import com.highmobility.autoapi.LockUnlockDoors;
+import com.highmobility.autoapi.OpenCloseTrunk;
+import com.highmobility.autoapi.RooftopState;
+import com.highmobility.autoapi.StartStopDefrosting;
+import com.highmobility.autoapi.TrunkState;
+import com.highmobility.autoapi.VehicleLocation;
+import com.highmobility.autoapi.property.CapabilityProperty;
+import com.highmobility.autoapi.property.TrunkLockState;
 import com.highmobility.exploreautoapis.storage.VehicleStatus;
 import com.highmobility.exploreautoapis.view.CircleButton;
-import com.highmobility.autoapi.incoming.TrunkState;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static com.highmobility.autoapi.Command.Identifier.CHARGING;
-import static com.highmobility.autoapi.Command.Identifier.CLIMATE;
-import static com.highmobility.autoapi.Command.Identifier.DOOR_LOCKS;
-import static com.highmobility.autoapi.Command.Identifier.REMOTE_CONTROL;
-import static com.highmobility.autoapi.Command.Identifier.ROOFTOP;
-import static com.highmobility.autoapi.Command.Identifier.TRUNK_ACCESS;
-import static com.highmobility.autoapi.Command.Identifier.VEHICLE_LOCATION;
 
 public class VehicleOverviewFragment extends Fragment {
     @BindView(R.id.defrost_button) ImageButton defrostButton;
@@ -89,24 +87,21 @@ public class VehicleOverviewFragment extends Fragment {
     }
 
     void updateViews() {
-        FeatureCapability[] capabilities = vehicle.overviewCapabilities;
-        
-        for (int i = 0; i < capabilities.length; i++) {
-            FeatureCapability capability = capabilities[i];
+        CapabilityProperty[] capabilities = vehicle.getCapabilities();
 
-            if (capability.getIdentifier() == REMOTE_CONTROL) {
-                AvailableCapability remoteControlCapability = (AvailableCapability) capability;
-                if (remoteControlCapability.getCapability() == AvailableCapability.Capability.AVAILABLE) {
+        for (int i = 0; i < capabilities.length; i++) {
+            CapabilityProperty capability = capabilities[i];
+
+            if (capability.getIdentifier() == Identifier.REMOTE_CONTROL) {
+                if (capability.isSupported(ControlCommand.TYPE)) {
                     remoteControlButton.setVisibility(View.VISIBLE);
                 }
                 else {
                     remoteControlButton.setVisibility(View.GONE);
                 }
             }
-            else if (capability.getIdentifier() == ROOFTOP) {
-                RooftopCapability rooftopCapability = (RooftopCapability)capability;
-
-                if (rooftopCapability.getDimmingCapability() != RooftopCapability.DimmingCapability.UNAVAILABLE) {
+            else if (capability.getIdentifier() == Identifier.ROOFTOP) {
+                if (capability.isSupported(RooftopState.TYPE)) {
                     sunroofButton.setVisibility(View.VISIBLE);
                     if (vehicle.rooftopDimmingPercentage == 1f) {
                         sunroofButton.setImageResource(R.drawable.ovr_sunroofopaquehdpi);
@@ -115,11 +110,8 @@ public class VehicleOverviewFragment extends Fragment {
                         sunroofButton.setImageResource(R.drawable.ovr_sunrooftransparenthdpi);
                     }
 
-                    if (rooftopCapability.getDimmingCapability() == RooftopCapability.DimmingCapability.GET_STATE_AVAILABLE) {
+                    if (capability.isSupported(ControlRooftop.TYPE)) {
                         // disable button
-                        sunroofButton.setEnabled(false);
-                    }
-                    else {
                         sunroofButton.setEnabled(true);
                         sunroofButton.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -128,16 +120,18 @@ public class VehicleOverviewFragment extends Fragment {
                             }
                         });
                     }
+                    else {
+                        sunroofButton.setEnabled(false);
+                    }
                 }
                 else {
                     sunroofButton.setVisibility(View.GONE);
                 }
             }
-            else if (capability.getIdentifier() == CLIMATE) {
-                ClimateCapability climateCapability = (ClimateCapability)capability;
+            else if (capability.getIdentifier() == Identifier.CLIMATE) {
                 boolean defrostingActive = vehicle.isWindshieldDefrostingActive;
 
-                if (climateCapability.getClimateCapability() != AvailableGetStateCapability.Capability.UNAVAILABLE) {
+                if (capability.isSupported(ClimateState.TYPE)) {
                     defrostButton.setVisibility(View.VISIBLE);
                     temperatureIndicatorContainer.setVisibility(View.VISIBLE);
                     temperatureIndicatorTextView.setText(String.format("%.2f", vehicle.insideTemperature));
@@ -150,7 +144,7 @@ public class VehicleOverviewFragment extends Fragment {
                     }
 
 
-                    if (climateCapability.getClimateCapability() == AvailableGetStateCapability.Capability.AVAILABLE) {
+                    if (capability.isSupported(StartStopDefrosting.TYPE)) {
                         defrostButton.setEnabled(true);
                         defrostButton.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -169,11 +163,8 @@ public class VehicleOverviewFragment extends Fragment {
                     temperatureIndicatorContainer.setVisibility(View.GONE);
                 }
             }
-            else if (capability.getIdentifier() == DOOR_LOCKS) {
-                AvailableGetStateCapability doorLocksCapability = (AvailableGetStateCapability)capability;
-
-
-                if (doorLocksCapability.getCapability() != AvailableGetStateCapability.Capability.UNAVAILABLE) {
+            else if (capability.getIdentifier() == Identifier.DOOR_LOCKS) {
+                if (capability.isSupported(LockState.TYPE)) {
                     lockButton.setVisibility(View.VISIBLE);
                     if (vehicle.doorsLocked == true) {
                         lockButton.setImageResource(R.drawable.ovr_doorslockedhdpi);
@@ -182,7 +173,7 @@ public class VehicleOverviewFragment extends Fragment {
                         lockButton.setImageResource(R.drawable.ovr_doorsunlockedhdpi);
                     }
 
-                    if (doorLocksCapability.getCapability() == AvailableGetStateCapability.Capability.AVAILABLE) {
+                    if (capability.isSupported(LockUnlockDoors.TYPE)) {
                         lockButton.setEnabled(true);
                         lockButton.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -200,34 +191,21 @@ public class VehicleOverviewFragment extends Fragment {
                     lockButton.setVisibility(View.GONE);
                 }
             }
-            else if (capability.getIdentifier() == TRUNK_ACCESS) {
-                TrunkAccessCapability trunkAccessCapability = (TrunkAccessCapability)capability;
-                TrunkState.LockState state = vehicle.trunkLockState;
-
-                if (trunkAccessCapability.getLockCapability() != TrunkAccessCapability.LockCapability.UNAVAILABLE
-                    || state == TrunkState.LockState.UNSUPPORTED) {
+            else if (capability.getIdentifier() == Identifier.TRUNK_ACCESS) {
+                if (capability.isSupported(TrunkState.TYPE)) {
+                    TrunkLockState state = vehicle.trunkLockState;
                     trunkButton.setVisibility(View.VISIBLE);
 
-                    if (state == TrunkState.LockState.LOCKED) {
+                    if (state == TrunkLockState.LOCKED) {
                         trunkButton.setImageResource(R.drawable.ovr_trunklockedhdpi);
                     }
                     else {
                         trunkButton.setImageResource(R.drawable.ovr_trunkunlockedhdpi);
-
-                        if (trunkAccessCapability.getLockCapability() == TrunkAccessCapability.LockCapability.GET_STATE_UNLOCK_AVAILABLE) {
-                            trunkButton.setEnabled(true);
-
-                            trunkButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    parent.controller.onLockTrunkClicked();
-                                }
-                            });
-                        }
                     }
 
-                    if (trunkAccessCapability.getLockCapability() == TrunkAccessCapability.LockCapability.AVAILABLE) {
+                    if (capability.isSupported(OpenCloseTrunk.TYPE)) {
                         trunkButton.setEnabled(true);
+
                         trunkButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -235,7 +213,7 @@ public class VehicleOverviewFragment extends Fragment {
                             }
                         });
                     }
-                    else if (trunkAccessCapability.getLockCapability() == TrunkAccessCapability.LockCapability.GET_STATE_AVAILABLE) {
+                    else {
                         trunkButton.setEnabled(false);
                     }
                 }
@@ -243,22 +221,18 @@ public class VehicleOverviewFragment extends Fragment {
                     trunkButton.setVisibility(View.GONE);
                 }
             }
-            else if (capability.getIdentifier() == VEHICLE_LOCATION) {
-                AvailableCapability locationCapability = (AvailableCapability)capability;
-
-                if (locationCapability.getCapability() != AvailableCapability.Capability.UNAVAILABLE) {
+            else if (capability.getIdentifier() == Identifier.VEHICLE_LOCATION) {
+                if (capability.isSupported(VehicleLocation.TYPE)) {
                     gpsIndicatorContainer.setVisibility(View.VISIBLE);
                 }
                 else {
                     gpsIndicatorContainer.setVisibility(View.GONE);
                 }
             }
-            else if (capability.getIdentifier() == CHARGING) {
-                AvailableGetStateCapability chargingCapability = (AvailableGetStateCapability)capability;
-
+            else if (capability.getIdentifier() == Identifier.CHARGING) {
                 float batteryPercentage = vehicle.batteryPercentage;
 
-                if (chargingCapability.getCapability() != AvailableGetStateCapability.Capability.UNAVAILABLE) {
+                if (capability.isSupported(ChargeState.TYPE)) {
                     batteryIndicatorContainer.setVisibility(View.VISIBLE);
                     batteryIndicatorTextView.setText((int)(batteryPercentage * 100f) + "%");
                 }

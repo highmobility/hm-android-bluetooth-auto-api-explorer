@@ -34,7 +34,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.highmobility.exploreautoapis.storage.VehicleStatus;
-import com.rd.PageIndicatorView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
