@@ -52,9 +52,11 @@ import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
 import com.highmobility.hmkit.Constants;
 import com.highmobility.hmkit.Error.BroadcastError;
+import com.highmobility.hmkit.Error.DownloadAccessCertificateError;
 import com.highmobility.hmkit.Error.LinkError;
 import com.highmobility.hmkit.Link;
 import com.highmobility.hmkit.Manager;
+import com.highmobility.utils.Bytes;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -63,7 +65,6 @@ import static com.highmobility.exploreautoapis.VehicleActivity.REQUEST_CODE_REMO
 import static com.highmobility.exploreautoapis.VehicleActivity.TAG;
 import static com.highmobility.exploreautoapis.remotecontrol.RemoteControlController
         .LINK_IDENTIFIER_MESSAGE;
-
 
 /**
  * Created by root on 24/05/2017.
@@ -107,6 +108,22 @@ public class VehicleController implements BroadcasterListener, ConnectedLinkList
          */
 
         // PASTE THE SNIPPET HERE
+
+        String accessToken = ""; // PASTE ACCESS TOKEN HERE
+        Manager.getInstance().downloadCertificate(accessToken, new Manager.DownloadCallback() {
+            @Override
+            public void onDownloaded(byte[] serial) {
+                Log.d(TAG, "Certificate downloaded for vehicle: " + Bytes.hexFromBytes
+                        (serial));
+
+            }
+
+            @Override
+            public void onDownloadFailed(DownloadAccessCertificateError error) {
+                Log.d(TAG, "Could not download a certificate with token: " + error
+                        .getMessage());
+            }
+        });
 
         this.view = view;
         vehicle = VehicleStatus.getInstance();
