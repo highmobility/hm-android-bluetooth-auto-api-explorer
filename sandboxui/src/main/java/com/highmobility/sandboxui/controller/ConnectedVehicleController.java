@@ -39,7 +39,7 @@ public class ConnectedVehicleController {
 
     public boolean useBle;
     public String serviceName;
-    // TODO: figure out what is the best way to pass this on to RemoteControlController
+
     public static VehicleStatus vehicle;
     public AccessCertificate certificate;
 

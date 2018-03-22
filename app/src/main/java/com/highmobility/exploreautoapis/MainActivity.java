@@ -24,9 +24,6 @@ public class MainActivity extends Activity {
     @BindView(R.id.progress_bar) ProgressBar progressBar;
     @BindView(R.id.status_text_view) TextView statusTextView;
 
-//    byte[] vehicleSerial;
-//    ConnectedLink link;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +69,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void onDownloaded(byte[] serial) {
                     progressBar.setVisibility(GONE);
-//                    MainActivity.this.vehicleSerial = serial;
+
                     Log.d(TAG, "Certificate downloaded for vehicle: " + Bytes.hexFromBytes
                             (serial));
                     Intent i = new Intent(MainActivity.this, ConnectedVehicleActivity.class);
@@ -96,31 +93,5 @@ public class MainActivity extends Activity {
             progressBar.setVisibility(GONE);
             statusTextView.setText(e.getMessage());
         }
-
     }
-
-//    @Override protected void onResume() {
-//        super.onResume();
-//
-//        List<ConnectedLink> links = Manager.getInstance().getBroadcaster().getLinks();
-//
-//        for (ConnectedLink link : links) {
-//            if (Arrays.equals(link.getSerial(), vehicleSerial)) {
-//                this.link = link;
-//                this.link.setListener(this);
-//                break;
-//            }
-//        }
-//    }
-//
-//    @Override public void onStateChanged(Link link, Link.State state) {
-//        if (link.getState() == Link.State.DISCONNECTED) {
-//            this.link = null;
-//            this.link.setListener(null);
-//        }
-//    }
-//
-//    @Override public void onCommandReceived(Link link, byte[] bytes) {
-//
-//    }
 }
