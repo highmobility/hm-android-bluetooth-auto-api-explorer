@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.highmobility.exploreautoapis"
-    android:versionCode="1"
-    android:versionName="1"
-    android:installLocation="auto">
+          package="com.highmobility.exploreautoapis"
+          android:installLocation="auto"
+          android:versionCode="1"
+          android:versionName="1">
 
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
         android:allowBackup="true"
@@ -14,16 +14,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".VehicleActivity"
+            android:name="com.highmobility.sandboxui.view.RemoteControlActivity"
             android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name="com.highmobility.sandboxui.view.ConnectedVehicleActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name="com.highmobility.exploreautoapis.remotecontrol.RemoteControlActivity"
-            android:screenOrientation="portrait">
         </activity>
     </application>
 

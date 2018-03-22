@@ -1,0 +1,175 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/navigation_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/navigation_bar_height"
+        android:background="@color/lightClay">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textColor="#ffff"
+            android:textSize="18dp"
+            android:text="REMOTE CONTROL"
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/edge">
+        </LinearLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <LinearLayout
+            android:layout_marginTop="30dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/loading_view"
+            android:layout_marginTop="40dp"
+            android:layout_width="350dp"
+            android:layout_height="400dp"
+            android:visibility="gone">
+            <ProgressBar
+                android:layout_centerInParent="true"
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/progressBarStyleLarge"
+                />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_centerInParent="true"
+        android:id="@+id/vehicle_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        >
+
+        <RelativeLayout
+            android:layout_marginTop="40dp"
+            android:layout_centerHorizontal="true"
+            android:layout_width="350dp"
+            android:layout_height="350dp"
+            android:layout_marginBottom="100dp"
+            >
+
+            <ImageView
+                android:layout_marginTop="5dp"
+                android:padding="15dp"
+                android:scaleType="centerInside"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/vehicle_bg_circle"
+                />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:src="@drawable/hm_car"
+                />
+
+            <Button
+                android:id="@+id/stop_button"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:text="stop"
+                android:textColor="@color/nocturne"
+                android:layout_centerInParent="true"
+                android:background="@drawable/stop_button"
+                android:onClick="onStopClicked"
+                android:visibility="gone"
+                />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="165dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp">
+                <com.highmobility.sandboxui.view.TapToMoveButton
+                    android:id="@+id/tap_button_one"
+                    android:layout_width="@dimen/tap_button_size"
+                    android:layout_height="@dimen/tap_button_size"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentLeft="true"
+                    android:tag="0"
+                    android:onClick="onMoveButtonClicked"
+                    />
+                <com.highmobility.sandboxui.view.TapToMoveButton
+                    android:id="@+id/tap_button_two"
+                    android:layout_width="@dimen/tap_button_size"
+                    android:layout_height="@dimen/tap_button_size"
+                    android:layout_centerHorizontal="true"
+                    android:tag="1"
+                    android:onClick="onMoveButtonClicked"
+                    android:layout_marginTop="-6dp"
+                    />
+                <com.highmobility.sandboxui.view.TapToMoveButton
+                    android:id="@+id/tap_button_three"
+                    android:layout_width="@dimen/tap_button_size"
+                    android:layout_height="@dimen/tap_button_size"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:tag="2"
+                    android:onClick="onMoveButtonClicked"
+                    />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_alignParentBottom="true"
+                android:layout_width="match_parent"
+                android:layout_height="165dp">
+                <com.highmobility.sandboxui.view.TapToMoveButton
+                    android:id="@+id/tap_button_four"
+                    android:layout_width="@dimen/tap_button_size"
+                    android:layout_height="@dimen/tap_button_size"
+                    android:layout_alignParentLeft="true"
+                    android:tag="3"
+                    android:onClick="onMoveButtonClicked"
+                    />
+                <com.highmobility.sandboxui.view.TapToMoveButton
+                    android:id="@+id/tap_button_five"
+                    android:layout_width="@dimen/tap_button_size"
+                    android:layout_height="@dimen/tap_button_size"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:tag="4"
+                    android:onClick="onMoveButtonClicked"
+                    android:layout_marginBottom="-10dp"
+                    />
+                <com.highmobility.sandboxui.view.TapToMoveButton
+                    android:id="@+id/tap_button_six"
+                    android:layout_width="@dimen/tap_button_size"
+                    android:layout_height="@dimen/tap_button_size"
+                    android:layout_alignParentRight="true"
+                    android:tag="5"
+                    android:onClick="onMoveButtonClicked"
+                    />
+            </RelativeLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <TextView
+        android:layout_marginBottom="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Tap repeatedly on the marks to move the car"/>
+</RelativeLayout>

@@ -1,0 +1,17 @@
+<resources>
+    <style name="AppTheme" parent="android:Theme.Material">
+        <item name="android:windowBackground">@color/clay</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:statusBarColor">@color/lightClay</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:colorAccent">@color/highlight</item>
+    </style>
+
+    <style name="viewPagerTitleStrip">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:textColor">@color/pager_tab_strip_text_selector</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+</resources>
