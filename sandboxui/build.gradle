@@ -1,5 +1,11 @@
 apply plugin: 'com.android.library'
 
+def artifactProperties = new Properties()
+artifactProperties.load(new FileInputStream("sandboxui/deploy.settings"))
+
+group artifactProperties.groupId
+version artifactProperties.version
+
 android {
     compileSdkVersion 26
 
@@ -7,7 +13,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 23
         versionCode 1
-        versionName "1.0"
+        versionName "${version}"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -36,3 +42,8 @@ dependencies {
 
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
+
+// to push the artifacts, you need to add deploy.properties at project level
+// with bintray/artifactory credentials
+def deployPropertiesFile = file("deploy.properties")
+if (deployPropertiesFile.exists()) apply from: 'deploy.gradle'

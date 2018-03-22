@@ -41,7 +41,7 @@ public class ExteriorListItemTest {
         vehicle.doorsLocked = false;
         Capabilities capas = new Capabilities.Builder().addCapability(new
                 CapabilityProperty(Identifier.DOOR_LOCKS, new Type[] { LockUnlockDoors.TYPE })).build();
-        vehicle.update(capas, true);
+        vehicle.update(capas);
 
         ExteriorListItem[] items = ExteriorListItem.createExteriorListItems(vehicle);
         assertTrue(items[0].actionSupported == true);
@@ -86,7 +86,7 @@ public class ExteriorListItemTest {
         Capabilities capas = new Capabilities.Builder()
                 .addCapability(new CapabilityProperty(Identifier.DOOR_LOCKS, new Type[] { LockUnlockDoors.TYPE }))
                 .addCapability(new CapabilityProperty(Identifier.LIGHTS, new Type[] { ControlLights.TYPE })).build();
-        vehicle.update(capas, true);
+        vehicle.update(capas);
 
         items = ExteriorListItem.createExteriorListItems(vehicle);
         lightsItem = ExteriorListItem.getItem(ExteriorListItem.Type.FRONT_EXTERIOR_LIGHT_STATE, items);
@@ -104,7 +104,7 @@ public class ExteriorListItemTest {
         Capabilities capas = new Capabilities.Builder()
                 .addCapability(new CapabilityProperty(Identifier.CLIMATE, new Type[] { StartStopDefrosting.TYPE }))
                 .build();
-        vehicle.update(capas, true);
+        vehicle.update(capas);
 
         ExteriorListItem[] items = ExteriorListItem.createExteriorListItems(vehicle);
         ExteriorListItem doorsItem = ExteriorListItem.getItem(ExteriorListItem.Type.IS_WINDSHIELD_DEFROSTING_ACTIVE, items);
@@ -133,7 +133,7 @@ public class ExteriorListItemTest {
         Capabilities capas = new Capabilities.Builder()
                 .addCapability(new CapabilityProperty(Identifier.ROOFTOP, new Type[] { ControlRooftop.TYPE }))
                 .build();
-        vehicle.update(capas, true);
+        vehicle.update(capas);
         items = ExteriorListItem.createExteriorListItems(vehicle);
         item = ExteriorListItem.getItem(ExteriorListItem.Type.ROOFTOP_OPEN_PERCENTAGE, items);
 
@@ -149,7 +149,7 @@ public class ExteriorListItemTest {
                 .addCapability(new CapabilityProperty(Identifier.ROOFTOP, new Type[] { ControlRooftop.TYPE }))
                 .addCapability(new CapabilityProperty(Identifier.LIGHTS, new Type[] { ControlLights.TYPE }))
                 .build();
-        vehicle.update(capas, true);
+        vehicle.update(capas);
 
         ExteriorListItem[] items = ExteriorListItem.createExteriorListItems(vehicle);
         ExteriorListItem item = ExteriorListItem.getItem(ExteriorListItem.Type.ROOFTOP_OPEN_PERCENTAGE, items);

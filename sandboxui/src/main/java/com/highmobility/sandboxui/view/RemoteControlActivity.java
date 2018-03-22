@@ -2,7 +2,10 @@ package com.highmobility.sandboxui.view;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
+//import android.os.Vibrator;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.View;
 import android.widget.Button;
@@ -54,7 +57,12 @@ public class RemoteControlActivity extends Activity implements IRemoteControlVie
 
     public void onMoveButtonClicked(View view) {
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        v.vibrate(50);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(50, 1));
+        }
+        else {
+            v.vibrate(50);
+        }
 
         int tag = Integer.valueOf((String) view.getTag());
         controller.onMoveButtonClicked(tag);
