@@ -14,7 +14,8 @@ All of the dependencies are managed via gradle repositories.
 * Build the app for a device with Android 5.0 Lollipop or higher.
 
 To make the app work you need to initialise the HMKit with a certificate from the Developer 
-Center. The flow is described in the comments of the[VehicleController.java](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/blob/master/app/src/main/java/com/highmobility/exploreautoapis/VehicleController.java#L76)
+Center. The flow is described in the comments of the [MainActivity.java](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/blob/ui-module/app/src/main/java/com/highmobility/exploreautoapis/MainActivity.java#L55)
 
+After initialisation, the [sandboxui](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/tree/ui-module/sandboxui) module is loaded. All of the app logic is in that package.
 
 
