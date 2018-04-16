@@ -87,6 +87,7 @@ public class MainActivity extends Activity {
                 }
             });
         } catch (Exception e) {
+            Log.e(TAG, "onCreate: ", e);
             progressBar.setVisibility(GONE);
             statusTextView.setText(e.getMessage());
         }
