@@ -129,11 +129,11 @@ public class RemoteControlController implements IRemoteControlController, Connec
     public void onSpeedChanged(int speed) {
         if (speed != 0) {
             view.showStopButton(true);
-            Manager.getInstance().getBroadcaster().setIsAlivePinging(true);
+            Manager.getInstance().getBroadcaster().startAlivePinging(50);
             sendControlCommand();
         } else {
             view.showStopButton(false);
-            Manager.getInstance().getBroadcaster().setIsAlivePinging(false);
+            Manager.getInstance().getBroadcaster().stopAlivePinging();
         }
     }
 
