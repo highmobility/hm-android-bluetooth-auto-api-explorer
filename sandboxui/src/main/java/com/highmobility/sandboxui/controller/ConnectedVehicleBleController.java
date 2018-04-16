@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.highmobility.hmkit.BroadcastConfiguration;
 import com.highmobility.hmkit.Broadcaster;
 import com.highmobility.hmkit.Broadcaster.State;
 import com.highmobility.hmkit.BroadcasterListener;
@@ -78,6 +79,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
     // this is called after the constructor so the view has access to this controller and vice versa
     @Override public void init() {
+        super.init();
         broadcaster = Manager.getInstance().getBroadcaster();
         broadcaster.setListener(this);
 
@@ -146,7 +148,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         bleView.onLinkReceived(true);
 
         vehicle.onLinkReceived();
-        Log.d(SandboxUi.TAG, "onLinkAuthenticated: ");
+        Log.d(SandboxUi.TAG, "onLinkReceived: ");
     }
 
     // Link listener
@@ -211,8 +213,10 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     }
 
     void startBroadcasting() {
-        if (isBroadcastingSerial) broadcaster.setBroadcastingTarget(certificate.getGainerSerial());
-        else broadcaster.setBroadcastingTarget(null);
+        BroadcastConfiguration conf = null;
+        if (isBroadcastingSerial) {
+            conf = new BroadcastConfiguration.Builder().setBroadcastingTarget(certificate.getGainerSerial()).build();
+        }
 
         broadcaster.startBroadcasting(new Broadcaster.StartCallback() {
             @Override
@@ -225,6 +229,6 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
                 onStateChanged(broadcaster.getState());
                 Log.e(SandboxUi.TAG, "cant start broadcasting " + broadcastError.getType());
             }
-        });
+        }, conf);
     }
 }

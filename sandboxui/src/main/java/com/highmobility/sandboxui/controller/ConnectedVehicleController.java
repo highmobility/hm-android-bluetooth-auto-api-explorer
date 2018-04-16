@@ -85,7 +85,6 @@ public class ConnectedVehicleController {
         controller.useBle = useBle;
         controller.vehicleSerial = vehicleSerial;
         controller.serviceName = serviceName;
-        controller.init();
 
         return controller;
     }
@@ -97,8 +96,7 @@ public class ConnectedVehicleController {
         vehicle = new VehicleStatus();
     }
 
-    public void init() {
-    }
+    public void init() { }
 
     public void onLockDoorsClicked() {
         view.showLoadingView(true);

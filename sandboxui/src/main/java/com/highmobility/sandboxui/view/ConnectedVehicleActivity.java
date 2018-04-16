@@ -63,6 +63,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         broadcastFragment = (BroadcastFragment) getSupportFragmentManager().findFragmentById(R.id
                 .broadcast_fragment);
         controller = ConnectedVehicleController.create(this, this, getIntent());
+
         title.setText(controller.serviceName);
 
         if (controller.useBle) {
@@ -74,11 +75,11 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
                     .getView());
             getSupportFragmentManager().beginTransaction().remove(broadcastFragment).commit();
             broadcastFragment = null;
-            controller.readyToSendCommands();
             refreshButton.setOnClickListener(v -> controller.onRefreshClicked());
         }
 
         viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager(), controller.vehicle));
+        controller.init();
     }
 
     @Override

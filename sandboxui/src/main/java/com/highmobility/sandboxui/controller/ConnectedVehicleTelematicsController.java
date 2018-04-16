@@ -1,7 +1,6 @@
 package com.highmobility.sandboxui.controller;
 
 import android.util.Log;
-
 import com.highmobility.hmkit.Error.TelematicsError;
 import com.highmobility.hmkit.Telematics;
 import com.highmobility.sandboxui.SandboxUi;
@@ -15,20 +14,27 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
         super(false, view);
     }
 
+    @Override public void init() {
+        super.init();
+        readyToSendCommands();
+    }
+
     @Override
     void sendCommand(byte[] command) {
         Log.d(SandboxUi.TAG, "sendCommand: " + certificate.toString());
-        manager.getTelematics().sendCommand(command, certificate.getGainerSerial(), new Telematics.CommandCallback() {
-            @Override
-            public void onCommandResponse(byte[] bytes) {
-                onCommandReceived(bytes);
-            }
+        manager.getTelematics().sendCommand(command, certificate.getGainerSerial(), new
+                Telematics.CommandCallback() {
+                    @Override
+                    public void onCommandResponse(byte[] bytes) {
+                        onCommandReceived(bytes);
+                    }
 
-            @Override
-            public void onCommandFailed(TelematicsError telematicsError) {
-                Log.e(SandboxUi.TAG, "send telematics command error: " + telematicsError.getMessage());
-                onCommandError(telematicsError.getCode(), telematicsError.getMessage());
-            }
-        });
+                    @Override
+                    public void onCommandFailed(TelematicsError telematicsError) {
+                        Log.e(SandboxUi.TAG, "send telematics command error: " + telematicsError
+                                .getMessage());
+                        onCommandError(telematicsError.getCode(), telematicsError.getMessage());
+                    }
+                });
     }
 }
