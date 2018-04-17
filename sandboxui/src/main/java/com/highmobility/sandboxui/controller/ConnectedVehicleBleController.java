@@ -16,20 +16,21 @@ import com.highmobility.hmkit.Error.LinkError;
 import com.highmobility.hmkit.Link;
 import com.highmobility.hmkit.Manager;
 import com.highmobility.sandboxui.SandboxUi;
-import com.highmobility.sandboxui.view.RemoteControlActivity;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
+import com.highmobility.sandboxui.view.RemoteControlActivity;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static com.highmobility.hmkit.Broadcaster.State.*;
+import static com.highmobility.hmkit.Broadcaster.State.BLUETOOTH_UNAVAILABLE;
 
 /**
  * Created by root on 24/05/2017.
  */
-public class ConnectedVehicleBleController extends ConnectedVehicleController implements BroadcasterListener, ConnectedLinkListener {
+public class ConnectedVehicleBleController extends ConnectedVehicleController implements
+        BroadcasterListener, ConnectedLinkListener {
     static String IS_BROADCASTING_SERIAL_PREFS_KEY = "isBroadcastingSerial";
     Broadcaster broadcaster;
     ConnectedLink link;
@@ -52,7 +53,8 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     public void startRemoteControl() {
         Intent i = new Intent(view.getActivity(), RemoteControlActivity.class);
         i.putExtra(RemoteControlController.LINK_IDENTIFIER_MESSAGE, link.getSerial());
-        view.getActivity().startActivityForResult(i, ConnectedVehicleActivity.REQUEST_CODE_REMOTE_CONTROL);
+        view.getActivity().startActivityForResult(i, ConnectedVehicleActivity
+                .REQUEST_CODE_REMOTE_CONTROL);
     }
 
     public void onReturnFromRemoteControl() {
@@ -83,7 +85,8 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         broadcaster = Manager.getInstance().getBroadcaster();
         broadcaster.setListener(this);
 
-        // check for connected links for this vehicle and if is authenticated and show the appropriate ui
+        // check for connected links for this vehicle and if is authenticated and show the
+        // appropriate ui
         List<ConnectedLink> links = broadcaster.getLinks();
 
         boolean linkExists = false;
@@ -101,6 +104,13 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
     @Override
     void sendCommand(byte[] command) {
+        // link could be lost at any time and for instance on initialize it could try to send
+        // commands without checking
+        if (link == null) {
+            onCommandError(-1, "No connection to a link.");
+            return;
+        }
+
         link.sendCommand(command, new Link.CommandCallback() {
             @Override
             public void onCommandSent() {
@@ -129,7 +139,8 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
                 break;
             case BROADCASTING:
                 if (link == null) {
-                    bleView.showBleInfoView(true, "Looking for links... " + manager.getBroadcaster().getName());
+                    bleView.showBleInfoView(true, "Looking for links... " + manager
+                            .getBroadcaster().getName());
                 }
                 break;
         }
@@ -162,14 +173,14 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             bleView.onLinkReceived(false);
             vehicle.vehicleConnectedWithBle = null;
             Log.d(SandboxUi.TAG, "onLinkLost: ");
-        }
-        else {
+        } else {
             Log.d(SandboxUi.TAG, "unknown link lost");
         }
     }
 
     @Override
-    public void onAuthorizationRequested(ConnectedLink connectedLink, ConnectedLinkListener.AuthorizationCallback callback) {
+    public void onAuthorizationRequested(ConnectedLink connectedLink, ConnectedLinkListener
+            .AuthorizationCallback callback) {
         callback.approve();
     }
 
@@ -181,13 +192,12 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     @Override
     public void onStateChanged(Link link, Link.State state) {
         Log.d(SandboxUi.TAG, "link state changed " + link.getState());
-        if (link == this.link ) {
+        if (link == this.link) {
             if (link.getState() == Link.State.AUTHENTICATED) {
                 vehicle.onLinkAuthenticated(link);
                 bleView.showBleInfoView(false, "link: " + "authenticated");
                 readyToSendCommands();
-            }
-            else if (link.getState() == Link.State.CONNECTED) {
+            } else if (link.getState() == Link.State.CONNECTED) {
                 bleView.showBleInfoView(true, "link: " + "connected");
             }
         }
@@ -215,13 +225,14 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     void startBroadcasting() {
         BroadcastConfiguration conf = null;
         if (isBroadcastingSerial) {
-            conf = new BroadcastConfiguration.Builder().setBroadcastingTarget(certificate.getGainerSerial()).build();
+            conf = new BroadcastConfiguration.Builder().setBroadcastingTarget(certificate
+                    .getGainerSerial()).build();
         }
 
         broadcaster.startBroadcasting(new Broadcaster.StartCallback() {
             @Override
             public void onBroadcastingStarted() {
-
+                onStateChanged(broadcaster.getState());
             }
 
             @Override
