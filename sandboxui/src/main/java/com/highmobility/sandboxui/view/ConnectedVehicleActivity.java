@@ -67,8 +67,6 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         title.setText(controller.serviceName);
 
         if (controller.useBle) {
-            broadcastFragment.onBroadcastingSerial(((ConnectedVehicleBleController) controller)
-                    .isBroadcastingSerial());
             refreshButton.setVisibility(GONE);
         } else {
             ((ViewGroup) broadcastFragment.getView().getParent()).removeView(broadcastFragment
@@ -80,6 +78,11 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
 
         viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager(), controller.vehicle));
         controller.init();
+        if (controller.useBle) {
+            // this has to happen after init
+            broadcastFragment.onBroadcastingSerial(((ConnectedVehicleBleController) controller)
+                    .isBroadcastingSerial());
+        }
     }
 
     @Override
@@ -93,8 +96,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         if (finishOnBackPress) {
             controller.willDestroy();
             finish();
-        }
-        else {
+        } else {
             moveTaskToBack(true);
         }
     }
