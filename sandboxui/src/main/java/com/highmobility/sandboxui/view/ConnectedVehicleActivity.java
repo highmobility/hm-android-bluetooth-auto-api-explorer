@@ -160,7 +160,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
         if (fatal) {
-            finish();
+            showBleInfoView(true, message);
         } else {
             overviewFragment.onVehicleStatusUpdate();
             exteriorFragment.onVehicleStatusUpdate(ExteriorListItem.createExteriorListItems

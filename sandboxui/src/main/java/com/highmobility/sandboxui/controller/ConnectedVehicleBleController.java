@@ -173,6 +173,13 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             bleView.onLinkReceived(false);
             vehicle.vehicleConnectedWithBle = null;
             Log.d(SandboxUi.TAG, "onLinkLost: ");
+
+            if (initializing) {
+                // stop the initialisation if link was lost
+                retryCount = 0;
+                initializing = false;
+                cancelInitTimer();
+            }
         } else {
             Log.d(SandboxUi.TAG, "unknown link lost");
         }
