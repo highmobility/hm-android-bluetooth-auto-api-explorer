@@ -15,7 +15,6 @@ import com.highmobility.autoapi.LockUnlockDoors;
 import com.highmobility.autoapi.OpenCloseTrunk;
 import com.highmobility.autoapi.StartStopDefrosting;
 import com.highmobility.autoapi.Type;
-import com.highmobility.autoapi.property.DoorLockProperty;
 import com.highmobility.autoapi.property.FrontExteriorLightState;
 import com.highmobility.autoapi.property.TrunkLockState;
 import com.highmobility.autoapi.property.TrunkPosition;
@@ -58,7 +57,9 @@ public class ConnectedVehicleController {
     TimerTask repeatTask;
     boolean initializing;
 
-    public static ConnectedVehicleController create(IConnectedVehicleView view, IConnectedVehicleBleView bleView, Intent intent) {
+    public static ConnectedVehicleController create(IConnectedVehicleView view,
+                                                    IConnectedVehicleBleView bleView, Intent
+                                                            intent) {
         byte[] vehicleSerial = intent.getByteArrayExtra(EXTRA_SERIAL);
         boolean useBle = intent.getBooleanExtra(EXTRA_USE_BLE, true);
 
@@ -67,11 +68,11 @@ public class ConnectedVehicleController {
 
         AccessCertificate cert;
         if (vehicleSerial != null) {
-             cert = Manager.getInstance().getCertificate(vehicleSerial);
-        }
-        else {
+            cert = Manager.getInstance().getCertificate(vehicleSerial);
+        } else {
             AccessCertificate[] certificates = Manager.getInstance().getCertificates();
-            if (certificates == null || certificates.length < 1) throw new IllegalStateException("Manager not initialized");
+            if (certificates == null || certificates.length < 1)
+                throw new IllegalStateException("Manager not initialized");
             cert = Manager.getInstance().getCertificates()[0];
             vehicleSerial = cert.getGainerSerial();
         }
@@ -80,8 +81,7 @@ public class ConnectedVehicleController {
 
         if (useBle) {
             controller = new ConnectedVehicleBleController(view, bleView);
-        }
-        else {
+        } else {
             controller = new ConnectedVehicleTelematicsController(view);
         }
 
@@ -100,7 +100,8 @@ public class ConnectedVehicleController {
         vehicle = new VehicleStatus();
     }
 
-    public void init() { }
+    public void init() {
+    }
 
     public void onLockDoorsClicked() {
         view.showLoadingView(true);
@@ -209,7 +210,6 @@ public class ConnectedVehicleController {
 
     void onCommandReceived(byte[] bytes) {
         Command command = CommandResolver.resolve(bytes);
-        command = CommandResolver.resolveHex("00020101000300100002000101"); // TODO: delete
         vehicle.update(command);
 
         if (command instanceof Capabilities) {
