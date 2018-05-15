@@ -19,6 +19,7 @@ import com.highmobility.autoapi.property.DoorLockProperty;
 import com.highmobility.autoapi.property.FrontExteriorLightState;
 import com.highmobility.autoapi.property.TrunkLockState;
 import com.highmobility.autoapi.property.TrunkPosition;
+import com.highmobility.autoapi.property.doors.DoorLock;
 import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.hmkit.Manager;
 import com.highmobility.sandboxui.SandboxUi;
@@ -28,6 +29,9 @@ import com.highmobility.sandboxui.view.IConnectedVehicleView;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static com.highmobility.autoapi.property.doors.DoorLock.LOCKED;
+import static com.highmobility.autoapi.property.doors.DoorLock.UNLOCKED;
 
 /**
  * Created by root on 24/05/2017.
@@ -101,8 +105,7 @@ public class ConnectedVehicleController {
     public void onLockDoorsClicked() {
         view.showLoadingView(true);
         sentCommand = LockUnlockDoors.TYPE;
-        DoorLockProperty.LockState lockState = vehicle.doorsLocked == true ? DoorLockProperty
-                .LockState.UNLOCKED : DoorLockProperty.LockState.LOCKED;
+        DoorLock lockState = vehicle.doorsLocked == true ? UNLOCKED : LOCKED;
         sendCommand(new LockUnlockDoors(lockState).getBytes());
     }
 
@@ -206,6 +209,7 @@ public class ConnectedVehicleController {
 
     void onCommandReceived(byte[] bytes) {
         Command command = CommandResolver.resolve(bytes);
+        command = CommandResolver.resolveHex("00020101000300100002000101"); // TODO: delete
         vehicle.update(command);
 
         if (command instanceof Capabilities) {
