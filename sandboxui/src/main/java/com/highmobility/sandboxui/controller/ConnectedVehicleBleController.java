@@ -37,13 +37,15 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
     IConnectedVehicleBleView bleView;
     boolean isBroadcastingSerial;
+    int alivePingInterval = -1;
     SharedPreferences sharedPref;
 
-    ConnectedVehicleBleController(IConnectedVehicleView view, IConnectedVehicleBleView bleView) {
+    ConnectedVehicleBleController(IConnectedVehicleView view, IConnectedVehicleBleView bleView, int alivePingInterval) {
         super(true, view);
         this.bleView = bleView;
         sharedPref = view.getActivity().getPreferences(Context.MODE_PRIVATE);
         isBroadcastingSerial = sharedPref.getBoolean(IS_BROADCASTING_SERIAL_PREFS_KEY, false);
+        this.alivePingInterval = alivePingInterval;
     }
 
     public boolean isBroadcastingSerial() {
@@ -239,6 +241,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         broadcaster.startBroadcasting(new Broadcaster.StartCallback() {
             @Override
             public void onBroadcastingStarted() {
+                if (alivePingInterval != -1) broadcaster.startAlivePinging(alivePingInterval);
                 onStateChanged(broadcaster.getState());
             }
 

@@ -39,6 +39,7 @@ public class ConnectedVehicleController {
     public static final String EXTRA_SERIAL = "EXTRA_SERIAL";
     public static final String EXTRA_USE_BLE = "EXTRA_USE_BLE";
     public static final String EXTRA_SERVICE_NAME = "EXTRA_SERVICE_NAME";
+    public static final String EXTRA_ALIVE_PING_AMOUNT_NAME = "EXTRA_ALIVE";
 
     public boolean useBle;
     public String serviceName;
@@ -80,7 +81,8 @@ public class ConnectedVehicleController {
         ConnectedVehicleController controller;
 
         if (useBle) {
-            controller = new ConnectedVehicleBleController(view, bleView);
+            int alivePingInterval = intent.getIntExtra(EXTRA_ALIVE_PING_AMOUNT_NAME, -1);
+            controller = new ConnectedVehicleBleController(view, bleView, alivePingInterval);
         } else {
             controller = new ConnectedVehicleTelematicsController(view);
         }

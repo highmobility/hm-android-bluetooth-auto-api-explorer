@@ -113,6 +113,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
 
     @Override
     public void showBleInfoView(boolean show, String status) {
+        if (broadcastFragment == null) return;
         showNormalView(!show);
         broadcastFragment.getView().setVisibility(show ? VISIBLE : GONE);
         broadcastFragment.setStatusText(status);
