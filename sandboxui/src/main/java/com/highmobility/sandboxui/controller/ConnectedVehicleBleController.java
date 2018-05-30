@@ -20,8 +20,7 @@ import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
 import com.highmobility.sandboxui.view.RemoteControlActivity;
-
-import java.util.Arrays;
+import com.highmobility.value.Bytes;
 import java.util.List;
 
 import static com.highmobility.hmkit.Broadcaster.State.BLUETOOTH_UNAVAILABLE;
@@ -40,7 +39,8 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     int alivePingInterval = -1;
     SharedPreferences sharedPref;
 
-    ConnectedVehicleBleController(IConnectedVehicleView view, IConnectedVehicleBleView bleView, int alivePingInterval) {
+    ConnectedVehicleBleController(IConnectedVehicleView view, IConnectedVehicleBleView bleView,
+                                  int alivePingInterval) {
         super(true, view);
         this.bleView = bleView;
         sharedPref = view.getActivity().getPreferences(Context.MODE_PRIVATE);
@@ -54,7 +54,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
     public void startRemoteControl() {
         Intent i = new Intent(view.getActivity(), RemoteControlActivity.class);
-        i.putExtra(RemoteControlController.LINK_IDENTIFIER_MESSAGE, link.getSerial());
+        i.putExtra(RemoteControlController.LINK_IDENTIFIER_MESSAGE, link.getSerial().getByteArray());
         view.getActivity().startActivityForResult(i, ConnectedVehicleActivity
                 .REQUEST_CODE_REMOTE_CONTROL);
     }
@@ -93,7 +93,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
         boolean linkExists = false;
         for (ConnectedLink link : links) {
-            if (Arrays.equals(certificate.getGainerSerial(), link.getSerial())) {
+            if (certificate.getGainerSerial().equals(link.getSerial())) {
                 // the link is to our vehicle, show either authenticated or connected view
                 linkExists = true;
                 onLinkReceived(link);
@@ -105,7 +105,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     }
 
     @Override
-    void sendCommand(byte[] command) {
+    void sendCommand(Bytes command) {
         // link could be lost at any time and for instance on initialize it could try to send
         // commands without checking
         if (link == null) {
@@ -213,7 +213,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     }
 
     @Override
-    public void onCommandReceived(Link link, byte[] bytes) {
+    public void onCommandReceived(Link link, Bytes bytes) {
         onCommandReceived(bytes);
     }
 

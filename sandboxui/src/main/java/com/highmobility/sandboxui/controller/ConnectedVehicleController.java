@@ -25,6 +25,8 @@ import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
+import com.highmobility.value.Bytes;
+import com.highmobility.value.DeviceSerial;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -49,7 +51,7 @@ public class ConnectedVehicleController {
 
     Timer initTimer;
     int retryCount;
-    byte[] vehicleSerial;
+    DeviceSerial vehicleSerial;
 
     Manager manager;
     IConnectedVehicleView view;
@@ -61,15 +63,17 @@ public class ConnectedVehicleController {
     public static ConnectedVehicleController create(IConnectedVehicleView view,
                                                     IConnectedVehicleBleView bleView, Intent
                                                             intent) {
-        byte[] vehicleSerial = intent.getByteArrayExtra(EXTRA_SERIAL);
+        byte[] vehicleSerialBytes = intent.getByteArrayExtra(EXTRA_SERIAL);
+        DeviceSerial vehicleSerial;
         boolean useBle = intent.getBooleanExtra(EXTRA_USE_BLE, true);
 
         String serviceName = intent.getStringExtra(EXTRA_SERVICE_NAME);
         if (serviceName == null) serviceName = "High-Mobility";
 
         AccessCertificate cert;
-        if (vehicleSerial != null) {
-            cert = Manager.getInstance().getCertificate(vehicleSerial);
+        if (vehicleSerialBytes != null) {
+            vehicleSerial = new DeviceSerial(vehicleSerialBytes);
+            cert = Manager.getInstance().getCertificate(new DeviceSerial(vehicleSerialBytes));
         } else {
             AccessCertificate[] certificates = Manager.getInstance().getCertificates();
             if (certificates == null || certificates.length < 1)
@@ -109,7 +113,7 @@ public class ConnectedVehicleController {
         view.showLoadingView(true);
         sentCommand = LockUnlockDoors.TYPE;
         DoorLock lockState = vehicle.doorsLocked == true ? UNLOCKED : LOCKED;
-        sendCommand(new LockUnlockDoors(lockState).getBytes());
+        sendCommand(new LockUnlockDoors(lockState));
     }
 
     public void onLockTrunkClicked() {
@@ -126,15 +130,15 @@ public class ConnectedVehicleController {
             newPosition = TrunkPosition.CLOSED;
         }
 
-        byte[] command = new OpenCloseTrunk(newLockState, newPosition).getBytes();
+        Command command = new OpenCloseTrunk(newLockState, newPosition);
         sendCommand(command);
     }
 
     public void onWindshieldDefrostingClicked() {
         view.showLoadingView(true);
         sentCommand = StartStopDefrosting.TYPE;
-        byte[] command = new StartStopDefrosting(vehicle.isWindshieldDefrostingActive ?
-                false : true).getBytes();
+        Command command = new StartStopDefrosting(vehicle.isWindshieldDefrostingActive ?
+                false : true);
         sendCommand(command);
     }
 
@@ -144,9 +148,8 @@ public class ConnectedVehicleController {
 
         float dimPercentage = vehicle.rooftopDimmingPercentage == 1f ? 0f : 1f;
 
-        byte[] command = new ControlRooftop(dimPercentage, vehicle
-                .rooftopOpenPercentage).getBytes();
-
+        Command command = new ControlRooftop(dimPercentage, vehicle
+                .rooftopOpenPercentage);
         sendCommand(command);
     }
 
@@ -154,8 +157,8 @@ public class ConnectedVehicleController {
         view.showLoadingView(true);
         sentCommand = ControlRooftop.TYPE;
         float openPercentage = vehicle.rooftopOpenPercentage == 0f ? 1f : 0f;
-        byte[] command = new ControlRooftop(vehicle
-                .rooftopDimmingPercentage, openPercentage).getBytes();
+        Command command = new ControlRooftop(vehicle
+                .rooftopDimmingPercentage, openPercentage);
         sendCommand(command);
     }
 
@@ -170,10 +173,10 @@ public class ConnectedVehicleController {
         view.showLoadingView(true);
         sentCommand = ControlLights.TYPE;
 
-        byte[] command = new ControlLights(state,
+        Command command = new ControlLights(state,
                 vehicle.isRearExteriorLightActive,
                 vehicle.isInteriorLightActive,
-                vehicle.lightsAmbientColor).getBytes();
+                vehicle.lightsAmbientColor);
 
         sendCommand(command);
     }
@@ -181,7 +184,7 @@ public class ConnectedVehicleController {
     public void onRefreshClicked() {
         view.showLoadingView(true);
         sentCommand = com.highmobility.autoapi.VehicleStatus.TYPE;
-        sendCommand(new GetVehicleStatus().getBytes());
+        sendCommand(new GetVehicleStatus());
     }
 
     public void readyToSendCommands() {
@@ -189,7 +192,7 @@ public class ConnectedVehicleController {
         view.showLoadingView(true);
         // capabilities are required to know if action commands are available.
         sentCommand = GetCapabilities.TYPE;
-        sendCommand(new GetCapabilities().getBytes());
+        sendCommand(new GetCapabilities());
     }
 
     public void willDestroy() {
@@ -200,7 +203,7 @@ public class ConnectedVehicleController {
         cancelInitTimer();
     }
 
-    void sendCommand(byte[] command) {
+    void sendCommand(Bytes command) {
 
     }
 
@@ -210,7 +213,7 @@ public class ConnectedVehicleController {
         }
     }
 
-    void onCommandReceived(byte[] bytes) {
+    void onCommandReceived(Bytes bytes) {
         Command command = CommandResolver.resolve(bytes);
         vehicle.update(command);
 
@@ -251,7 +254,7 @@ public class ConnectedVehicleController {
     void continueInitAfterGetCapabilities() {
         rescheduleInitTimer();
         sentCommand = GetVehicleStatus.TYPE;
-        sendCommand(new GetVehicleStatus().getBytes());
+        sendCommand(new GetVehicleStatus());
     }
 
     void cancelInitTimer() {
@@ -291,10 +294,10 @@ public class ConnectedVehicleController {
                 // try to send command again
                 if (sentCommand == GetVehicleStatus.TYPE) {
                     Log.d(SandboxUi.TAG, "send vs");
-                    sendCommand(new GetVehicleStatus().getBytes());
+                    sendCommand(new GetVehicleStatus());
                 } else if (sentCommand == GetCapabilities.TYPE) {
                     Log.d(SandboxUi.TAG, "send capa");
-                    sendCommand(new GetCapabilities().getBytes());
+                    sendCommand(new GetCapabilities());
                 }
 
                 if (initTimer != null) rescheduleInitTimer(); // no timer for telematics

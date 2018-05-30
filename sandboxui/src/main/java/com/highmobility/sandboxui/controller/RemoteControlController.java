@@ -15,7 +15,6 @@ import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.view.IRemoteControlView;
 import com.highmobility.sandboxui.util.ITapToControlCommandConverter;
 import com.highmobility.sandboxui.util.TapToControlCommandConverter;
-import com.highmobility.utils.Bytes;
 import com.highmobility.autoapi.Command;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
@@ -23,8 +22,9 @@ import com.highmobility.hmkit.Constants;
 import com.highmobility.hmkit.Error.LinkError;
 import com.highmobility.hmkit.Link;
 import com.highmobility.hmkit.Manager;
+import com.highmobility.utils.ByteUtils;
+import com.highmobility.value.Bytes;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -56,7 +56,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
         List<ConnectedLink> links = Manager.getInstance().getBroadcaster().getLinks();
 
         for (ConnectedLink link : links) {
-            if (Arrays.equals(link.getSerial(), serial)) {
+            if (link.getSerial().equals(serial)) {
                 this.link = link;
                 this.link.setListener(this);
                 break;
@@ -90,7 +90,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
     }
 
     @Override
-    public void onCommandReceived(Link link, byte[] bytes) {
+    public void onCommandReceived(Link link, Bytes bytes) {
         Command command = CommandResolver.resolve(bytes);
 
         if (command instanceof ControlMode) {
@@ -100,7 +100,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
             Failure failure = (Failure) command;
             Log.d(TAG, "failure " + failure.getFailureReason().toString());
             if (initializing) {
-                onInitializeFinished(1, Bytes.hexFromBytes(failure.getFailedType()
+                onInitializeFinished(1, ByteUtils.hexFromBytes(failure.getFailedType()
                         .getIdentifierAndType())
                         + " failed: " + failure.getFailureReason().toString());
             } else {
@@ -146,7 +146,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
         view.showLoadingView(true);
         startInitializeTimer();
 
-        link.sendCommand(new GetControlMode().getBytes(), new Link.CommandCallback() {
+        link.sendCommand(new GetControlMode(), new Link.CommandCallback() {
             @Override
             public void onCommandSent() {
 
@@ -164,7 +164,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
         if (initializing) {
             // we are initializing
             if (controlMode.getMode() == com.highmobility.autoapi.property.ControlMode.AVAILABLE) {
-                link.sendCommand(new StartControlMode().getBytes(), new Link.CommandCallback() {
+                link.sendCommand(new StartControlMode(), new Link.CommandCallback() {
                     @Override
                     public void onCommandSent() {
                         // wait for the control command
@@ -216,7 +216,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
         final int angle = converter.getAngle();
         final int speed = converter.getSpeed();
 
-        link.sendCommand(new ControlCommand(speed, angle).getBytes(), new Link.CommandCallback() {
+        link.sendCommand(new ControlCommand(speed, angle), new Link.CommandCallback() {
             @Override
             public void onCommandSent() {
                 if (speed == 0 && converter.getSpeed() == 0 && converter.getAngle() == angle) {

@@ -5,6 +5,7 @@ import com.highmobility.hmkit.Error.TelematicsError;
 import com.highmobility.hmkit.Telematics;
 import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
+import com.highmobility.value.Bytes;
 
 /**
  * Created by root on 24/05/2017.
@@ -20,12 +21,12 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
     }
 
     @Override
-    void sendCommand(byte[] command) {
+    void sendCommand(Bytes command) {
         Log.d(SandboxUi.TAG, "sendCommand: " + certificate.toString());
         manager.getTelematics().sendCommand(command, certificate.getGainerSerial(), new
                 Telematics.CommandCallback() {
                     @Override
-                    public void onCommandResponse(byte[] bytes) {
+                    public void onCommandResponse(Bytes bytes) {
                         onCommandReceived(bytes);
                     }
 

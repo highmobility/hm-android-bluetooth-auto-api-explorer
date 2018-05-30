@@ -10,7 +10,6 @@ android {
         versionCode 1
         versionName "1.0.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true
     }
 
     buildTypes {
@@ -35,14 +34,18 @@ android {
 }
 
 def artifactProperties = new Properties()
-artifactProperties.load(new FileInputStream("sandboxui/deploy.settings"))
+artifactProperties.load(new FileInputStream("$rootProject.projectDir/sandboxui/deploy.settings"))
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
 
 dependencies {
     implementation project(path: ':sandboxui')
     implementation("com.highmobility:hmkit-android:${artifactProperties.hmkitVersion}@aar") {
         transitive = true
+        changing = true
     }
-
     implementation 'com.android.support:support-v4:26.1.0'
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
