@@ -16,6 +16,7 @@ import com.highmobility.autoapi.property.FrontExteriorLightState;
 import com.highmobility.autoapi.property.TrunkLockState;
 import com.highmobility.autoapi.property.TrunkPosition;
 import com.highmobility.hmkit.Link;
+import com.highmobility.autoapi.LockUnlockDoors;
 
 import java.util.Arrays;
 
@@ -116,6 +117,9 @@ public class VehicleStatus {
             lightsAmbientColor = state.getAmbientColor();
         } else if (command instanceof Capabilities) {
             capabilities = (Capabilities) command;
+            if (isSupported(LockUnlockDoors.TYPE)) {
+                doorsLocked = false;
+            }
         }
     }
 

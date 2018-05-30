@@ -1,6 +1,7 @@
 package com.highmobility.sandboxui.controller;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.util.Log;
 
 import com.highmobility.autoapi.Capabilities;
@@ -250,8 +251,13 @@ public class ConnectedVehicleController {
 
     void continueInitAfterGetCapabilities() {
         rescheduleInitTimer();
-        sentCommand = GetVehicleStatus.TYPE;
-        sendCommand(new GetVehicleStatus().getBytes());
+        new Handler().postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            sentCommand = GetVehicleStatus.TYPE;
+            sendCommand(new GetVehicleStatus().getBytes());
+          }
+        }, 150);
     }
 
     void cancelInitTimer() {

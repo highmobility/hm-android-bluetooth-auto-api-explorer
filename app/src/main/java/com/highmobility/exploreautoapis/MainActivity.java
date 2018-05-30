@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.hmkit.Error.DownloadAccessCertificateError;
 import com.highmobility.hmkit.Manager;
 import com.highmobility.sandboxui.controller.ConnectedVehicleController;
@@ -30,66 +31,54 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        /*
-         * Before using HMKit, you'll have to initialise the Manager singleton
-         * with a snippet from the Platform Workspace:
-         *
-         *   1. Sign in to the workspace
-         *   2. Go to the LEARN section and choose Android
-         *   3. Follow the Getting Started instructions
-         *
-         * By the end of the tutorial you will have a snippet for initialisation,
-         * that looks something like this:
-         *
-         *   Manager.getInstance().initialize(
-         *     Base64String,
-         *     Base64String,
-         *     Base64String,
-         *     getApplicationContext()
-         *   );
-         */
+        // ruptela maidu test 2
+        Manager.environment = Manager.Environment.STAGING;
+        Manager.getInstance().initialize(
+                "dGVzdBIbNgrN/I39pquS1JyKhrOYHvPMrzcEz0j9grNYsmYzofuh1ZHAmTYdRMs6HHWChkoYDuwSL20PqQ4MlESOlTORL0CDDZ+ZD3YlY3JOwrqHVF75es7/h/OtPGMVB8jRi1pkeIYKsV/TZGGy7BuwLEgKWUs95Cixuo+/mzvVTvlhSBVA7BuPnGoF5Z3KBlYiWsnK4OOs",
+                "2+Z3ggUcFK+MqO3V/gAVhlSQO36fJnjvtQn5AqKylY4=",
+                "P1myzyqRK3oERcM2QLlhoK+B3BIfN+l61zo9wGQj/T8ARhS9ue3q+5HAiYNZySBN85P3J" +
+                        "+hlJEm2T1fNdJfBwQ==",
+                getApplicationContext()
+        );
 
-        try {
-            // PASTE THE SNIPPET HERE
+        AccessCertificate cert = Manager.getInstance().getCertificate(Bytes.bytesFromHex("0123B910A8108096EE"));
 
-            //Manager.getInstance().initialize(
-            //        "...",
-            //        "...",
-            //        "...",
-            //        getApplicationContext()
-            //);
+        // PASTE ACCESS TOKEN HERE
+        if (cert != null) {
+            onCertDownloaded(cert.getGainerSerial());
+        } else {
+            String accessToken = "aa5fac7f-bbef-41ab-905f-706b4b038e7a";
+            Manager.getInstance().downloadCertificate(accessToken, new
+                    Manager.DownloadCallback() {
+                        @Override
+                        public void onDownloaded(byte[] serial) {
+                            onCertDownloaded(serial);
+                        }
 
-            // PASTE ACCESS TOKEN HERE
-            String accessToken = "";
-
-            Manager.getInstance().downloadCertificate(accessToken, new Manager.DownloadCallback() {
-                @Override
-                public void onDownloaded(byte[] serial) {
-                    progressBar.setVisibility(GONE);
-
-                    Log.d(TAG, "Certificate downloaded for vehicle: " + Bytes.hexFromBytes
-                            (serial));
-                    Intent i = new Intent(MainActivity.this, ConnectedVehicleActivity.class);
-                    i.putExtra(ConnectedVehicleController.EXTRA_SERIAL, serial);
-                    i.putExtra(ConnectedVehicleController.EXTRA_USE_BLE, true);
-                    i.putExtra(ConnectedVehicleActivity.EXTRA_FINISH_ON_BACK_PRESS, false);
-                    startActivity(i);
-                    MainActivity.this.finish(); // this activity is irrelevant now. SDK is initialized.
-                }
-
-                @Override
-                public void onDownloadFailed(DownloadAccessCertificateError error) {
-                    progressBar.setVisibility(GONE);
-                    statusTextView.setText("Could not download the certificate:\n\n" + error
-                            .getMessage());
-                    Log.d(TAG, "Could not download a certificate with token: " + error
-                            .getMessage());
-                }
-            });
-        } catch (Exception e) {
-            Log.e(TAG, "onCreate: ", e);
-            progressBar.setVisibility(GONE);
-            statusTextView.setText(e.getMessage());
+                        @Override
+                        public void onDownloadFailed(DownloadAccessCertificateError error) {
+                            progressBar.setVisibility(GONE);
+                            statusTextView.setText("Could not download the certificate:\n\n" + error
+                                    .getMessage());
+                            Log.d(TAG, "Could not download a certificate with token: " + error
+                                    .getMessage());
+                        }
+                    });
         }
+    }
+
+    private void onCertDownloaded(byte[] serial) {
+        progressBar.setVisibility(GONE);
+        Log.d(TAG, "Certificate downloaded for vehicle: " + serial);
+        Intent i = new Intent(MainActivity.this, ConnectedVehicleActivity
+                .class);
+        i.putExtra(ConnectedVehicleController.EXTRA_SERIAL, serial);
+        i.putExtra(ConnectedVehicleController.EXTRA_USE_BLE, true);
+        i.putExtra(ConnectedVehicleController.EXTRA_ALIVE_PING_AMOUNT_NAME,
+                500);
+        i.putExtra(ConnectedVehicleActivity.EXTRA_FINISH_ON_BACK_PRESS, false);
+        startActivity(i);
+        MainActivity.this.finish(); // this activity is irrelevant now. SDK is
+        // initialized.
     }
 }
