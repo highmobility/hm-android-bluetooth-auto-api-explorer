@@ -8,11 +8,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.highmobility.crypto.AccessCertificate;
-import com.highmobility.hmkit.Error.DownloadAccessCertificateError;
+import com.highmobility.hmkit.error.DownloadAccessCertificateError;
 import com.highmobility.hmkit.Manager;
 import com.highmobility.sandboxui.controller.ConnectedVehicleController;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
-import com.highmobility.utils.Bytes;
+import com.highmobility.value.DeviceSerial;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,7 +41,8 @@ public class MainActivity extends Activity {
                 getApplicationContext()
         );
 
-        AccessCertificate cert = Manager.getInstance().getCertificate(Bytes.bytesFromHex("0123B910A8108096EE"));
+        AccessCertificate cert = Manager.getInstance().getCertificate(new DeviceSerial
+                ("0123B910A8108096EE"));
 
         // PASTE ACCESS TOKEN HERE
         if (cert != null) {
@@ -51,7 +52,7 @@ public class MainActivity extends Activity {
             Manager.getInstance().downloadCertificate(accessToken, new
                     Manager.DownloadCallback() {
                         @Override
-                        public void onDownloaded(byte[] serial) {
+                        public void onDownloaded(DeviceSerial serial) {
                             onCertDownloaded(serial);
                         }
 
@@ -64,15 +65,16 @@ public class MainActivity extends Activity {
                                     .getMessage());
                         }
                     });
+
         }
     }
 
-    private void onCertDownloaded(byte[] serial) {
+    private void onCertDownloaded(DeviceSerial serial) {
         progressBar.setVisibility(GONE);
         Log.d(TAG, "Certificate downloaded for vehicle: " + serial);
         Intent i = new Intent(MainActivity.this, ConnectedVehicleActivity
                 .class);
-        i.putExtra(ConnectedVehicleController.EXTRA_SERIAL, serial);
+        i.putExtra(ConnectedVehicleController.EXTRA_SERIAL, serial.getByteArray());
         i.putExtra(ConnectedVehicleController.EXTRA_USE_BLE, true);
         i.putExtra(ConnectedVehicleController.EXTRA_ALIVE_PING_AMOUNT_NAME,
                 500);

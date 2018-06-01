@@ -35,6 +35,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
     TextView title;
     ProgressBar progressBar;
     ImageButton refreshButton;
+    ImageButton revokeButton;
 
     VehicleOverviewFragment overviewFragment;
 
@@ -59,6 +60,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         title = findViewById(R.id.title);
         progressBar = findViewById(R.id.progress_bar);
         refreshButton = findViewById(R.id.refresh_button);
+        revokeButton = findViewById(R.id.revoke_button);
 
         broadcastFragment = (BroadcastFragment) getSupportFragmentManager().findFragmentById(R.id
                 .broadcast_fragment);
@@ -68,6 +70,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
 
         if (controller.useBle) {
             refreshButton.setVisibility(GONE);
+            revokeButton.setOnClickListener(v -> controller.onRevokeClicked());
         } else {
             ((ViewGroup) broadcastFragment.getView().getParent()).removeView(broadcastFragment
                     .getView());
@@ -122,8 +125,11 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
     @Override public void onLinkReceived(boolean received) {
         broadcastFragment.onLinkReceived(received);
         if (received == false) {
+            revokeButton.setVisibility(GONE);
             showLoadingView(false);
             showNormalView(false);
+        } else {
+            revokeButton.setVisibility(VISIBLE);
         }
     }
 

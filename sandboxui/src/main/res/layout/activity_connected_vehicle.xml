@@ -27,6 +27,7 @@
             android:background="@color/edge">
         </LinearLayout>
 
+
         <ImageButton
             android:id="@+id/refresh_button"
             android:padding="1dp"
@@ -38,6 +39,20 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="9dp"
+            />
+
+        <ImageButton
+            android:id="@+id/revoke_button"
+            android:padding="1dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/revokehdpi"
+            android:background="@null"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="9dp"
+            android:visibility="gone"
             />
     </RelativeLayout>
 

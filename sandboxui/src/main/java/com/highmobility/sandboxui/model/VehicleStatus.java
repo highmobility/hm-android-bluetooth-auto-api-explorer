@@ -8,6 +8,7 @@ import com.highmobility.autoapi.ClimateState;
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.LightsState;
 import com.highmobility.autoapi.LockState;
+import com.highmobility.autoapi.LockUnlockDoors;
 import com.highmobility.autoapi.RooftopState;
 import com.highmobility.autoapi.TrunkState;
 import com.highmobility.autoapi.Type;
@@ -16,9 +17,7 @@ import com.highmobility.autoapi.property.FrontExteriorLightState;
 import com.highmobility.autoapi.property.TrunkLockState;
 import com.highmobility.autoapi.property.TrunkPosition;
 import com.highmobility.hmkit.Link;
-import com.highmobility.autoapi.LockUnlockDoors;
-
-import java.util.Arrays;
+import com.highmobility.value.DeviceSerial;
 
 /**
  * This class will keep the state of the vehicle according to commands received.
@@ -27,8 +26,9 @@ public class VehicleStatus {
     public static final String TAG = "VehicleStatus";
     // means SDK cannot be terminated
     public static byte[] vehicleConnectedWithBle;
-    public static boolean isVehicleConnectedWithBle(byte[] serial) {
-        return vehicleConnectedWithBle != null && Arrays.equals(serial, vehicleConnectedWithBle) == true;
+
+    public static boolean isVehicleConnectedWithBle(DeviceSerial serial) {
+        return vehicleConnectedWithBle != null && serial.equals(vehicleConnectedWithBle) == true;
     }
 
     public Float insideTemperature;
@@ -124,11 +124,11 @@ public class VehicleStatus {
     }
 
     public void onLinkAuthenticated(Link link) {
-        vehicleConnectedWithBle = link.getSerial();
+        vehicleConnectedWithBle = link.getSerial().getByteArray();
     }
 
     public void onLinkReceived() {
-        vehicleConnectedWithBle = new byte[] {0x00};
+        vehicleConnectedWithBle = new byte[]{0x00};
     }
 
     public boolean isSupported(Type type) {
