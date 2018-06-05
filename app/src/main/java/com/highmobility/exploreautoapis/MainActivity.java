@@ -8,8 +8,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.highmobility.crypto.AccessCertificate;
-import com.highmobility.hmkit.error.DownloadAccessCertificateError;
 import com.highmobility.hmkit.Manager;
+import com.highmobility.hmkit.error.DownloadAccessCertificateError;
 import com.highmobility.sandboxui.controller.ConnectedVehicleController;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.value.DeviceSerial;
@@ -34,21 +34,38 @@ public class MainActivity extends Activity {
         // ruptela maidu test 2
         Manager.environment = Manager.Environment.STAGING;
         Manager.getInstance().initialize(
-                "dGVzdBIbNgrN/I39pquS1JyKhrOYHvPMrzcEz0j9grNYsmYzofuh1ZHAmTYdRMs6HHWChkoYDuwSL20PqQ4MlESOlTORL0CDDZ+ZD3YlY3JOwrqHVF75es7/h/OtPGMVB8jRi1pkeIYKsV/TZGGy7BuwLEgKWUs95Cixuo+/mzvVTvlhSBVA7BuPnGoF5Z3KBlYiWsnK4OOs",
-                "2+Z3ggUcFK+MqO3V/gAVhlSQO36fJnjvtQn5AqKylY4=",
-                "P1myzyqRK3oERcM2QLlhoK+B3BIfN+l61zo9wGQj/T8ARhS9ue3q+5HAiYNZySBN85P3J" +
-                        "+hlJEm2T1fNdJfBwQ==",
+                "dGVzdDqCyqfi9UWaGs+ta7jIegqxVX+sIy3S+DULxj2Cs4FI5oomQmsjEd+6icfGudGw1vs1NfIkmLocK/zi44tVwPH6X/GyoQih45l2/R8MqB8PTqRZB6DOi4b+IN9cltHCgAjsxdmKfAhuj+HkOGep0qQ+T+hOfJ0YVfL5r4VmeO0H1ueUrxT6aBmAupN4xNruZdAgVVRY",
+                "uew/c8a9b3T5B+O1p2lQkDqNkOJxHWK5EvoQwbdthsY=",
+                "P1myzyqRK3oERcM2QLlhoK+B3BIfN+l61zo9wGQj/T8ARhS9ue3q+5HAiYNZySBN85P3J+hlJEm2T1fNdJfBwQ==",
                 getApplicationContext()
         );
+
+        /*// mission e
+        Manager.getInstance().initialize(
+                "dGVzdLnVeFXsIJTMMDWwwF7qX/RAYcXdpTzQFbxNYs0vJcq8RpyN1HbA5PCTqJ8CI2urU8PO1YvV1mP4nJuEqHQpq9Dzl0UJiGglp3a3uBqXVTGy0+LwQ0MROMNAYh+Tdp2yIqvU6Uy5yboLcrHLLUHDZEguiGEnVP0pNH+uCaHca4/CiNnmKEm67pZqXtnDDH0NHqP2LEsi",
+                "CDh9oEK5koiw/4VhUT16FEeB6Z+6TRw9mup2aGoYlCM=",
+                "K5mVFoq2rqKwAttWdIyPhwgVL80FNxkkNpgr/ca+ueq3JFn5iMLAMTJOKzG26qwtqrLO+z2sxxdwWNaItdBUWg==",
+                getApplicationContext()
+        );*/
+
+
+        // PASTE ACCESS TOKEN HERE
 
         AccessCertificate cert = Manager.getInstance().getCertificate(new DeviceSerial
                 ("0123B910A8108096EE"));
 
-        // PASTE ACCESS TOKEN HERE
         if (cert != null) {
             onCertDownloaded(cert.getGainerSerial());
         } else {
-            String accessToken = "aa5fac7f-bbef-41ab-905f-706b4b038e7a";
+            // PASTE ACCESS TOKEN HERE
+            String accessToken = "";
+            // ruptela
+            accessToken = "GiGT3hcUVZZ11r_U6BeGDrZVS_QUqYSQnrE-5gflpmzBMXpFsbzsXaeEovTdUSZwxAiQkHAGBPgkraQ6HxfG5ZWUCTfaGoQh_6ChthOOceF4yMJgkAvRzWgfjssIMldI2Q";
+
+            // mission e
+/*            accessToken =
+                    "Rp1wTWvW79qKE6iwGpYBimM12y-Z_Y5L6oAc2ytoyBc7S6leh88a8kQbCpPDsft7bAU3DNea02FQsJQWKJGB2zU79oTedzkWTIhqu6fv9jamQta9952aWEheHbYJ-xQ8Ng";*/
+
             Manager.getInstance().downloadCertificate(accessToken, new
                     Manager.DownloadCallback() {
                         @Override
