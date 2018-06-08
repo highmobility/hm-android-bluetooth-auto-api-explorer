@@ -16,6 +16,7 @@ import com.highmobility.autoapi.property.FrontExteriorLightState;
 import com.highmobility.autoapi.property.TrunkLockState;
 import com.highmobility.autoapi.property.TrunkPosition;
 import com.highmobility.hmkit.Link;
+import com.highmobility.value.DeviceSerial;
 
 import java.util.Arrays;
 
@@ -26,8 +27,8 @@ public class VehicleStatus {
     public static final String TAG = "VehicleStatus";
     // means SDK cannot be terminated
     public static byte[] vehicleConnectedWithBle;
-    public static boolean isVehicleConnectedWithBle(byte[] serial) {
-        return vehicleConnectedWithBle != null && Arrays.equals(serial, vehicleConnectedWithBle) == true;
+    public static boolean isVehicleConnectedWithBle(DeviceSerial serial) {
+        return vehicleConnectedWithBle != null && serial.equals(vehicleConnectedWithBle) == true;
     }
 
     public Float insideTemperature;
@@ -120,7 +121,7 @@ public class VehicleStatus {
     }
 
     public void onLinkAuthenticated(Link link) {
-        vehicleConnectedWithBle = link.getSerial();
+        vehicleConnectedWithBle = link.getSerial().getByteArray();
     }
 
     public void onLinkReceived() {
