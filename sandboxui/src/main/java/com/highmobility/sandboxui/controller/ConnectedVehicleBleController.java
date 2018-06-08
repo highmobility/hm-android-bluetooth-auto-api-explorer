@@ -235,10 +235,10 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     @Override public void onRevokeClicked() {
         view.showLoadingView(true);
 
-        link.revoke(link.getSerial(), new Link.RevokeCallback() {
+        link.revoke(new Link.RevokeCallback() {
 
-            @Override public void onRevokeSuccess() {
-                // should hide the view here probably, or maybe link will de authorise
+            @Override public void onRevokeSuccess(Bytes customData) {
+                // link will de authorise where ui will be updated
             }
 
             @Override public void onRevokeFailed(RevokeError revokeError) {

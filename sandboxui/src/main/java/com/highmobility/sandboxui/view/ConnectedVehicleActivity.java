@@ -137,6 +137,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         if (show) {
             viewPager.animate().alpha(1f).setDuration(200).setListener(null);
         } else {
+            showLoadingView(false);
             viewPager.animate().alpha(0f).setDuration(200).setListener(null);
         }
     }
