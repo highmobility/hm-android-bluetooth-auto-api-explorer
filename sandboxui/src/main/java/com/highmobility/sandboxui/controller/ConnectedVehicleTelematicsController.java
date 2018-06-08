@@ -1,7 +1,7 @@
 package com.highmobility.sandboxui.controller;
 
 import android.util.Log;
-import com.highmobility.hmkit.Error.TelematicsError;
+import com.highmobility.hmkit.error.TelematicsError;
 import com.highmobility.hmkit.Telematics;
 import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
