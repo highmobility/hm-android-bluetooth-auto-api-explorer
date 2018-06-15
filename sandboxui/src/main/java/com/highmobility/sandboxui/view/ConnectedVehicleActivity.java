@@ -127,7 +127,6 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
     @Override public void onLinkReceived(boolean received) {
         broadcastFragment.onLinkReceived(received);
         if (received == false) {
-
             showLoadingView(false);
             showNormalView(false);
         }

@@ -92,8 +92,8 @@ public class MainActivity extends Activity {
                 .class);
         i.putExtra(ConnectedVehicleController.EXTRA_SERIAL, serial.getByteArray());
         i.putExtra(ConnectedVehicleController.EXTRA_USE_BLE, true);
-        i.putExtra(ConnectedVehicleController.EXTRA_ALIVE_PING_AMOUNT_NAME,
-                500);
+        /*i.putExtra(ConnectedVehicleController.EXTRA_ALIVE_PING_AMOUNT_NAME,
+                500);*/
         i.putExtra(ConnectedVehicleActivity.EXTRA_FINISH_ON_BACK_PRESS, false);
         startActivity(i);
         MainActivity.this.finish(); // this activity is irrelevant now. SDK is
