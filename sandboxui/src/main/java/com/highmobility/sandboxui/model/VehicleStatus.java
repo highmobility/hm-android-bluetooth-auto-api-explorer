@@ -18,8 +18,6 @@ import com.highmobility.autoapi.property.TrunkPosition;
 import com.highmobility.hmkit.Link;
 import com.highmobility.value.DeviceSerial;
 
-import java.util.Arrays;
-
 /**
  * This class will keep the state of the vehicle according to commands received.
  */
@@ -27,6 +25,7 @@ public class VehicleStatus {
     public static final String TAG = "VehicleStatus";
     // means SDK cannot be terminated
     public static byte[] vehicleConnectedWithBle;
+
     public static boolean isVehicleConnectedWithBle(DeviceSerial serial) {
         return vehicleConnectedWithBle != null && serial.equals(vehicleConnectedWithBle) == true;
     }
@@ -125,7 +124,7 @@ public class VehicleStatus {
     }
 
     public void onLinkReceived() {
-        vehicleConnectedWithBle = new byte[] {0x00};
+        vehicleConnectedWithBle = new byte[]{0x00};
     }
 
     public boolean isSupported(Type type) {

@@ -181,6 +181,10 @@ public class ConnectedVehicleController {
         sendCommand(command);
     }
 
+    public void onRevokeClicked() {
+
+    }
+
     public void onRefreshClicked() {
         view.showLoadingView(true);
         sentCommand = com.highmobility.autoapi.VehicleStatus.TYPE;

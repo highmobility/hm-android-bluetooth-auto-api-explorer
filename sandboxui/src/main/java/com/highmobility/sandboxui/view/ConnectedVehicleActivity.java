@@ -1,6 +1,8 @@
 package com.highmobility.sandboxui.view;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -35,6 +37,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
     TextView title;
     ProgressBar progressBar;
     ImageButton refreshButton;
+    ImageButton revokeButton;
 
     VehicleOverviewFragment overviewFragment;
 
@@ -59,6 +62,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         title = findViewById(R.id.title);
         progressBar = findViewById(R.id.progress_bar);
         refreshButton = findViewById(R.id.refresh_button);
+        revokeButton = findViewById(R.id.revoke_button);
 
         broadcastFragment = (BroadcastFragment) getSupportFragmentManager().findFragmentById(R.id
                 .broadcast_fragment);
@@ -68,6 +72,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
 
         if (controller.useBle) {
             refreshButton.setVisibility(GONE);
+            revokeButton.setOnClickListener(v -> controller.onRevokeClicked());
         } else {
             ((ViewGroup) broadcastFragment.getView().getParent()).removeView(broadcastFragment
                     .getView());
@@ -130,8 +135,11 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
     void showNormalView(boolean show) {
         if (show) {
             viewPager.animate().alpha(1f).setDuration(200).setListener(null);
+            revokeButton.setVisibility(VISIBLE);
         } else {
+            showLoadingView(false);
             viewPager.animate().alpha(0f).setDuration(200).setListener(null);
+            revokeButton.setVisibility(GONE);
         }
     }
 
@@ -139,6 +147,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
     public void showLoadingView(boolean loading) {
         showNormalView(!loading);
         progressBar.setVisibility(loading ? VISIBLE : GONE);
+
         if (controller.useBle == false) {
             refreshButton.setEnabled(!loading);
         }
@@ -168,6 +177,22 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
             exteriorFragment.onVehicleStatusUpdate(ExteriorListItem.createExteriorListItems
                     (controller.vehicle));
         }
+    }
+
+    @Override
+    public void showAlert(String title, String message, String confirmTitle, String declineTitle,
+                          DialogInterface.OnClickListener confirm, DialogInterface
+                                  .OnClickListener decline) {
+        AlertDialog.Builder builder;
+
+        builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+
+        builder.setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(confirmTitle, confirm)
+                .setNegativeButton(declineTitle, decline)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     @Override

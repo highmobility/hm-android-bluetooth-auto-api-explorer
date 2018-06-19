@@ -11,16 +11,18 @@ import com.highmobility.hmkit.Broadcaster.State;
 import com.highmobility.hmkit.BroadcasterListener;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
-import com.highmobility.hmkit.error.BroadcastError;
-import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.hmkit.Link;
 import com.highmobility.hmkit.Manager;
+import com.highmobility.hmkit.error.BroadcastError;
+import com.highmobility.hmkit.error.LinkError;
+import com.highmobility.hmkit.error.RevokeError;
 import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
 import com.highmobility.sandboxui.view.RemoteControlActivity;
 import com.highmobility.value.Bytes;
+
 import java.util.List;
 
 import static com.highmobility.hmkit.Broadcaster.State.BLUETOOTH_UNAVAILABLE;
@@ -54,7 +56,8 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
     public void startRemoteControl() {
         Intent i = new Intent(view.getActivity(), RemoteControlActivity.class);
-        i.putExtra(RemoteControlController.LINK_IDENTIFIER_MESSAGE, link.getSerial().getByteArray());
+        i.putExtra(RemoteControlController.LINK_IDENTIFIER_MESSAGE, link.getSerial().getByteArray
+                ());
         view.getActivity().startActivityForResult(i, ConnectedVehicleActivity
                 .REQUEST_CODE_REMOTE_CONTROL);
     }
@@ -229,6 +232,21 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         broadcaster = null;
 
         super.willDestroy();
+    }
+
+    @Override public void onRevokeClicked() {
+        view.showAlert("Revoke authorisation?", "", "Yes", "No", (dialog, which) -> {
+            view.showLoadingView(true);
+            link.revoke(new Link.RevokeCallback() {
+                @Override public void onRevokeSuccess(Bytes customData) {
+                    // link will de authorise where ui will be updated
+                }
+
+                @Override public void onRevokeFailed(RevokeError revokeError) {
+                    view.onError(false, "Revoke failed: " + revokeError.getMessage());
+                }
+            });
+        }, null);
     }
 
     void startBroadcasting() {
