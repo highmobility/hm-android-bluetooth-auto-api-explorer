@@ -11,7 +11,7 @@ import com.highmobility.hmkit.Manager;
 import com.highmobility.hmkit.error.DownloadAccessCertificateError;
 import com.highmobility.sandboxui.controller.ConnectedVehicleController;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
-import com.highmobility.value.DeviceSerial;
+import com.highmobility.crypto.value.DeviceSerial;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

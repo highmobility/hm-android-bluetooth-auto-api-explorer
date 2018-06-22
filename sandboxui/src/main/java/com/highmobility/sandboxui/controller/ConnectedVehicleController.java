@@ -26,7 +26,7 @@ import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
 import com.highmobility.value.Bytes;
-import com.highmobility.value.DeviceSerial;
+import com.highmobility.crypto.value.DeviceSerial;
 
 import java.util.Timer;
 import java.util.TimerTask;

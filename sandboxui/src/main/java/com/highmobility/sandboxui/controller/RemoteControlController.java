@@ -163,7 +163,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
         Log.d(TAG, controlMode.getMode().toString());
         if (initializing) {
             // we are initializing
-            if (controlMode.getMode() == com.highmobility.autoapi.property.ControlMode.AVAILABLE) {
+            if (controlMode.getMode() == com.highmobility.autoapi.property.ControlModeValue.AVAILABLE) {
                 link.sendCommand(new StartControlMode(), new Link.CommandCallback() {
                     @Override
                     public void onCommandSent() {
@@ -175,13 +175,13 @@ public class RemoteControlController implements IRemoteControlController, Connec
                         onInitializeFinished(1, linkError.getType() + ": Cant start control mode");
                     }
                 });
-            } else if (controlMode.getMode() == com.highmobility.autoapi.property.ControlMode
+            } else if (controlMode.getMode() == com.highmobility.autoapi.property.ControlModeValue
                     .STARTED) {
                 onInitializeFinished(0, "");
             } else {
                 onInitializeFinished(1, "Bad control mode " + controlMode.getMode().toString());
             }
-        } else if (controlMode.getMode() != com.highmobility.autoapi.property.ControlMode.STARTED) {
+        } else if (controlMode.getMode() != com.highmobility.autoapi.property.ControlModeValue.STARTED) {
             onInitializeFinished(1, "Bad control mode");
         }
     }

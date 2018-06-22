@@ -40,7 +40,7 @@ dependencies {
         changing = true
     }
 
-    implementation('com.highmobility:hmkit-auto-api:1.7.1-dev')
+    implementation('com.highmobility:hmkit-auto-api:1.8.0')
 
     implementation 'com.android.support:support-v4:26.1.0'
     implementation 'info.hoang8f:android-segmented:1.0.6'
