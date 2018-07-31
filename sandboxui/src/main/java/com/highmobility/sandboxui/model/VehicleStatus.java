@@ -16,7 +16,7 @@ import com.highmobility.autoapi.property.FrontExteriorLightState;
 import com.highmobility.autoapi.property.TrunkLockState;
 import com.highmobility.autoapi.property.TrunkPosition;
 import com.highmobility.hmkit.Link;
-import com.highmobility.value.DeviceSerial;
+import com.highmobility.crypto.value.DeviceSerial;
 
 /**
  * This class will keep the state of the vehicle according to commands received.

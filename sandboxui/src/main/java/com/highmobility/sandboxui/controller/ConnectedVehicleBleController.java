@@ -229,6 +229,8 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         }
 
         broadcaster.disconnectAllLinks();
+        broadcaster.stopBroadcasting();
+        broadcaster.stopAlivePinging();
         broadcaster = null;
 
         super.willDestroy();
