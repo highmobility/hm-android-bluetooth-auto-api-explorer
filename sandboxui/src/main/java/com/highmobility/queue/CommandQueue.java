@@ -4,7 +4,6 @@ import android.support.annotation.Nullable;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.Type;
-import com.highmobility.value.Bytes;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,15 +11,19 @@ import java.util.Timer;
 
 /**
  * Queue system for commands. An item will wait for its ack {@link #queue(Command)} or for its
- * response command {@link #queue(QueueItem)} before next items will be sent.
+ * response command {@link #queue(Command)} before next items will be sent.
  * <p>
- * Command responses have to be dispatched to {@link #onCommandReceived(Bytes)} and {@link
+ * Command responses have to be dispatched to {@link #onCommandReceived(Command)} and {@link
  * #onAckReceived(Command)} and responses will be dispatched via {@link ICommandQueue}
  * <p>
  * Commands will be timed out after {@link #timeout} and will be tried again for {@link #retryCount}
  * times.
  * <p>
  * Will not queue commands with same type.
+ * <p>
+ * <p>
+ * TODO: can add option to queue 1 more command of same type that will be overwritten by new queue
+ * items. For instance lock, unlock, lock, lock, lock will start lock and queue lock
  */
 public class CommandQueue {
     ICommandQueue listener;
@@ -38,11 +41,14 @@ public class CommandQueue {
     /**
      * Queue the command and wait for its response command.
      *
-     * @param item The command and its response that will be queued.
+     * @param command The command and its response that will be queued.
      * @return false if cannot queue at this time - maybe this command type is already queued.
      */
-    public boolean queue(QueueItem item) {
-
+    public boolean queue(Command command, Type responseType) {
+        if (typeAlreadyQueued(command)) return false;
+        QueueItem_ item = new QueueItem_(command, retryCount, responseType);
+        items.add(item);
+        sendNextItem();
         return true;
     }
 
@@ -60,8 +66,17 @@ public class CommandQueue {
         return true;
     }
 
-    public void onCommandReceived(Bytes command) {
-        stopTimer();
+    public void onCommandReceived(Command command) {
+        for (int i = items.size() - 1; i >= 0; i--) {
+            QueueItem_ item = items.get(i);
+            if (item.responseType == null) continue;
+            if (command.getType().equals(item.responseType)) {
+                items.remove(i);
+                listener.onCommandResponse(item.commandSent, command);
+                sendNextItem();
+                break;
+            }
+        }
     }
 
     public void onAckReceived(Command command) {

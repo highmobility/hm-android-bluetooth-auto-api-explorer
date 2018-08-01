@@ -4,9 +4,9 @@ import com.highmobility.autoapi.Command;
 import com.highmobility.value.Bytes;
 
 public interface ICommandQueue {
-    void onCommandResponse(QueueItem queuedItem, Bytes response);
+    void onCommandResponse(Command sentCommand, Command response);
 
-    void onCommandAck(Command queuedCommand);
+    void onCommandAck(Command sentCommand);
 
     void onCommandFailed();
 
