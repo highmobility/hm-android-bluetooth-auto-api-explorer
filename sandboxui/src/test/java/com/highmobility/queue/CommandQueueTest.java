@@ -6,6 +6,7 @@ import com.highmobility.autoapi.LockUnlockDoors;
 import com.highmobility.autoapi.property.doors.DoorLocation;
 import com.highmobility.autoapi.property.doors.DoorLock;
 import com.highmobility.autoapi.property.doors.DoorLockState;
+import com.highmobility.hmkit.error.LinkError;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,7 @@ public class CommandQueueTest {
     final Command[] responseCommand = new Command[1];
     final int[] commandsSent = {0};
     final Command[] ackCommand = new Command[1];
+    final CommandFailure[] failure = new CommandFailure[1];
 
     final ICommandQueue iQueue = new ICommandQueue() {
         @Override public void onCommandResponse(Command queuedItem, Command response) {
@@ -26,8 +28,8 @@ public class CommandQueueTest {
             ackCommand[0] = queuedCommand;
         }
 
-        @Override public void onCommandFailed() {
-
+        @Override public void onCommandFailed(CommandFailure reason) {
+            failure[0] = reason;
         }
 
         @Override public void sendCommand(Command command) {
@@ -43,7 +45,7 @@ public class CommandQueueTest {
 
     @Test public void responseAckDispatched() throws InterruptedException {
         // send lock, assert ack dispatched
-        CommandQueue queue = new CommandQueue(iQueue, .5f, 3);
+        CommandQueue queue = new CommandQueue(iQueue, 500, 3);
         Command command = new LockUnlockDoors(DoorLock.LOCKED);
         queue.queue(command);
         Thread.sleep(50);
@@ -54,7 +56,7 @@ public class CommandQueueTest {
     @Test public void responseCommandDispatched() throws InterruptedException {
         // send lock, assert response dispatched after receiving commandResponse
 
-        CommandQueue queue = new CommandQueue(iQueue, .5f, 3);
+        CommandQueue queue = new CommandQueue(iQueue, 500, 3);
         Command command = new LockUnlockDoors(DoorLock.LOCKED);
         queue.queue(command, LockState.TYPE);
 
@@ -70,7 +72,7 @@ public class CommandQueueTest {
     @Test public void newCommandsNotSentWhenWaitingForAnAck() {
 
         boolean secondResult;
-        CommandQueue queue = new CommandQueue(iQueue, .5f, 3);
+        CommandQueue queue = new CommandQueue(iQueue, 500, 3);
         Command command = new LockUnlockDoors(DoorLock.LOCKED);
         queue.queue(command);
         secondResult = queue.queue(command);
@@ -83,7 +85,7 @@ public class CommandQueueTest {
 
     @Test public void newCommandsNotSentWhenWaitingForAResponse() {
         boolean secondResult;
-        CommandQueue queue = new CommandQueue(iQueue, .5f, 3);
+        CommandQueue queue = new CommandQueue(iQueue, 500, 3);
         Command command = new LockUnlockDoors(DoorLock.LOCKED);
         queue.queue(command, LockState.TYPE);
         secondResult = queue.queue(command, LockState.TYPE);
@@ -97,8 +99,45 @@ public class CommandQueueTest {
         assertTrue(ackCommand[0] == null);
     }
 
-    @Test public void ackCommandRetriedAndFailed() {
-        // assert retries are tried and command failed after
+    @Test public void ackCommandRetriedAndFailed() throws InterruptedException {
+        // assert retries are tried and command failed after. just dont send any callbacks.
+        // set timeout to .05f. dont sent callback. wait .07f, assert that command has been sent
+        // again
+
+        CommandQueue queue = new CommandQueue(iQueue, 500, 3);
+        Command command = new LockUnlockDoors(DoorLock.LOCKED);
+        queue.queue(command, LockState.TYPE);
+
+        assertTrue(commandsSent[0] == 1);
+        Thread.sleep(70);
+        assertTrue(commandsSent[0] == 2);
+        Thread.sleep(70);
+        assertTrue(commandsSent[0] == 3);
+        Thread.sleep(70);
+        assertTrue(commandsSent[0] == 4);
+        Thread.sleep(70);
+        assertTrue(commandsSent[0] == 4);
+    }
+
+    @Test public void notSentCommandTriedAgain() throws InterruptedException {
+        // assert that when sdk failed to send command, queue tries to send again
+        CommandQueue queue = new CommandQueue(iQueue, 10000, 3);
+        Command command = new LockUnlockDoors(DoorLock.LOCKED);
+        queue.queue(command, LockState.TYPE);
+
+        LinkError error = new LinkError(LinkError.Type.INTERNAL_ERROR, 0, "");
+        assertTrue(commandsSent[0] == 1);
+        queue.onCommandFailedToSend(command, error);
+        assertTrue(commandsSent[0] == 2);
+        queue.onCommandFailedToSend(command, error);
+        assertTrue(commandsSent[0] == 3);
+        queue.onCommandFailedToSend(command, error);
+        assertTrue(commandsSent[0] == 4);
+        queue.onCommandFailedToSend(command, error);
+        assertTrue(commandsSent[0] == 4);
+    }
+
+    @Test public void responseCommandAckWillStillWaitForResponseAndTryAgain() {
 
     }
 
@@ -125,5 +164,21 @@ public class CommandQueueTest {
 
     @Test public void multipleResponsesReceivedSomeFailedWithError() {
         // assert command failure will be dispatched
+    }
+
+    @Test public void timeoutErrorDispatched() {
+
+    }
+
+    @Test public void noAckErrorDispatched() {
+
+    }
+
+    @Test public void noResponseErrorDispatched() {
+
+    }
+
+    @Test public void FailureErrorDispatched() {
+
     }
 }

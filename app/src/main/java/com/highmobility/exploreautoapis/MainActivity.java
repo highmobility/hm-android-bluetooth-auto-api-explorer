@@ -56,19 +56,15 @@ public class MainActivity extends Activity {
 
         try {
             Manager.getInstance().initialize(
-                    "dGVzdLnVeFXsIJTMMDWwwF7qX" +
-                            "/RAYcXdpTzQFbxNYs0vJcq8RpyN1HbA5PCTqJ8CI2urU8PO1YvV1mP4nJuEqHQpq9Dzl0UJiGglp3a3uBqXVTGy0+LwQ0MROMNAYh+Tdp2yIqvU6Uy5yboLcrHLLUHDZEguiGEnVP0pNH+uCaHca4/CiNnmKEm67pZqXtnDDH0NHqP2LEsi",
-
-                    "CDh9oEK5koiw/4VhUT16FEeB6Z+6TRw9mup2aGoYlCM=",
-                    "K5mVFoq2rqKwAttWdIyPhwgVL80FNxkkNpgr/ca+ueq3JFn5iMLAMTJOKzG26qwtqrLO" +
-                            "+z2sxxdwWNaItdBUWg==",
+                    "dGVzdOlUDp/iZdmzY3AthPYPev5SFk72I+/pKDMlvcYS9ksR6nS8xf3WoGmARSzAZsGsIkdvs56zzvGbwsmg+IV6Qkgh6U2WGXe4mGpoib8WcW/de2lPZ94EMazB0wppKQCNu7Q1yHPuTlPx6EwaT6ntlCz2oPmtspy9mO+U6hzg3eSzjptslG+MzfMTUcbImFsokoZpl39s",
+                    "HRgynolx5zIfK+r9Xd/Js6DNdnvHtE/kc6j6T9V+zbQ=",
+                    "HJS8Wh+Gjh2JRB8pMOmQdTMfVR7JoPLVF1U85xjSg7puYoTwLf+DO9Zs67jw+6pXmtkYxynMQm0rfcBU0XFF5A==",
                     getApplicationContext()
             );
 
             // PASTE ACCESS TOKEN HERE
             accessToken =
-                    "Rp1wTWvW79qKE6iwGpYBimM12y" +
-                            "-Z_Y5L6oAc2ytoyBc7S6leh88a8kQbCpPDsft7bAU3DNea02FQsJQWKJGB2zU79oTedzkWTIhqu6fv9jamQta9952aWEheHbYJ-xQ8Ng";
+                    "O6kzNEYre8PNzjY8WaPRN9dTVXpOQr5Wbzy09UuimtS1-lEKpSKY5jSMkoPnZ-gauSNZp2IJp8mlL_5wLLnP-mvQ2wzR74Z-9rxQ_W7J6mCs_TCXmsbXN6NaSM_z4FiZfw";
         } catch (Exception e) {
             Log.e(TAG, "onCreate: ", e);
         }

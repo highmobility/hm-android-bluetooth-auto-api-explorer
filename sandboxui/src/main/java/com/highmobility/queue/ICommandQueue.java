@@ -1,14 +1,14 @@
 package com.highmobility.queue;
 
 import com.highmobility.autoapi.Command;
-import com.highmobility.value.Bytes;
+import com.highmobility.autoapi.Failure;
 
 public interface ICommandQueue {
     void onCommandResponse(Command sentCommand, Command response);
 
     void onCommandAck(Command sentCommand);
 
-    void onCommandFailed();
+    void onCommandFailed(CommandFailure reason);
 
     void sendCommand(Command command);
 }

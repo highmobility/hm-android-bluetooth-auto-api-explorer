@@ -200,7 +200,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
         if (errorCode != 0) {
             controlling = false;
             link.setListener(null);
-            showToast("Failure " + errorCode + ":" + text);
+            showToast("QueueError " + errorCode + ":" + text);
             view.getActivity().finish();
         } else {
             converter = new TapToControlCommandConverter(this);
