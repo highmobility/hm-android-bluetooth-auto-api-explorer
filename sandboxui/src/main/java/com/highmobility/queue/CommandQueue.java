@@ -15,20 +15,25 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * Queue system for BLE commands. An item will wait for its ack {@link #queue(Command)} or for its
- * response command {@link #queue(Command)} before next items will be sent.
+ * Queue system for BLE commands. An item will wait for its ack ({@link #queue(Command)}) or for its
+ * response command ({@link #queue(Command, Type)}) before next items will be sent. Ack timeout will
+ * come from the sdk. Response command timeout is handled by this class(hence extraTimeout in
+ * ctor).
+ *
+ * <ul><li> Command will fail without retrying when SDK returns a LinkError or the response is a
+ * Failure command.</li>
+ * <li>Command will succeed after ack or the expected response command via
+ * {@link ICommandQueue}</li>
+ * <li>Commands will be timed out after {@link Link#commandTimeout} + extraTimeout.</li>
+ * <li>Commands will be tried again for {@link #retryCount} times.  Commands with same type will
+ * not be queued.</li></ul>
  * <p>
- * Command responses have to be dispatched to
- * <p>
- * {@link #onCommandReceived(Command)}
- * {@link #onAckReceived(Command)} and
- * {@link #onCommandFailedToSend(Command, LinkError)}
- * <p>
- * Command will fail without retrying when SDK doesn't send the command or a response is a failure.
- * Command will succeed after ack or the expected response command via {@link ICommandQueue}
- * Commands will be timed out after {@link Link#commandTimeout} + extraTimeout.
- * Commands will be tried again for {@link #retryCount} times.
- * Commands with same type will not be queued.
+ * Command responses have to be dispatched to:
+ * <ul>
+ * <li>{@link #onCommandReceived(Command)}</li>
+ * <li>{@link #onCommandSent(Command)} (ack)</li>
+ * <li>{@link #onCommandFailedToSend(Command, LinkError)}</li>
+ * </ul>
  */
 public class CommandQueue {
     ICommandQueue listener;
@@ -39,12 +44,13 @@ public class CommandQueue {
 
     /**
      * @param extraTimeout Timeout in ms. Is added to {@link Link#commandTimeout} as an extra buffer
-     *                     to receive the command response.
+     *                     to receive the command response. Ack itself is timed out in the sdk after
+     *                     {@link Link#commandTimeout}
      */
     public CommandQueue(ICommandQueue listener, long extraTimeout, int retryCount) {
         this.listener = listener;
         this.timeout = Link.commandTimeout + extraTimeout;
-        if (Link.commandTimeout < timeout) Link.commandTimeout = (int) timeout - 20;
+        timeout = Link.commandTimeout + extraTimeout;
         this.retryCount = retryCount;
     }
 
@@ -56,7 +62,7 @@ public class CommandQueue {
      */
     public boolean queue(Command command, Type responseType) {
         if (typeAlreadyQueued(command)) return false;
-        QueueItem_ item = new QueueItem_(command, retryCount, responseType);
+        QueueItem_ item = new QueueItem_(command, responseType);
         items.add(item);
         sendItem();
         return true;
@@ -70,20 +76,22 @@ public class CommandQueue {
      */
     public boolean queue(Command command) {
         if (typeAlreadyQueued(command)) return false;
-        QueueItem_ item = new QueueItem_(command, retryCount, null);
+        QueueItem_ item = new QueueItem_(command, null);
         items.add(item);
         sendItem();
         return true;
     }
 
     public void onCommandFailedToSend(Command command, LinkError linkError) {
-        // TODO: 02/08/2018 retry only if timeout, otherwise go straight to failure.
-        QueueItem_ item = getItem(command);
-        item.linkError = linkError;
+        // retry only if timeout, otherwise go straight to failure.
+        if (items.size() == 0) return;
+        QueueItem_ item = items.get(0);
+        if (item.commandSent.getType().equals(command.getType()) == false) return;
 
+        item.linkError = linkError;
         if (linkError.getType() == LinkError.Type.TIME_OUT && item.retryCount < retryCount) {
-            item.linkError = linkError;
             item.retryCount++;
+            item.timeSent = null;
             sendItem();
         } else {
             failItem();
@@ -91,28 +99,38 @@ public class CommandQueue {
     }
 
     public void onCommandReceived(Command command) {
-        for (int i = items.size() - 1; i >= 0; i--) {
-            QueueItem_ item = items.get(i);
-            if (item.responseType == null) continue;
-            if (command.getType().equals(item.responseType)) {
-                items.remove(i);
-                listener.onCommandResponse(item.commandSent, command);
-                sendItem();
-                break;
+        // we only care about first item in queue
+        if (items.size() == 0) return;
+        QueueItem_ item = items.get(0);
+        if (item.responseType == null) return;
+
+        Failure failure = null;
+        if (command instanceof Failure) {
+            failure = (Failure) command;
+        }
+
+        if (failure != null) {
+            if (item.commandSent.getType().equals(failure.getFailedType())) {
+                item.failure = failure;
+                failItem();
             }
-            // TODO: 02/08/2018 if failure fail instantly, dont retry again
+        } else if (command.getType().equals(item.responseType)) {
+            items.remove(0);
+            sendItem();
+            listener.onCommandResponse(item.commandSent, command);
         }
     }
 
-    public void onAckReceived(Command command) {
-        for (int i = items.size() - 1; i >= 0; i--) {
-            QueueItem_ item = items.get(i);
-            // TODO:
-            if (command.getType().equals(item.commandSent.getType())) {
-                items.remove(i);
-                listener.onCommandAck(item.commandSent);
+    public void onCommandSent(Command command) {
+        // we only care about first item in queue
+        if (items.size() == 0) return;
+        QueueItem_ item = items.get(0);
+
+        if (command.getType().equals(item.commandSent.getType())) {
+            if (item.responseType == null) {
+                items.remove(0);
                 sendItem();
-                break;
+                listener.onCommandAck(item.commandSent);
             }
         }
     }
@@ -134,39 +152,16 @@ public class CommandQueue {
         return false;
     }
 
-    // the first item is always sent. if has timeout, the timer task will set timeSent to null.
-    /*boolean sendNextItem() {
-        if (items.size() > 0) {
-            QueueItem_ item = items.get(0);
-
-            if (item.timeSent == null) {
-                item.timeSent = Calendar.getInstance();
-                System.out.println("send " + item.commandSent);
-                listener.sendCommand(item.commandSent);
-                startTimer();
-                return true;
-            }
-        } else {
-            stopTimer();
-        }
-
-        return false;
-    }*/
-
     void sendItem() {
         if (items.size() == 0) return;
         QueueItem_ item = items.get(0);
 
         if (item.timeSent == null) {
             item.timeSent = Calendar.getInstance();
-            System.out.println("send " + item.commandSent);
+            System.out.println("queue: send " + item.commandSent);
             listener.sendCommand(item.commandSent);
             startTimer();
         }
-    }
-
-    void retryItem() {
-// TODO: 02/08/2018
     }
 
     void failItem() {
@@ -175,15 +170,15 @@ public class CommandQueue {
 
         CommandFailure.Reason reason;
         if (item.failure != null) {
-            reason = CommandFailure.Reason.FAILURE_RECEIVED;
+            reason = CommandFailure.Reason.FAILURE_RESPONSE;
         } else if (item.linkError != null && item.linkError.getType() != LinkError.Type.TIME_OUT) {
             reason = CommandFailure.Reason.FAILED_TO_SEND;
         } else {
             reason = CommandFailure.Reason.TIMEOUT;
         }
-
         items.remove(item);
         CommandFailure failure = new CommandFailure(reason, item.failure, item.linkError);
+        sendItem(); // fail one, send the next one before dispatching to lock the sdk
         listener.onCommandFailed(failure);
     }
 
@@ -215,8 +210,9 @@ public class CommandQueue {
         if (items.size() > 0) {
             QueueItem_ item = items.get(0);
             long now = Calendar.getInstance().getTimeInMillis();
+            long sent = item.timeSent.getTimeInMillis();
 
-            if (now - item.timeSent.getTimeInMillis() > timeout) {
+            if (now - sent > timeout) {
                 item.timeSent = null;
                 item.retryCount++;
 
@@ -241,32 +237,10 @@ public class CommandQueue {
         int retryCount;
         @Nullable Type responseType;
 
-        public QueueItem_(Command commandSent, int retryCount, @Nullable Type
+        public QueueItem_(Command commandSent, @Nullable Type
                 responseType) {
             this.commandSent = commandSent;
-            this.retryCount = retryCount;
             this.responseType = responseType;
         }
     }
 }
-
-//    TODO: can add option to queue 1 more command of same type that will be overwritten by new
-// queue
-//    items. For instance lock, unlock, lock, lock, lock will start lock and queue lock
-
-/*
-public interface ICommandQueue {
-    void onCommandResponse(QueueItem queuedItem, Command response);
-
-    void onCommandAck(Command queuedItem);
-
-    void onCommandFailed();
-
-    void sendCommand(Bytes bytes);
-}
-
-public class QueueItem {
-    Command command;
-    Reason commandResponse;
-}
- */
