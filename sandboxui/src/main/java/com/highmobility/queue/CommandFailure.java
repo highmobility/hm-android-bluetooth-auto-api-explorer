@@ -21,8 +21,8 @@ public class CommandFailure {
     }
 
     Reason reason;
-    @Nullable Failure failureResponse;
-    @Nullable LinkError linkError;
+    @Nullable Failure failureResponse; // a failure response
+    @Nullable LinkError linkError; // Issue in SDK before sending out the ble command.
 
     public Reason getReason() {
         return reason;

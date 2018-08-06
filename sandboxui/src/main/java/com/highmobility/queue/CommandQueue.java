@@ -34,6 +34,8 @@ import java.util.TimerTask;
  * <li>{@link #onCommandSent(Command)} (ack)</li>
  * <li>{@link #onCommandFailedToSend(Command, LinkError)}</li>
  * </ul>
+ * <p>
+ * Call {@link #purge()} to clear the queue when losing the link.
  */
 public class CommandQueue {
     ICommandQueue listener;
@@ -80,6 +82,14 @@ public class CommandQueue {
         items.add(item);
         sendItem();
         return true;
+    }
+
+    /**
+     * Clear the queue and timers. Call when link connection is lost.
+     */
+    public void purge() {
+        items.clear();
+        stopTimer();
     }
 
     public void onCommandFailedToSend(Command command, LinkError linkError) {

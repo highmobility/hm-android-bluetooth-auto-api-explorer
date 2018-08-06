@@ -1,7 +1,6 @@
 package com.highmobility.queue;
 
 import com.highmobility.autoapi.Command;
-import com.highmobility.autoapi.Failure;
 
 public interface ICommandQueue {
     void onCommandResponse(Command sentCommand, Command response);
