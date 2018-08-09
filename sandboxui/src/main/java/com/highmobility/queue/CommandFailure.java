@@ -1,28 +1,28 @@
 package com.highmobility.queue;
 
 import com.highmobility.autoapi.Failure;
-import com.highmobility.hmkit.error.LinkError;
 
 import org.jetbrains.annotations.Nullable;
 
 /**
- * command can fail:
+ * Command can fail:
  * <ul>
- * <li>before even sending by bad sdk state(not authorised for instance.). {@link #linkError}
- * will be present in this case.</li>
- * <li>not receiving ack or not receiving a response << both mean timeout.</li>
- * <li>receiving a failure response. {@link #failureResponse} will be present in this case.</li>
+ * <li>Before sending it to the vehicle(not authorised for instance.). {@link #errorObject} will be
+ * present in this case and is either LinkError or TelematicsError.</li>
+ * <li>Not receiving ack or not receiving a response. Both mean timeout.</li>
+ * <li>Receiving a failure response from the vehicle. {@link #failureResponse} will be present in
+ * this case.</li>
  */
 public class CommandFailure {
     public enum Reason {
-        FAILED_TO_SEND,
-        TIMEOUT,
-        FAILURE_RESPONSE
+        FAILED_TO_SEND, // the command did not reach vehicle. errorObject is filled in that case.
+        TIMEOUT, // the command timed out.
+        FAILURE_RESPONSE // the vehicle responded with a failure response
     }
 
     Reason reason;
     @Nullable Failure failureResponse; // a failure response
-    @Nullable LinkError linkError; // Issue in SDK before sending out the ble command.
+    @Nullable Object errorObject; // Issue in SDK before sending out the ble command.
 
     public Reason getReason() {
         return reason;
@@ -32,14 +32,14 @@ public class CommandFailure {
         return failureResponse;
     }
 
-    @Nullable public LinkError getLinkError() {
-        return linkError;
+    @Nullable public Object getErrorObject() {
+        return errorObject;
     }
 
-    public CommandFailure(Reason reason, @Nullable Failure failureResponse, @Nullable LinkError
-            linkError) {
+    CommandFailure(Reason reason, @Nullable Failure failureResponse, @Nullable Object
+            errorObject) {
         this.reason = reason;
         this.failureResponse = failureResponse;
-        this.linkError = linkError;
+        this.errorObject = errorObject;
     }
 }

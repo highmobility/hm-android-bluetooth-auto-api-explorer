@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.highmobility.autoapi.Command;
+import com.highmobility.autoapi.Type;
 import com.highmobility.hmkit.BroadcastConfiguration;
 import com.highmobility.hmkit.Broadcaster;
 import com.highmobility.hmkit.Broadcaster.State;
@@ -16,6 +18,9 @@ import com.highmobility.hmkit.Manager;
 import com.highmobility.hmkit.error.BroadcastError;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.hmkit.error.RevokeError;
+import com.highmobility.queue.BleCommandQueue;
+import com.highmobility.queue.CommandFailure;
+import com.highmobility.queue.IBleCommandQueue;
 import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
@@ -37,6 +42,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     ConnectedLink link;
 
     IConnectedVehicleBleView bleView;
+    BleCommandQueue bleQueue;
     boolean isBroadcastingSerial;
     int alivePingInterval = -1;
     SharedPreferences sharedPref;
@@ -48,6 +54,8 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         sharedPref = view.getActivity().getPreferences(Context.MODE_PRIVATE);
         isBroadcastingSerial = sharedPref.getBoolean(IS_BROADCASTING_SERIAL_PREFS_KEY, false);
         this.alivePingInterval = alivePingInterval;
+        queue = new BleCommandQueue(iQueue);
+        bleQueue = (BleCommandQueue) queue;
     }
 
     public boolean isBroadcastingSerial() {
@@ -108,7 +116,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     }
 
     @Override
-    void sendCommand(Bytes command) {
+    void queueCommand(Command command, Type response) {
         // link could be lost at any time and for instance on initialize it could try to send
         // commands without checking
         if (link == null) {
@@ -116,17 +124,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             return;
         }
 
-        link.sendCommand(command, new Link.CommandCallback() {
-            @Override
-            public void onCommandSent() {
-                onBleAckReceived();
-            }
-
-            @Override
-            public void onCommandFailed(LinkError linkError) {
-                onCommandError(1, linkError.getType() + " " + linkError.getMessage());
-            }
-        });
+        bleQueue.queue(command, response);
     }
 
     @Override
@@ -179,11 +177,10 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             vehicle.vehicleConnectedWithBle = null;
             Log.d(SandboxUi.TAG, "onLinkLost: ");
 
-            if (initializing) {
+            if (initialising) {
+                bleQueue.purge();
                 // stop the initialisation if link was lost
-                retryCount = 0;
-                initializing = false;
-                cancelInitTimer();
+                initialising = false;
             }
         } else {
             Log.d(SandboxUi.TAG, "unknown link lost");
@@ -217,7 +214,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
     @Override
     public void onCommandReceived(Link link, Bytes bytes) {
-        onCommandReceived(bytes);
+        bleQueue.onCommandReceived(bytes);
     }
 
     @Override public void willDestroy() {
@@ -250,6 +247,38 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             });
         }, null);
     }
+
+    IBleCommandQueue iQueue = new IBleCommandQueue() {
+        @Override public void onCommandAck(Command sentCommand) {
+
+        }
+
+        @Override public void onCommandReceived(Bytes command, Command sentCommand) {
+            ConnectedVehicleBleController.super.onCommandReceived(command, sentCommand);
+        }
+
+        @Override public void onCommandFailed(CommandFailure reason, Command sentCommand) {
+            if (reason.getReason() == CommandFailure.Reason.FAILURE_RESPONSE) {
+                ConnectedVehicleBleController.super.onCommandReceived(reason
+                        .getFailureResponse(), sentCommand);
+            }
+            else {
+                ConnectedVehicleBleController.super.onCommandFailed(sentCommand);
+            }
+        }
+
+        @Override public void sendCommand(Command command) {
+            link.sendCommand(command, new Link.CommandCallback() {
+                @Override public void onCommandSent() {
+                    bleQueue.onCommandSent(command);
+                }
+
+                @Override public void onCommandFailed(LinkError linkError) {
+                    bleQueue.onCommandFailedToSend(command, linkError);
+                }
+            });
+        }
+    };
 
     void startBroadcasting() {
         BroadcastConfiguration conf = null;

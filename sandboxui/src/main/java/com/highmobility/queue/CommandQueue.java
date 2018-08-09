@@ -6,7 +6,8 @@ import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.Failure;
 import com.highmobility.autoapi.Type;
 import com.highmobility.hmkit.Link;
-import com.highmobility.hmkit.error.LinkError;
+import com.highmobility.utils.ByteUtils;
+import com.highmobility.value.Bytes;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -15,29 +16,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * Queue system for BLE commands. An item will wait for its ack ({@link #queue(Command)}) or for its
- * response command ({@link #queue(Command, Type)}) before next items will be sent. Ack timeout will
- * come from the sdk. Response command timeout is handled by this class(hence extraTimeout in
- * ctor).
- *
- * <ul><li> Command will fail without retrying when SDK returns a LinkError or the response is a
- * Failure command.</li>
- * <li>Command will succeed after ack or the expected response command via
- * {@link ICommandQueue}</li>
- * <li>Commands will be timed out after {@link Link#commandTimeout} + extraTimeout.</li>
- * <li>Commands will be tried again for {@link #retryCount} times.  Commands with same type will
- * not be queued.</li></ul>
- * <p>
- * Command responses have to be dispatched to:
- * <ul>
- * <li>{@link #onCommandReceived(Command)}</li>
- * <li>{@link #onCommandSent(Command)} (ack)</li>
- * <li>{@link #onCommandFailedToSend(Command, LinkError)}</li>
- * </ul>
- * <p>
- * Call {@link #purge()} to clear the queue when losing the link.
+ * This is the Command queue base class. Depending on the environment, the subclasses {@link
+ * BleCommandQueue} or {@link TelematicsCommandQueue} should be used instead of this class.
  */
 public class CommandQueue {
+    QueueType type;
+
     ICommandQueue listener;
     long timeout;
     int retryCount;
@@ -57,20 +41,6 @@ public class CommandQueue {
     }
 
     /**
-     * Queue the command and wait for its response command.
-     *
-     * @param command The command and its response that will be queued.
-     * @return false if cannot queue at this time - maybe this command type is already queued.
-     */
-    public boolean queue(Command command, Type responseType) {
-        if (typeAlreadyQueued(command)) return false;
-        QueueItem_ item = new QueueItem_(command, responseType);
-        items.add(item);
-        sendItem();
-        return true;
-    }
-
-    /**
      * Queue the command and wait for its ack.
      *
      * @param command The command will be queued.
@@ -85,21 +55,22 @@ public class CommandQueue {
     }
 
     /**
-     * Clear the queue and timers. Call when link connection is lost.
+     * Clear the queue and timers. Call when connection is lost.
      */
     public void purge() {
         items.clear();
         stopTimer();
     }
 
-    public void onCommandFailedToSend(Command command, LinkError linkError) {
+    void onCommandFailedToSend(Command command, Object error, boolean timeout) {
         // retry only if timeout, otherwise go straight to failure.
         if (items.size() == 0) return;
         QueueItem_ item = items.get(0);
         if (item.commandSent.getType().equals(command.getType()) == false) return;
 
-        item.linkError = linkError;
-        if (linkError.getType() == LinkError.Type.TIME_OUT && item.retryCount < retryCount) {
+        item.sdkError = error;
+        if (timeout && item.retryCount < retryCount) {
+            item.timeout = true;
             item.retryCount++;
             item.timeSent = null;
             sendItem();
@@ -108,11 +79,20 @@ public class CommandQueue {
         }
     }
 
-    public void onCommandReceived(Command command) {
-        // we only care about first item in queue
-        if (items.size() == 0) return;
+    public void onCommandReceived(Bytes command) {
+        // queue is empty
+        if (items.size() == 0) {
+            listener.onCommandReceived(command, null);
+            return;
+        }
+
+        // we only care about first item in queue.
         QueueItem_ item = items.get(0);
-        if (item.responseType == null) return;
+        if (item.responseType == null) {
+            // item is not waiting for a response.
+            listener.onCommandReceived(command, null);
+            return;
+        }
 
         Failure failure = null;
         if (command instanceof Failure) {
@@ -124,34 +104,26 @@ public class CommandQueue {
                 item.failure = failure;
                 failItem();
             }
-        } else if (command.getType().equals(item.responseType)) {
-            items.remove(0);
-            sendItem();
-            listener.onCommandResponse(item.commandSent, command);
-        }
-    }
+        } else if (command.getLength() > 2) {
+            boolean didReceiveResponse = false;
 
-    public void onCommandSent(Command command) {
-        // we only care about first item in queue
-        if (items.size() == 0) return;
-        QueueItem_ item = items.get(0);
+            if (type == QueueType.BLE &&
+                    item.responseType != null &&
+                    ByteUtils.startsWith(command.getByteArray(), item.responseType
+                            .getIdentifierAndType())) {
+                didReceiveResponse = true;
+            } else if (type == QueueType.TELEMATICS) {
+                // for telematics, we can be sure that this is the command response
+                didReceiveResponse = true;
+            }
 
-        if (command.getType().equals(item.commandSent.getType())) {
-            if (item.responseType == null) {
+            if (didReceiveResponse) {
+                // received a command of expected type
                 items.remove(0);
                 sendItem();
-                listener.onCommandAck(item.commandSent);
+                listener.onCommandReceived(command, item.commandSent);
             }
         }
-    }
-
-    QueueItem_ getItem(Command command) {
-        for (int i = 0; i < items.size(); i++) {
-            QueueItem_ item = items.get(i);
-            if (item.commandSent.getType().equals(command.getType())) return item;
-        }
-
-        return null;
     }
 
     boolean typeAlreadyQueued(Command command) {
@@ -181,15 +153,16 @@ public class CommandQueue {
         CommandFailure.Reason reason;
         if (item.failure != null) {
             reason = CommandFailure.Reason.FAILURE_RESPONSE;
-        } else if (item.linkError != null && item.linkError.getType() != LinkError.Type.TIME_OUT) {
+        } else if (item.sdkError != null && item.timeout) {
             reason = CommandFailure.Reason.FAILED_TO_SEND;
         } else {
             reason = CommandFailure.Reason.TIMEOUT;
         }
+
         items.remove(item);
-        CommandFailure failure = new CommandFailure(reason, item.failure, item.linkError);
-        sendItem(); // fail one, send the next one before dispatching to lock the sdk
-        listener.onCommandFailed(failure);
+        CommandFailure failure = new CommandFailure(reason, item.failure, item.sdkError);
+        purge();
+        listener.onCommandFailed(failure, item.commandSent);
     }
 
     void startTimer() {
@@ -240,17 +213,19 @@ public class CommandQueue {
     class QueueItem_ {
         Command commandSent;
 
-        LinkError linkError;
+        boolean timeout;
+        Object sdkError;
         Failure failure;
 
         Calendar timeSent;
         int retryCount;
         @Nullable Type responseType;
 
-        public QueueItem_(Command commandSent, @Nullable Type
-                responseType) {
+        public QueueItem_(Command commandSent, @Nullable Type responseType) {
             this.commandSent = commandSent;
             this.responseType = responseType;
         }
     }
+
+    enum QueueType {BLE, TELEMATICS}
 }

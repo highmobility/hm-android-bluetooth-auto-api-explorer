@@ -42,6 +42,7 @@ configurations.all {
 
 dependencies {
     implementation project(path: ':sandboxui')
+    implementation("com.highmobility:hmkit-auto-api:1.8.0")
     implementation("com.highmobility:hmkit-android:${artifactProperties.hmkitVersion}@aar") {
         transitive = true
         changing = true
