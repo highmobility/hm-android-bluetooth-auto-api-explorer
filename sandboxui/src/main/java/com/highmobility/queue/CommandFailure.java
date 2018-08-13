@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
  * present in this case and is either LinkError or TelematicsError.</li>
  * <li>Not receiving ack or not receiving a response. Both mean timeout.</li>
  * <li>Receiving a failure response from the vehicle. {@link #failureResponse} will be present in
- * this case.</li>
+ * this case. The queue will be cleared after a failure response.</li>
  */
 public class CommandFailure {
     public enum Reason {
@@ -32,6 +32,10 @@ public class CommandFailure {
         return failureResponse;
     }
 
+    /**
+     * @return { @link {@link com.highmobility.hmkit.error.TelematicsError} } for Telematics queue,
+     * { @link {@link com.highmobility.hmkit.error.LinkError} } for Ble queue.
+     */
     @Nullable public Object getErrorObject() {
         return errorObject;
     }

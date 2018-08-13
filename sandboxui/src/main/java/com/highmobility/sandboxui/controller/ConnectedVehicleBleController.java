@@ -42,7 +42,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     ConnectedLink link;
 
     IConnectedVehicleBleView bleView;
-    BleCommandQueue bleQueue;
+    BleCommandQueue queue;
     boolean isBroadcastingSerial;
     int alivePingInterval = -1;
     SharedPreferences sharedPref;
@@ -55,7 +55,6 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         isBroadcastingSerial = sharedPref.getBoolean(IS_BROADCASTING_SERIAL_PREFS_KEY, false);
         this.alivePingInterval = alivePingInterval;
         queue = new BleCommandQueue(iQueue);
-        bleQueue = (BleCommandQueue) queue;
     }
 
     public boolean isBroadcastingSerial() {
@@ -120,11 +119,11 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         // link could be lost at any time and for instance on initialize it could try to send
         // commands without checking
         if (link == null) {
-            onCommandError(-1, "No connection to a link.");
+            Log.e(SandboxUi.TAG, "queueCommand: no connected link");
             return;
         }
 
-        bleQueue.queue(command, response);
+        queue.queue(command, response);
     }
 
     @Override
@@ -178,7 +177,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             Log.d(SandboxUi.TAG, "onLinkLost: ");
 
             if (initialising) {
-                bleQueue.purge();
+                queue.purge();
                 // stop the initialisation if link was lost
                 initialising = false;
             }
@@ -214,7 +213,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
     @Override
     public void onCommandReceived(Link link, Bytes bytes) {
-        bleQueue.onCommandReceived(bytes);
+        queue.onCommandReceived(bytes);
     }
 
     @Override public void willDestroy() {
@@ -224,6 +223,8 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         for (ConnectedLink link : broadcaster.getLinks()) {
             link.setListener(null);
         }
+
+        queue.purge();
 
         broadcaster.disconnectAllLinks();
         broadcaster.stopBroadcasting();
@@ -261,20 +262,19 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             if (reason.getReason() == CommandFailure.Reason.FAILURE_RESPONSE) {
                 ConnectedVehicleBleController.super.onCommandReceived(reason
                         .getFailureResponse(), sentCommand);
-            }
-            else {
-                ConnectedVehicleBleController.super.onCommandFailed(sentCommand);
+            } else {
+                ConnectedVehicleBleController.super.onCommandFailed(sentCommand, null);
             }
         }
 
         @Override public void sendCommand(Command command) {
             link.sendCommand(command, new Link.CommandCallback() {
                 @Override public void onCommandSent() {
-                    bleQueue.onCommandSent(command);
+                    queue.onCommandSent(command);
                 }
 
                 @Override public void onCommandFailed(LinkError linkError) {
-                    bleQueue.onCommandFailedToSend(command, linkError);
+                    queue.onCommandFailedToSend(command, linkError);
                 }
             });
         }

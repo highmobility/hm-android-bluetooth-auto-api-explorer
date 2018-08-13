@@ -35,7 +35,7 @@ public class TelematicsCommandQueue extends CommandQueue {
      * @param listener The queue interface.
      */
     public TelematicsCommandQueue(ICommandQueue listener) {
-        this(listener, 1000, 3);
+        this(listener, 0, 3);
     }
 
     /**
@@ -47,7 +47,7 @@ public class TelematicsCommandQueue extends CommandQueue {
      */
     public TelematicsCommandQueue(ICommandQueue listener, long extraTimeout, int retryCount) {
         super(listener, extraTimeout, retryCount);
-        type = QueueType.TELEMATICS.TELEMATICS;
+        allCommandsAreResponses = true;
         // TODO: 06/08/2018 for telematics, use a timeout not related to Link#commandTimeout
     }
 

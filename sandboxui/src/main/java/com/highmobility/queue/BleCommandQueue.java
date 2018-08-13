@@ -49,7 +49,6 @@ public class BleCommandQueue extends CommandQueue {
      */
     public BleCommandQueue(IBleCommandQueue listener, long extraTimeout, int retryCount) {
         super(listener, extraTimeout, retryCount);
-        type = QueueType.BLE;
     }
 
     /**
@@ -84,6 +83,11 @@ public class BleCommandQueue extends CommandQueue {
         }
     }
 
+    /**
+     * Call after {@link Link.CommandCallback#onCommandFailed(LinkError)}.
+     *
+     * @param command The command that was sent.
+     */
     public void onCommandFailedToSend(Command command, LinkError error) {
         boolean timeout = error.getType() == LinkError.Type.TIME_OUT;
         super.onCommandFailedToSend(command, error, timeout);

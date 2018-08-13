@@ -11,32 +11,30 @@ import com.highmobility.value.Bytes;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This is the Command queue base class. Depending on the environment, the subclasses {@link
  * BleCommandQueue} or {@link TelematicsCommandQueue} should be used instead of this class.
  */
 public class CommandQueue {
-    QueueType type;
 
     ICommandQueue listener;
     long timeout;
     int retryCount;
     ArrayList<QueueItem_> items = new ArrayList<>();
-    Timer timeOutTimer;
+    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    // for telematics, there can only be responses for commands. No other commands.
+    boolean allCommandsAreResponses;
 
-    /**
-     * @param extraTimeout Timeout in ms. Is added to {@link Link#commandTimeout} as an extra buffer
-     *                     to receive the command response. Ack itself is timed out in the sdk after
-     *                     {@link Link#commandTimeout}
-     */
-    public CommandQueue(ICommandQueue listener, long extraTimeout, int retryCount) {
+    // TODO: 13/08/2018 for base queue, use timeout as constant, not extra. super classes should
+    // calculate full timeout.
+    CommandQueue(ICommandQueue listener, long extraTimeout, int retryCount) {
         this.listener = listener;
         this.timeout = Link.commandTimeout + extraTimeout;
-        timeout = Link.commandTimeout + extraTimeout;
         this.retryCount = retryCount;
     }
 
@@ -94,30 +92,18 @@ public class CommandQueue {
             return;
         }
 
-        Failure failure = null;
         if (command instanceof Failure) {
-            failure = (Failure) command;
-        }
+            Failure failure = (Failure) command;
 
-        if (failure != null) {
             if (item.commandSent.getType().equals(failure.getFailedType())) {
                 item.failure = failure;
                 failItem();
             }
         } else if (command.getLength() > 2) {
-            boolean didReceiveResponse = false;
-
-            if (type == QueueType.BLE &&
+            if (allCommandsAreResponses || (
                     item.responseType != null &&
-                    ByteUtils.startsWith(command.getByteArray(), item.responseType
-                            .getIdentifierAndType())) {
-                didReceiveResponse = true;
-            } else if (type == QueueType.TELEMATICS) {
-                // for telematics, we can be sure that this is the command response
-                didReceiveResponse = true;
-            }
-
-            if (didReceiveResponse) {
+                            ByteUtils.startsWith(command.getByteArray(), item.responseType
+                                    .getIdentifierAndType()))) {
                 // received a command of expected type
                 items.remove(0);
                 sendItem();
@@ -140,7 +126,6 @@ public class CommandQueue {
 
         if (item.timeSent == null) {
             item.timeSent = Calendar.getInstance();
-            System.out.println("queue: send " + item.commandSent);
             listener.sendCommand(item.commandSent);
             startTimer();
         }
@@ -153,7 +138,7 @@ public class CommandQueue {
         CommandFailure.Reason reason;
         if (item.failure != null) {
             reason = CommandFailure.Reason.FAILURE_RESPONSE;
-        } else if (item.sdkError != null && item.timeout) {
+        } else if (item.sdkError != null && item.timeout == false) {
             reason = CommandFailure.Reason.FAILED_TO_SEND;
         } else {
             reason = CommandFailure.Reason.TIMEOUT;
@@ -167,27 +152,29 @@ public class CommandQueue {
 
     void startTimer() {
         // start if not running already
-        if (timeOutTimer == null) {
-            timeOutTimer = new Timer();
-            timeOutTimer.scheduleAtFixedRate(retryTask, new Date(), 30);
+        if (retryHandle == null || retryHandle.isDone()) {
+            retryHandle = scheduler.scheduleAtFixedRate(retry, 0, 30, TimeUnit.MILLISECONDS);
         }
     }
+
+    final Runnable retry = () -> sendCommandAgainIfTimeout();
+    ScheduledFuture<?> retryHandle;
 
     void stopTimer() {
         // stop if queue empty
         if (items.size() == 0) {
-            retryTask.cancel();
-            timeOutTimer.purge();
-            timeOutTimer.cancel();
-            timeOutTimer = null;
+            retryHandle.cancel(true);
+            scheduler.shutdownNow();
         }
     }
 
+/*
     TimerTask retryTask = new TimerTask() {
         @Override public void run() {
             sendCommandAgainIfTimeout();
         }
     };
+*/
 
     void sendCommandAgainIfTimeout() {
         if (items.size() > 0) {
@@ -226,6 +213,4 @@ public class CommandQueue {
             this.responseType = responseType;
         }
     }
-
-    enum QueueType {BLE, TELEMATICS}
 }

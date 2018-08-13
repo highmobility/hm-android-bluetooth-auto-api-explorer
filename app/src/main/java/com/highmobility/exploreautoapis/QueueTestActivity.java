@@ -32,6 +32,7 @@ import com.highmobility.queue.IBleCommandQueue;
 import com.highmobility.queue.ICommandQueue;
 import com.highmobility.value.Bytes;
 
+// TODO: 13/08/2018 delete class
 public class QueueTestActivity extends Activity {
     private static final String TAG = "Scaffold";
 
@@ -62,7 +63,7 @@ public class QueueTestActivity extends Activity {
                 workWithTelematics(serial);
 
                 // Also make the device visible through Bluetooth to the car
-                workWithBluetooth();
+//                workWithBluetooth();
             }
 
             @Override
@@ -141,7 +142,7 @@ public class QueueTestActivity extends Activity {
     ConnectedLink link;
     BleCommandQueue bleQueue;
 
-    IBleCommandQueue iQueue = new IBleCommandQueue() {
+    /*IBleCommandQueue iQueue = new IBleCommandQueue() {
         @Override public void onCommandReceived(Command sentCommand, Bytes command) {
             Log.d(TAG, "onCommandReceived() called with: sentCommand = [" + sentCommand + "], " +
                     "response = [" + command + "]");
@@ -236,5 +237,5 @@ public class QueueTestActivity extends Activity {
                 Log.d(TAG, "Bluetooth broadcasting started: " + broadcastError);
             }
         });
-    }
+    }*/
 }
