@@ -164,17 +164,8 @@ public class CommandQueue {
         // stop if queue empty
         if (items.size() == 0) {
             retryHandle.cancel(true);
-            scheduler.shutdownNow();
         }
     }
-
-/*
-    TimerTask retryTask = new TimerTask() {
-        @Override public void run() {
-            sendCommandAgainIfTimeout();
-        }
-    };
-*/
 
     void sendCommandAgainIfTimeout() {
         if (items.size() > 0) {
