@@ -238,7 +238,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
 
     void startInitializeTimer() {
         // 30 s
-        timeoutTimer = new CountDownTimer((long) (Constants.commandTimeout * 2000 + 10000), 15000) {
+        timeoutTimer = new CountDownTimer((Link.commandTimeout * 2000), 15000) {
             public void onTick(long millisUntilFinished) {
             }
 
