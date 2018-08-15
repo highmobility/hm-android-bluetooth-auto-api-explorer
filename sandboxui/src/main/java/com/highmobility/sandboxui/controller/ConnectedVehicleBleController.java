@@ -165,7 +165,6 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         link.setListener(this);
         bleView.showBleInfoView(true, "link: " + connectedLink.getState());
         bleView.onLinkReceived(true);
-
         vehicle.onLinkReceived();
         Log.d(SandboxUi.TAG, "onLinkReceived: ");
     }

@@ -116,6 +116,8 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         ((ConnectedVehicleBleController) controller).onBroadcastSerialSwitchChanged(on);
     }
 
+    // MARK: IConnectedVehicleBleView
+
     @Override
     public void showBleInfoView(boolean show, String status) {
         if (broadcastFragment == null) return;
@@ -126,6 +128,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
 
     @Override public void onLinkReceived(boolean received) {
         broadcastFragment.onLinkReceived(received);
+
         if (received == false) {
             showLoadingView(false);
             showNormalView(false);
