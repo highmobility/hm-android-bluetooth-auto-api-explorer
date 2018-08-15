@@ -71,8 +71,8 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         title.setText(controller.serviceName);
 
         if (controller.useBle) {
-            refreshButton.setVisibility(GONE);
             revokeButton.setOnClickListener(v -> controller.onRevokeClicked());
+            refreshButton.setVisibility(GONE);
         } else {
             ((ViewGroup) broadcastFragment.getView().getParent()).removeView(broadcastFragment
                     .getView());
@@ -135,22 +135,19 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
     void showNormalView(boolean show) {
         if (show) {
             viewPager.animate().alpha(1f).setDuration(200).setListener(null);
-            revokeButton.setVisibility(VISIBLE);
         } else {
             showLoadingView(false);
             viewPager.animate().alpha(0f).setDuration(200).setListener(null);
-            revokeButton.setVisibility(GONE);
         }
+
+        if (controller.useBle) revokeButton.setVisibility(show ? VISIBLE : GONE);
+        else refreshButton.setEnabled(show);
     }
 
     @Override
     public void showLoadingView(boolean loading) {
         showNormalView(!loading);
         progressBar.setVisibility(loading ? VISIBLE : GONE);
-
-        if (controller.useBle == false) {
-            refreshButton.setEnabled(!loading);
-        }
     }
 
     @Override

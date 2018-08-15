@@ -126,6 +126,12 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         queue.queue(command, response);
     }
 
+    @Override public void onDestroy() {
+        queue.purge();
+    }
+
+    // BroadcasterListener
+
     @Override
     public void onStateChanged(State state) {
         switch (broadcaster.getState()) {
@@ -216,7 +222,11 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         queue.onCommandReceived(bytes);
     }
 
+    // ConnectedVehicleController
+
     @Override public void willDestroy() {
+        super.willDestroy();
+
         // clear references to hmkit
         broadcaster.setListener(null);
 
@@ -224,14 +234,10 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             link.setListener(null);
         }
 
-        queue.purge();
-
         broadcaster.disconnectAllLinks();
         broadcaster.stopBroadcasting();
         broadcaster.stopAlivePinging();
         broadcaster = null;
-
-        super.willDestroy();
     }
 
     @Override public void onRevokeClicked() {
@@ -249,22 +255,20 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         }, null);
     }
 
+    // private
+
     IBleCommandQueue iQueue = new IBleCommandQueue() {
         @Override public void onCommandAck(Command sentCommand) {
-
+            // we dont care about ack
         }
 
         @Override public void onCommandReceived(Bytes command, Command sentCommand) {
-            ConnectedVehicleBleController.super.onCommandReceived(command, sentCommand);
+            ConnectedVehicleBleController.this.onCommandReceived(command, sentCommand);
         }
 
         @Override public void onCommandFailed(CommandFailure reason, Command sentCommand) {
-            if (reason.getReason() == CommandFailure.Reason.FAILURE_RESPONSE) {
-                ConnectedVehicleBleController.super.onCommandReceived(reason
-                        .getFailureResponse(), sentCommand);
-            } else {
-                ConnectedVehicleBleController.super.onCommandFailed(sentCommand, null);
-            }
+            ConnectedVehicleBleController.this.onCommandFailed(sentCommand, reason
+                    .getFailureResponse());
         }
 
         @Override public void sendCommand(Command command) {

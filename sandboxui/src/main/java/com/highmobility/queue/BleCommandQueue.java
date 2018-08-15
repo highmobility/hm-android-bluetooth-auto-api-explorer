@@ -7,37 +7,39 @@ import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.value.Bytes;
 
 /**
- * Queue system for BLE commands. An item will wait for its ack ({@link #queue(Command)}) or for its
- * response command ({@link #queue(Command, Type)}) before next items will be sent. Ack timeout will
- * come from the sdk. Response command timeout is handled by this class(hence extraTimeout in
- * ctor).
- *
- * <ul><li> Command will fail without retrying if the SDK returns a LinkError or the response is a
- * Failure command. The queue will be cleared then as well.</li>
- * <li>Command will succeed after ack or the expected response command via
- * {@link ICommandQueue}</li>
- * <li>Commands will be timed out after {@link Link#commandTimeout} + extraTimeout.</li>
- * <li>Commands will be tried again for {@link #retryCount} times.  Commands with same type will
- * not be queued.</li></ul>
+ * This is a queue system for BLE commands that is meant to be used as a layer between the app and
+ * HMKit. An item will wait for its ack ({@link #queue(Command)}) or for its response command
+ * ({@link #queue(Command, Type)}) before next items will be sent. Ack timeout will come from the
+ * sdk. Response command timeout is handled by this class(hence extraTimeout in ctor).
  * <p>
- * Command responses have to be dispatched to:
+ * Command will succeed after ack or the expected response command via {@link ICommandQueue}
+ * <p>
+ * For this to work, command responses have to be dispatched to:
  * <ul>
  * <li>{@link #onCommandReceived(Bytes)}</li>
  * <li>{@link #onCommandSent(Command)} (ack)</li>
  * <li>{@link #onCommandFailedToSend(Command, LinkError)}</li>
  * </ul>
  * <p>
+ * Commands will fail:
+ * <ul>
+ * <li> Command will fail without retrying if the SDK returns a LinkError or the response is a
+ * Failure command. The queue will be cleared then as well.</li>
+ * <li>Commands will be timed out after {@link Link#commandTimeout} + extraTimeout.</li>
+ * <li>Commands will be tried again for {@link #retryCount} times. Commands with same type will not
+ * be queued.</li>
+ * </ul>
  * Call {@link #purge()} to clear the queue when link is lost.
  */
 public class BleCommandQueue extends CommandQueue {
 
     /**
-     * Create the queue with default 1s extra timeout and 3x retry count.
+     * Create the queue with default 3s extra timeout and 3x retry count.
      *
      * @param listener The queue interface.
      */
     public BleCommandQueue(IBleCommandQueue listener) {
-        this(listener, 1000, 3);
+        this(listener, 3000, 3);
     }
 
     /**
@@ -48,7 +50,7 @@ public class BleCommandQueue extends CommandQueue {
      * @param retryCount   The amount of times a queue item is retried.
      */
     public BleCommandQueue(IBleCommandQueue listener, long extraTimeout, int retryCount) {
-        super(listener, extraTimeout, retryCount);
+        super(listener, Link.commandTimeout + extraTimeout, retryCount);
     }
 
     /**
@@ -77,6 +79,7 @@ public class BleCommandQueue extends CommandQueue {
 
         if (command.getType().equals(item.commandSent.getType()) &&
                 item.responseType == null) {
+            // if only waiting for an ack then finish the item
             items.remove(0);
             sendItem();
             ((IBleCommandQueue) listener).onCommandAck(item.commandSent);

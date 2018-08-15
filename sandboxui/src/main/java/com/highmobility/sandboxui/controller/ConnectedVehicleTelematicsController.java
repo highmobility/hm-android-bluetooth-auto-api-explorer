@@ -27,21 +27,20 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
 
     ICommandQueue iQueue = new ICommandQueue() {
         @Override public void onCommandReceived(Bytes command, @Nullable Command sentCommand) {
-
+            ConnectedVehicleTelematicsController.this.onCommandReceived(command, sentCommand);
         }
 
         @Override public void onCommandFailed(CommandFailure reason, Command sentCommand) {
-
+            ConnectedVehicleTelematicsController.this.onCommandFailed(sentCommand, reason
+                    .getFailureResponse());
         }
 
         @Override public void sendCommand(Command command) {
-            Log.d(SandboxUi.TAG, "queueCommand: " + certificate.toString());
             manager.getTelematics().sendCommand(command, certificate.getGainerSerial(), new
                     Telematics.CommandCallback() {
                         @Override
                         public void onCommandResponse(Bytes bytes) {
-                            ConnectedVehicleTelematicsController.this.onCommandReceived(bytes,
-                                    command);
+                            queue.onCommandReceived(bytes);
                         }
 
                         @Override public void onCommandFailed(TelematicsError telematicsError) {
@@ -56,6 +55,10 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
     @Override public void init() {
         super.init();
         readyToSendCommands();
+    }
+
+    @Override public void onDestroy() {
+        queue.purge();
     }
 
     @Override void queueCommand(Command command, Type response) {

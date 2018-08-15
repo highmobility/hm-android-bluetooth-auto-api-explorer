@@ -28,7 +28,6 @@ import com.highmobility.autoapi.property.doors.DoorLock;
 import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.Manager;
-import com.highmobility.queue.CommandQueue;
 import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
@@ -53,8 +52,6 @@ public class ConnectedVehicleController {
     public static VehicleStatus vehicle;
     public AccessCertificate certificate;
     DeviceSerial vehicleSerial;
-
-    CommandQueue queue;
 
     Manager manager;
     IConnectedVehicleView view;
@@ -199,25 +196,19 @@ public class ConnectedVehicleController {
     }
 
     public void onDestroy() {
-        queue.purge();
+
     }
 
     void queueCommand(Command command, Type response) {
-
+        // telematics and ble have different queues and handle that in their classes
     }
 
     void onCommandReceived(Bytes bytes, Command sentCommand) {
         Command command = CommandResolver.resolve(bytes);
         vehicle.update(command);
-
+        
         if (command instanceof Capabilities) {
             view.onCapabilitiesUpdate(vehicle);
-        } else if (command instanceof Failure) {
-
-            if (sentCommand != null) {
-                Failure failure = (Failure) command;
-                onCommandFailed(sentCommand, failure);
-            }
         } else {
             if (initialising && command instanceof com.highmobility.autoapi.VehicleStatus) {
                 initialising = false; // got vs, initialize is finished
@@ -232,7 +223,7 @@ public class ConnectedVehicleController {
     void onCommandFailed(Command sentCommand, @Nullable Failure failure) {
         String reason;
         if (failure != null) {
-            reason = "Cannot get vehicle data for " + failure.getFailedType() + ": " + failure
+            reason = "Command " + failure.getFailedType() + " failed with: " + failure
                     .getFailureReason();
         } else {
             reason = "Failed to send " + sentCommand.getType();

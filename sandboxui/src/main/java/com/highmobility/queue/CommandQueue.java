@@ -1,11 +1,11 @@
 package com.highmobility.queue;
 
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.Failure;
 import com.highmobility.autoapi.Type;
-import com.highmobility.hmkit.Link;
 import com.highmobility.utils.ByteUtils;
 import com.highmobility.value.Bytes;
 
@@ -26,15 +26,15 @@ public class CommandQueue {
     long timeout;
     int retryCount;
     ArrayList<QueueItem_> items = new ArrayList<>();
-    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     // for telematics, there can only be responses for commands. No other commands.
     boolean allCommandsAreResponses;
 
-    // TODO: 13/08/2018 for base queue, use timeout as constant, not extra. super classes should
-    // calculate full timeout.
-    CommandQueue(ICommandQueue listener, long extraTimeout, int retryCount) {
+    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    ScheduledFuture<?> retryHandle;
+
+    CommandQueue(ICommandQueue listener, long timeout, int retryCount) {
         this.listener = listener;
-        this.timeout = Link.commandTimeout + extraTimeout;
+        this.timeout = timeout;
         this.retryCount = retryCount;
     }
 
@@ -61,6 +61,8 @@ public class CommandQueue {
     }
 
     void onCommandFailedToSend(Command command, Object error, boolean timeout) {
+        Log.d("", "onCommandFailedToSend() called with: command = [" + command + "], error = ["
+                + error + "], timeout = [" + timeout + "]");
         // retry only if timeout, otherwise go straight to failure.
         if (items.size() == 0) return;
         QueueItem_ item = items.get(0);
@@ -78,6 +80,7 @@ public class CommandQueue {
     }
 
     public void onCommandReceived(Bytes command) {
+        Log.d("", "onCommandReceived() called with: command = [" + command + "]" + "\n" + items.size());
         // queue is empty
         if (items.size() == 0) {
             listener.onCommandReceived(command, null);
@@ -86,11 +89,6 @@ public class CommandQueue {
 
         // we only care about first item in queue.
         QueueItem_ item = items.get(0);
-        if (item.responseType == null) {
-            // item is not waiting for a response.
-            listener.onCommandReceived(command, null);
-            return;
-        }
 
         if (command instanceof Failure) {
             Failure failure = (Failure) command;
@@ -121,6 +119,8 @@ public class CommandQueue {
     }
 
     void sendItem() {
+        Log.d("", "sendItem() called " + items.size() );
+
         if (items.size() == 0) return;
         QueueItem_ item = items.get(0);
 
@@ -132,6 +132,7 @@ public class CommandQueue {
     }
 
     void failItem() {
+        Log.d("", "failItem() called " + items.size());
         if (items.size() == 0) return;
         QueueItem_ item = items.get(0);
 
@@ -157,15 +158,14 @@ public class CommandQueue {
         }
     }
 
-    final Runnable retry = () -> sendCommandAgainIfTimeout();
-    ScheduledFuture<?> retryHandle;
-
     void stopTimer() {
         // stop if queue empty
         if (items.size() == 0) {
-            retryHandle.cancel(true);
+            if (retryHandle != null) retryHandle.cancel(true);
         }
     }
+
+    final Runnable retry = () -> sendCommandAgainIfTimeout();
 
     void sendCommandAgainIfTimeout() {
         if (items.size() > 0) {
@@ -188,7 +188,7 @@ public class CommandQueue {
         }
     }
 
-    class QueueItem_ {
+    protected class QueueItem_ {
         Command commandSent;
 
         boolean timeout;

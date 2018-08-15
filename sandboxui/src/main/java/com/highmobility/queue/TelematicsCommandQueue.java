@@ -1,9 +1,10 @@
 package com.highmobility.queue;
 
 import com.highmobility.autoapi.Command;
-import com.highmobility.hmkit.Link;
 import com.highmobility.hmkit.error.TelematicsError;
 import com.highmobility.value.Bytes;
+
+// TODO: 15/08/2018 proof read
 
 /**
  * Queue system for Telematics commands. An item will wait for its response command ({@link
@@ -35,18 +36,18 @@ public class TelematicsCommandQueue extends CommandQueue {
      * @param listener The queue interface.
      */
     public TelematicsCommandQueue(ICommandQueue listener) {
-        this(listener, 0, 3);
+        this(listener, 3);
     }
+
+    // TODO: 15/08/2018 comment
 
     /**
      * @param listener
-     * @param extraTimeout Timeout in ms. Is added to {@link Link#commandTimeout} as an extra buffer
-     *                     to receive the command response. Ack itself is timed out in the sdk after
-     *                     {@link Link#commandTimeout}
      * @param retryCount
      */
-    public TelematicsCommandQueue(ICommandQueue listener, long extraTimeout, int retryCount) {
-        super(listener, extraTimeout, retryCount);
+    public TelematicsCommandQueue(ICommandQueue listener, int retryCount) {
+        // TODO: 15/08/2018 get timeout from somewhere
+        super(listener, 10000, retryCount);
         allCommandsAreResponses = true;
         // TODO: 06/08/2018 for telematics, use a timeout not related to Link#commandTimeout
     }
