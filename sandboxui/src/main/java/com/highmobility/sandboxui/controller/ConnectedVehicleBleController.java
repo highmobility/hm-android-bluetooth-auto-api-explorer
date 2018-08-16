@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.highmobility.autoapi.Command;
+import com.highmobility.autoapi.Type;
 import com.highmobility.hmkit.BroadcastConfiguration;
 import com.highmobility.hmkit.Broadcaster;
 import com.highmobility.hmkit.Broadcaster.State;
@@ -16,6 +18,9 @@ import com.highmobility.hmkit.Manager;
 import com.highmobility.hmkit.error.BroadcastError;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.hmkit.error.RevokeError;
+import com.highmobility.queue.BleCommandQueue;
+import com.highmobility.queue.CommandFailure;
+import com.highmobility.queue.IBleCommandQueue;
 import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
@@ -27,9 +32,6 @@ import java.util.List;
 
 import static com.highmobility.hmkit.Broadcaster.State.BLUETOOTH_UNAVAILABLE;
 
-/**
- * Created by root on 24/05/2017.
- */
 public class ConnectedVehicleBleController extends ConnectedVehicleController implements
         BroadcasterListener, ConnectedLinkListener {
     static String IS_BROADCASTING_SERIAL_PREFS_KEY = "isBroadcastingSerial";
@@ -37,6 +39,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     ConnectedLink link;
 
     IConnectedVehicleBleView bleView;
+    BleCommandQueue queue;
     boolean isBroadcastingSerial;
     int alivePingInterval = -1;
     SharedPreferences sharedPref;
@@ -87,9 +90,10 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     // this is called after the constructor so the view has access to this controller and vice versa
     @Override public void init() {
         super.init();
+
         broadcaster = Manager.getInstance().getBroadcaster();
         broadcaster.setListener(this);
-
+        queue = new BleCommandQueue(iQueue);
         // check for connected links for this vehicle and if is authenticated and show the
         // appropriate ui
         List<ConnectedLink> links = broadcaster.getLinks();
@@ -108,26 +112,53 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     }
 
     @Override
-    void sendCommand(Bytes command) {
+    void queueCommand(Command command, Type response) {
         // link could be lost at any time and for instance on initialize it could try to send
         // commands without checking
         if (link == null) {
-            onCommandError(-1, "No connection to a link.");
+            Log.e(SandboxUi.TAG, "queueCommand: no connected link");
             return;
         }
 
-        link.sendCommand(command, new Link.CommandCallback() {
-            @Override
-            public void onCommandSent() {
-                onBleAckReceived();
-            }
-
-            @Override
-            public void onCommandFailed(LinkError linkError) {
-                onCommandError(1, linkError.getType() + " " + linkError.getMessage());
-            }
-        });
+        queue.queue(command, response);
     }
+
+    @Override public void onRevokeClicked() {
+        view.showAlert("Revoke authorisation?", "", "Yes", "No", (dialog, which) -> {
+            view.showLoadingView(true);
+            link.revoke(new Link.RevokeCallback() {
+                @Override public void onRevokeSuccess(Bytes customData) {
+                    view.getActivity().onBackPressed(); // close the activity
+                }
+
+                @Override public void onRevokeFailed(RevokeError revokeError) {
+                    view.onError(false, "Revoke failed: " + revokeError.getMessage());
+                }
+            });
+        }, null);
+    }
+
+    @Override public Intent willDestroy() {
+        // clear references to hmkit
+        broadcaster.setListener(null);
+
+        for (ConnectedLink link : broadcaster.getLinks()) {
+            link.setListener(null);
+        }
+
+        broadcaster.disconnectAllLinks();
+        broadcaster.stopBroadcasting();
+        broadcaster.stopAlivePinging();
+        broadcaster = null;
+
+        return super.willDestroy();
+    }
+
+    @Override public void onDestroy() {
+        queue.purge();
+    }
+
+    // BroadcasterListener
 
     @Override
     public void onStateChanged(State state) {
@@ -162,7 +193,6 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         link.setListener(this);
         bleView.showBleInfoView(true, "link: " + connectedLink.getState());
         bleView.onLinkReceived(true);
-
         vehicle.onLinkReceived();
         Log.d(SandboxUi.TAG, "onLinkReceived: ");
     }
@@ -179,11 +209,10 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             vehicle.vehicleConnectedWithBle = null;
             Log.d(SandboxUi.TAG, "onLinkLost: ");
 
-            if (initializing) {
+            if (initialising) {
+                queue.purge();
                 // stop the initialisation if link was lost
-                retryCount = 0;
-                initializing = false;
-                cancelInitTimer();
+                initialising = false;
             }
         } else {
             Log.d(SandboxUi.TAG, "unknown link lost");
@@ -217,39 +246,37 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
     @Override
     public void onCommandReceived(Link link, Bytes bytes) {
-        onCommandReceived(bytes);
+        queue.onCommandReceived(bytes);
     }
 
-    @Override public void willDestroy() {
-        // clear references to hmkit
-        broadcaster.setListener(null);
+    // private
 
-        for (ConnectedLink link : broadcaster.getLinks()) {
-            link.setListener(null);
+    IBleCommandQueue iQueue = new IBleCommandQueue() {
+        @Override public void onCommandAck(Command sentCommand) {
+            // we dont care about ack
         }
 
-        broadcaster.disconnectAllLinks();
-        broadcaster.stopBroadcasting();
-        broadcaster.stopAlivePinging();
-        broadcaster = null;
+        @Override public void onCommandReceived(Bytes command, Command sentCommand) {
+            ConnectedVehicleBleController.this.onCommandReceived(command, sentCommand);
+        }
 
-        super.willDestroy();
-    }
+        @Override public void onCommandFailed(CommandFailure reason, Command sentCommand) {
+            ConnectedVehicleBleController.this.onCommandFailed(sentCommand, reason
+                    .getFailureResponse());
+        }
 
-    @Override public void onRevokeClicked() {
-        view.showAlert("Revoke authorisation?", "", "Yes", "No", (dialog, which) -> {
-            view.showLoadingView(true);
-            link.revoke(new Link.RevokeCallback() {
-                @Override public void onRevokeSuccess(Bytes customData) {
-                    // link will de authorise where ui will be updated
+        @Override public void sendCommand(Command command) {
+            link.sendCommand(command, new Link.CommandCallback() {
+                @Override public void onCommandSent() {
+                    queue.onCommandSent(command);
                 }
 
-                @Override public void onRevokeFailed(RevokeError revokeError) {
-                    view.onError(false, "Revoke failed: " + revokeError.getMessage());
+                @Override public void onCommandFailed(LinkError linkError) {
+                    queue.onCommandFailedToSend(command, linkError);
                 }
             });
-        }, null);
-    }
+        }
+    };
 
     void startBroadcasting() {
         BroadcastConfiguration conf = null;

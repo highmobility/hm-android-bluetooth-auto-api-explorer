@@ -33,7 +33,6 @@ public class BroadcastFragment extends Fragment {
 
     public void onLinkReceived(boolean received) {
         broadcastSerialView.setVisibility(received ? View.GONE : View.VISIBLE);
-        bleStatusTextView.setVisibility(received ? View.GONE : View.VISIBLE);
     }
 
     public void onBroadcastingSerial(boolean broadcasting) {

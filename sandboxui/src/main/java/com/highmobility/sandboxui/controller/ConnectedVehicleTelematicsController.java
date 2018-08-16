@@ -1,8 +1,15 @@
 package com.highmobility.sandboxui.controller;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
-import com.highmobility.hmkit.error.TelematicsError;
+
+import com.highmobility.autoapi.Command;
+import com.highmobility.autoapi.Type;
 import com.highmobility.hmkit.Telematics;
+import com.highmobility.hmkit.error.TelematicsError;
+import com.highmobility.queue.CommandFailure;
+import com.highmobility.queue.ICommandQueue;
+import com.highmobility.queue.TelematicsCommandQueue;
 import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
 import com.highmobility.value.Bytes;
@@ -11,31 +18,51 @@ import com.highmobility.value.Bytes;
  * Created by root on 24/05/2017.
  */
 public class ConnectedVehicleTelematicsController extends ConnectedVehicleController {
+    TelematicsCommandQueue queue;
+
     ConnectedVehicleTelematicsController(IConnectedVehicleView view) {
         super(false, view);
+        queue = new TelematicsCommandQueue(iQueue);
     }
+
+    ICommandQueue iQueue = new ICommandQueue() {
+        @Override public void onCommandReceived(Bytes command, @Nullable Command sentCommand) {
+            ConnectedVehicleTelematicsController.this.onCommandReceived(command, sentCommand);
+        }
+
+        @Override public void onCommandFailed(CommandFailure reason, Command sentCommand) {
+            ConnectedVehicleTelematicsController.this.onCommandFailed(sentCommand, reason
+                    .getFailureResponse());
+        }
+
+        @Override public void sendCommand(Command command) {
+            manager.getTelematics().sendCommand(command, certificate.getGainerSerial(), new
+                    Telematics.CommandCallback() {
+                        @Override
+                        public void onCommandResponse(Bytes bytes) {
+                            queue.onCommandReceived(bytes);
+                        }
+
+                        @Override public void onCommandFailed(TelematicsError telematicsError) {
+                            Log.e(SandboxUi.TAG, "send telematics command error: " + telematicsError
+                                    .getMessage());
+                            queue.onCommandFailedToSend(command, telematicsError);
+                        }
+                    });
+        }
+    };
 
     @Override public void init() {
         super.init();
         readyToSendCommands();
     }
 
-    @Override
-    void sendCommand(Bytes command) {
-        Log.d(SandboxUi.TAG, "sendCommand: " + certificate.toString());
-        manager.getTelematics().sendCommand(command, certificate.getGainerSerial(), new
-                Telematics.CommandCallback() {
-                    @Override
-                    public void onCommandResponse(Bytes bytes) {
-                        onCommandReceived(bytes);
-                    }
+    @Override public void onDestroy() {
+        queue.purge();
+    }
 
-                    @Override
-                    public void onCommandFailed(TelematicsError telematicsError) {
-                        Log.e(SandboxUi.TAG, "send telematics command error: " + telematicsError
-                                .getMessage());
-                        onCommandError(telematicsError.getCode(), telematicsError.getMessage());
-                    }
-                });
+    @Override void queueCommand(Command command, Type response) {
+        // telematics queue does not need response type
+        queue.queue(command);
     }
 }

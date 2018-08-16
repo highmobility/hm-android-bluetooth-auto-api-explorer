@@ -32,6 +32,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         .OnFragmentInteractionListener {
     public static final int REQUEST_CODE_REMOTE_CONTROL = 12;
     public static final String EXTRA_FINISH_ON_BACK_PRESS = "EXTRA_FINISH_ON_BACK_PRESS";
+    public static final String EXTRA_VEHICLE_SERIAL = "EXTRA_REVOKED_SERIAL";
 
     ViewPager viewPager;
     TextView title;
@@ -71,8 +72,8 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         title.setText(controller.serviceName);
 
         if (controller.useBle) {
-            refreshButton.setVisibility(GONE);
             revokeButton.setOnClickListener(v -> controller.onRevokeClicked());
+            refreshButton.setVisibility(GONE);
         } else {
             ((ViewGroup) broadcastFragment.getView().getParent()).removeView(broadcastFragment
                     .getView());
@@ -99,7 +100,8 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
 
     @Override public void onBackPressed() {
         if (finishOnBackPress) {
-            controller.willDestroy();
+            Intent intent = controller.willDestroy();
+            setResult(Activity.RESULT_FIRST_USER, intent);
             finish();
         } else {
             moveTaskToBack(true);
@@ -116,6 +118,8 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         ((ConnectedVehicleBleController) controller).onBroadcastSerialSwitchChanged(on);
     }
 
+    // MARK: IConnectedVehicleBleView
+
     @Override
     public void showBleInfoView(boolean show, String status) {
         if (broadcastFragment == null) return;
@@ -126,6 +130,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
 
     @Override public void onLinkReceived(boolean received) {
         broadcastFragment.onLinkReceived(received);
+
         if (received == false) {
             showLoadingView(false);
             showNormalView(false);
@@ -135,22 +140,19 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
     void showNormalView(boolean show) {
         if (show) {
             viewPager.animate().alpha(1f).setDuration(200).setListener(null);
-            revokeButton.setVisibility(VISIBLE);
         } else {
             showLoadingView(false);
             viewPager.animate().alpha(0f).setDuration(200).setListener(null);
-            revokeButton.setVisibility(GONE);
         }
+
+        if (controller.useBle) revokeButton.setVisibility(show ? VISIBLE : GONE);
+        else refreshButton.setEnabled(show);
     }
 
     @Override
     public void showLoadingView(boolean loading) {
         showNormalView(!loading);
         progressBar.setVisibility(loading ? VISIBLE : GONE);
-
-        if (controller.useBle == false) {
-            refreshButton.setEnabled(!loading);
-        }
     }
 
     @Override

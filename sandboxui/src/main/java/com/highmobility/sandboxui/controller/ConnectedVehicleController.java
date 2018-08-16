@@ -1,9 +1,11 @@
 package com.highmobility.sandboxui.controller;
 
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.highmobility.autoapi.Capabilities;
+import com.highmobility.autoapi.ClimateState;
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.CommandResolver;
 import com.highmobility.autoapi.ControlLights;
@@ -11,25 +13,27 @@ import com.highmobility.autoapi.ControlRooftop;
 import com.highmobility.autoapi.Failure;
 import com.highmobility.autoapi.GetCapabilities;
 import com.highmobility.autoapi.GetVehicleStatus;
+import com.highmobility.autoapi.LightsState;
+import com.highmobility.autoapi.LockState;
 import com.highmobility.autoapi.LockUnlockDoors;
 import com.highmobility.autoapi.OpenCloseTrunk;
+import com.highmobility.autoapi.RooftopState;
 import com.highmobility.autoapi.StartStopDefrosting;
+import com.highmobility.autoapi.TrunkState;
 import com.highmobility.autoapi.Type;
 import com.highmobility.autoapi.property.FrontExteriorLightState;
 import com.highmobility.autoapi.property.TrunkLockState;
 import com.highmobility.autoapi.property.TrunkPosition;
 import com.highmobility.autoapi.property.doors.DoorLock;
 import com.highmobility.crypto.AccessCertificate;
+import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.Manager;
 import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.model.VehicleStatus;
+import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
 import com.highmobility.value.Bytes;
-import com.highmobility.crypto.value.DeviceSerial;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static com.highmobility.autoapi.property.doors.DoorLock.LOCKED;
 import static com.highmobility.autoapi.property.doors.DoorLock.UNLOCKED;
@@ -48,17 +52,12 @@ public class ConnectedVehicleController {
 
     public static VehicleStatus vehicle;
     public AccessCertificate certificate;
-
-    Timer initTimer;
-    int retryCount;
-    DeviceSerial vehicleSerial;
+    public DeviceSerial vehicleSerial;
 
     Manager manager;
     IConnectedVehicleView view;
-    Type sentCommand;
 
-    TimerTask repeatTask;
-    boolean initializing;
+    boolean initialising;
 
     public static ConnectedVehicleController create(IConnectedVehicleView view,
                                                     IConnectedVehicleBleView bleView, Intent
@@ -73,7 +72,7 @@ public class ConnectedVehicleController {
         AccessCertificate cert;
         if (vehicleSerialBytes != null) {
             vehicleSerial = new DeviceSerial(vehicleSerialBytes);
-            cert = Manager.getInstance().getCertificate(new DeviceSerial(vehicleSerialBytes));
+            cert = Manager.getInstance().getCertificate(vehicleSerial);
         } else {
             AccessCertificate[] certificates = Manager.getInstance().getCertificates();
             if (certificates == null || certificates.length < 1)
@@ -111,14 +110,12 @@ public class ConnectedVehicleController {
 
     public void onLockDoorsClicked() {
         view.showLoadingView(true);
-        sentCommand = LockUnlockDoors.TYPE;
         DoorLock lockState = vehicle.doorsLocked == true ? UNLOCKED : LOCKED;
-        sendCommand(new LockUnlockDoors(lockState));
+        queueCommand(new LockUnlockDoors(lockState), LockState.TYPE);
     }
 
     public void onLockTrunkClicked() {
         view.showLoadingView(true);
-        sentCommand = OpenCloseTrunk.TYPE;
         TrunkLockState newLockState;
         TrunkPosition newPosition;
 
@@ -131,35 +128,32 @@ public class ConnectedVehicleController {
         }
 
         Command command = new OpenCloseTrunk(newLockState, newPosition);
-        sendCommand(command);
+        queueCommand(command, TrunkState.TYPE);
     }
 
     public void onWindshieldDefrostingClicked() {
         view.showLoadingView(true);
-        sentCommand = StartStopDefrosting.TYPE;
-        Command command = new StartStopDefrosting(vehicle.isWindshieldDefrostingActive ?
-                false : true);
-        sendCommand(command);
+        boolean startDefrosting = vehicle.isWindshieldDefrostingActive ? false : true;
+        Command command = new StartStopDefrosting(startDefrosting);
+        queueCommand(command, ClimateState.TYPE);
     }
 
     public void onSunroofVisibilityClicked() {
         view.showLoadingView(true);
-        sentCommand = ControlRooftop.TYPE;
 
         float dimPercentage = vehicle.rooftopDimmingPercentage == 1f ? 0f : 1f;
 
         Command command = new ControlRooftop(dimPercentage, vehicle
                 .rooftopOpenPercentage);
-        sendCommand(command);
+        queueCommand(command, RooftopState.TYPE);
     }
 
     public void onSunroofOpenClicked() {
         view.showLoadingView(true);
-        sentCommand = ControlRooftop.TYPE;
         float openPercentage = vehicle.rooftopOpenPercentage == 0f ? 1f : 0f;
         Command command = new ControlRooftop(vehicle
                 .rooftopDimmingPercentage, openPercentage);
-        sendCommand(command);
+        queueCommand(command, RooftopState.TYPE);
     }
 
     public void onFrontExteriorLightClicked(int segment) {
@@ -171,164 +165,80 @@ public class ConnectedVehicleController {
         if (state == vehicle.frontExteriorLightState) return;
 
         view.showLoadingView(true);
-        sentCommand = ControlLights.TYPE;
 
         Command command = new ControlLights(state,
                 vehicle.isRearExteriorLightActive,
                 vehicle.isInteriorLightActive,
                 vehicle.lightsAmbientColor);
 
-        sendCommand(command);
+        queueCommand(command, LightsState.TYPE);
     }
 
     public void onRevokeClicked() {
-
+        // ble method
     }
 
     public void onRefreshClicked() {
         view.showLoadingView(true);
-        sentCommand = com.highmobility.autoapi.VehicleStatus.TYPE;
-        sendCommand(new GetVehicleStatus());
+        queueCommand(new GetVehicleStatus(), com.highmobility.autoapi.VehicleStatus.TYPE);
     }
 
     public void readyToSendCommands() {
-        initializing = true;
+        initialising = true;
         view.showLoadingView(true);
         // capabilities are required to know if action commands are available.
-        sentCommand = GetCapabilities.TYPE;
-        sendCommand(new GetCapabilities());
+        queueCommand(new GetCapabilities(), Capabilities.TYPE);
+        queueCommand(new GetVehicleStatus(), com.highmobility.autoapi.VehicleStatus.TYPE);
     }
 
-    public void willDestroy() {
-
+    public Intent willDestroy() {
+        return new Intent().putExtra(ConnectedVehicleActivity.EXTRA_VEHICLE_SERIAL, vehicleSerial
+                .getByteArray());
     }
 
     public void onDestroy() {
-        cancelInitTimer();
-    }
-
-    void sendCommand(Bytes command) {
 
     }
 
-    void onBleAckReceived() {
-        if (initializing == true) {
-            rescheduleInitTimer();
-        }
+    void queueCommand(Command command, Type response) {
+        // telematics and ble have different queues and handle that in their classes
     }
 
-    void onCommandReceived(Bytes bytes) {
+    void onCommandReceived(Bytes bytes, Command sentCommand) {
         Command command = CommandResolver.resolve(bytes);
         vehicle.update(command);
 
         if (command instanceof Capabilities) {
-            rescheduleInitTimer();
             view.onCapabilitiesUpdate(vehicle);
-            continueInitAfterGetCapabilities();
-        } else if (command instanceof Failure) {
-            Failure failure = (Failure) command;
-            Log.d(SandboxUi.TAG, "failure " + failure.getFailureReason());
-
-            if (sentCommand != null) {
-                if (initializing) {
-                    // initialization failed
-                    initializing = false;
-                    cancelInitTimer();
-                    view.onError(true, "Cannot get vehicle data: " + failure
-                            .getFailureReason());
-                } else {
-                    view.showLoadingView(false);
-                    view.onError(false, failure.getFailedType() + " failed: "
-                            + failure.getFailureReason());
-                    sentCommand = null;
-                }
-            }
         } else {
-            if (initializing && command instanceof com.highmobility.autoapi.VehicleStatus) {
-                cancelInitTimer();
-                initializing = false;
+            if (initialising && command instanceof com.highmobility.autoapi.VehicleStatus) {
+                initialising = false; // got vs, initialize is finished
             }
 
-            sentCommand = null;
             view.onVehicleStatusUpdate(vehicle);
             view.showLoadingView(false);
         }
     }
 
-    void continueInitAfterGetCapabilities() {
-        rescheduleInitTimer();
-        sentCommand = GetVehicleStatus.TYPE;
-        sendCommand(new GetVehicleStatus());
-    }
-
-    void cancelInitTimer() {
-        if (initTimer != null) {
-            Log.d(SandboxUi.TAG, "cancelInitTimer:");
-            repeatTask.cancel();
-            initTimer.cancel();
-            initTimer = null;
+    // timeout or other reason
+    void onCommandFailed(Command sentCommand, @Nullable Failure failure) {
+        String reason;
+        if (failure != null) {
+            reason = "Command " + failure.getFailedType() + " failed with: " + failure
+                    .getFailureReason();
+        } else {
+            reason = "Failed to send " + sentCommand.getType();
         }
-    }
 
-    TimerTask repeatTask() {
-        return new TimerTask() {
-            @Override
-            public void run() {
-                Log.d(SandboxUi.TAG, "run: app layer command wait timeout");
-                // TODO: if a command is still waiting for a response, app will go to invalid state
-                failedToSendInitCommand("command timed out.");
-            }
-        };
-    }
+        Log.e(SandboxUi.TAG, "onCommandFailed: " + reason);
 
-    void failedToSendInitCommand(final String message) {
-        view.getActivity().runOnUiThread(() -> {
-            retryCount++;
-            if (retryCount == 3) {
-                initializing = false;
-                view.onError(true, message);
-                retryCount = 0;
-                return;
-            }
-
-            Log.d(SandboxUi.TAG, "init: try to send the command again " + (sentCommand !=
-                    null ?
-                    sentCommand : "null command"));
-            if (sentCommand != null) {
-                // try to send command again
-                if (sentCommand == GetVehicleStatus.TYPE) {
-                    Log.d(SandboxUi.TAG, "send vs");
-                    sendCommand(new GetVehicleStatus());
-                } else if (sentCommand == GetCapabilities.TYPE) {
-                    Log.d(SandboxUi.TAG, "send capa");
-                    sendCommand(new GetCapabilities());
-                }
-
-                if (initTimer != null) rescheduleInitTimer(); // no timer for telematics
-            }
-        });
-    }
-
-    void rescheduleInitTimer() {
-        cancelInitTimer();
-        Log.d(SandboxUi.TAG, "rescheduleInitTimer: ");
-        initTimer = new Timer();
-        if (repeatTask != null) repeatTask.cancel();
-        repeatTask = repeatTask();
-        initTimer.schedule(repeatTask, (long) 120 * 1000);
-    }
-
-    void onCommandError(int errorCode, String message) {
-        if (initializing == true &&
-                (sentCommand == GetVehicleStatus.TYPE
-                        || sentCommand == GetCapabilities.TYPE)) {
-            Log.d(SandboxUi.TAG, "initialize, onCommandError: " + errorCode + " " +
-                    message);
-            failedToSendInitCommand(message);
-        } else if (sentCommand != null) {
+        if (initialising) {
+            // initialization failed
+            initialising = false;
+            view.onError(true, reason);
+        } else {
             view.showLoadingView(false);
-            view.onError(false, message);
-            sentCommand = null;
+            view.onError(false, reason);
         }
     }
 }

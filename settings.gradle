@@ -1,1 +1,2 @@
-include ':app', ':sandboxui'
+include ':app', ':sandboxui', ':hmkit-sandbox'
+project(':hmkit-sandbox').projectDir = new File('hm-android-hmkit-sandbox/hmkit-sandbox')
