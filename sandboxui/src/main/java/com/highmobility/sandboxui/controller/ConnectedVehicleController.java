@@ -153,8 +153,7 @@ public class ConnectedVehicleController {
         float openPercentage = vehicle.rooftopOpenPercentage == 0f ? 1f : 0f;
         Command command = new ControlRooftop(vehicle
                 .rooftopDimmingPercentage, openPercentage);
-        queueCommand(command, RooftopState.TYPE); // TODO: 07/08/2018 test that rooftopstate comes
-        // back
+        queueCommand(command, RooftopState.TYPE);
     }
 
     public void onFrontExteriorLightClicked(int segment) {

@@ -42,20 +42,19 @@ public class TelematicsCommandQueue extends CommandQueue {
     // TODO: 15/08/2018 comment
 
     /**
-     * @param listener
-     * @param retryCount
+     * Create the queue with custom retry count.
+     *
+     * @param listener   The queue interface.
+     * @param retryCount The retry count.
      */
     public TelematicsCommandQueue(ICommandQueue listener, int retryCount) {
         // TODO: 15/08/2018 get timeout from somewhere
         super(listener, 10000, retryCount);
         allCommandsAreResponses = true;
-        // TODO: 06/08/2018 for telematics, use a timeout not related to Link#commandTimeout
     }
 
     public void onCommandFailedToSend(Command command, TelematicsError error) {
         boolean timeout = error.getType() == TelematicsError.Type.TIMEOUT;
         super.onCommandFailedToSend(command, error, timeout);
-
-        // TODO: 06/08/2018 try again on HTTP_ERROR, TIMEOUT, INVALID_SERVER_RESPONSE
     }
 }

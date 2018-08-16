@@ -61,8 +61,6 @@ public class CommandQueue {
     }
 
     void onCommandFailedToSend(Command command, Object error, boolean timeout) {
-        Log.d("", "onCommandFailedToSend() called with: command = [" + command + "], error = ["
-                + error + "], timeout = [" + timeout + "]");
         // retry only if timeout, otherwise go straight to failure.
         if (items.size() == 0) return;
         QueueItem_ item = items.get(0);

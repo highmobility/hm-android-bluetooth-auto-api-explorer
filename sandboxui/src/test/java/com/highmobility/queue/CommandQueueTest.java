@@ -27,8 +27,6 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
 
-// TODO: 07/08/2018
-
 public class CommandQueueTest {
     final Bytes[] responseCommand = new Bytes[1];
     final int[] commandsSent = {0};
@@ -148,7 +146,7 @@ public class CommandQueueTest {
         assertTrue(linkError.getType() == LinkError.Type.TIME_OUT);
     }
 
-    @Test public void notSentCommandNotTriedAgain() throws InterruptedException {
+    @Test public void notSentCommandNotTriedAgain() {
         // assert that when sdk failed to send command, queue tries to send again
         BleCommandQueue queue = new BleCommandQueue(iQueue, 10000, 3);
         Command command = new LockUnlockDoors(DoorLock.LOCKED);
