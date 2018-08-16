@@ -1,7 +1,6 @@
 package com.highmobility.queue;
 
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.Failure;
@@ -21,7 +20,6 @@ import java.util.concurrent.TimeUnit;
  * BleCommandQueue} or {@link TelematicsCommandQueue} should be used instead of this class.
  */
 public class CommandQueue {
-
     ICommandQueue listener;
     long timeout;
     int retryCount;
@@ -58,23 +56,6 @@ public class CommandQueue {
     public void purge() {
         items.clear();
         stopTimer();
-    }
-
-    void onCommandFailedToSend(Command command, Object error, boolean timeout) {
-        // retry only if timeout, otherwise go straight to failure.
-        if (items.size() == 0) return;
-        QueueItem_ item = items.get(0);
-        if (item.commandSent.getType().equals(command.getType()) == false) return;
-
-        item.sdkError = error;
-        if (timeout && item.retryCount < retryCount) {
-            item.timeout = true;
-            item.retryCount++;
-            item.timeSent = null;
-            sendItem();
-        } else {
-            failItem();
-        }
     }
 
     public void onCommandReceived(Bytes command) {
@@ -123,6 +104,23 @@ public class CommandQueue {
             item.timeSent = Calendar.getInstance();
             listener.sendCommand(item.commandSent);
             startTimer();
+        }
+    }
+
+    void onCommandFailedToSend(Command command, Object error, boolean timeout) {
+        // retry only if timeout, otherwise go straight to failure.
+        if (items.size() == 0) return;
+        QueueItem_ item = items.get(0);
+        if (item.commandSent.getType().equals(command.getType()) == false) return;
+
+        item.sdkError = error;
+        if (timeout && item.retryCount < retryCount) {
+            item.timeout = true;
+            item.retryCount++;
+            item.timeSent = null;
+            sendItem();
+        } else {
+            failItem();
         }
     }
 

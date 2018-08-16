@@ -7,10 +7,10 @@ import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.value.Bytes;
 
 /**
- * This is a queue system for BLE commands that is meant to be used as a layer between the app and
- * HMKit. An item will wait for its ack ({@link #queue(Command)}) or for its response command
- * ({@link #queue(Command, Type)}) before next items will be sent. Ack timeout will come from the
- * sdk. Response command timeout is handled by this class(hence extraTimeout in ctor).
+ * Queue system for BLE commands that is meant to be used as a layer between the app and HMKit. An
+ * item will wait for its ack ({@link #queue(Command)}) or for its response command ({@link
+ * #queue(Command, Type)}) before next items will be sent. Ack timeout will come from the sdk.
+ * Response command timeout is handled by this class(hence extraTimeout in ctor).
  * <p>
  * Command will succeed after ack or the expected response command via {@link ICommandQueue}
  * <p>
@@ -21,7 +21,7 @@ import com.highmobility.value.Bytes;
  * <li>{@link #onCommandFailedToSend(Command, LinkError)}</li>
  * </ul>
  * <p>
- * Commands will fail:
+ * Be aware:
  * <ul>
  * <li> Command will fail without retrying if the SDK returns a LinkError or the response is a
  * Failure command. The queue will be cleared then as well.</li>

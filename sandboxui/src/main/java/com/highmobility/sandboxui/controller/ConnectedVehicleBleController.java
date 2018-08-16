@@ -32,9 +32,6 @@ import java.util.List;
 
 import static com.highmobility.hmkit.Broadcaster.State.BLUETOOTH_UNAVAILABLE;
 
-/**
- * Created by root on 24/05/2017.
- */
 public class ConnectedVehicleBleController extends ConnectedVehicleController implements
         BroadcasterListener, ConnectedLinkListener {
     static String IS_BROADCASTING_SERIAL_PREFS_KEY = "isBroadcastingSerial";
