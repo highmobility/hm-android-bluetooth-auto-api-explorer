@@ -123,6 +123,37 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         queue.queue(command, response);
     }
 
+    @Override public void onRevokeClicked() {
+        view.showAlert("Revoke authorisation?", "", "Yes", "No", (dialog, which) -> {
+            view.showLoadingView(true);
+            link.revoke(new Link.RevokeCallback() {
+                @Override public void onRevokeSuccess(Bytes customData) {
+                    view.getActivity().onBackPressed(); // close the activity
+                }
+
+                @Override public void onRevokeFailed(RevokeError revokeError) {
+                    view.onError(false, "Revoke failed: " + revokeError.getMessage());
+                }
+            });
+        }, null);
+    }
+
+    @Override public Intent willDestroy() {
+        // clear references to hmkit
+        broadcaster.setListener(null);
+
+        for (ConnectedLink link : broadcaster.getLinks()) {
+            link.setListener(null);
+        }
+
+        broadcaster.disconnectAllLinks();
+        broadcaster.stopBroadcasting();
+        broadcaster.stopAlivePinging();
+        broadcaster = null;
+
+        return super.willDestroy();
+    }
+
     @Override public void onDestroy() {
         queue.purge();
     }
@@ -216,39 +247,6 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     @Override
     public void onCommandReceived(Link link, Bytes bytes) {
         queue.onCommandReceived(bytes);
-    }
-
-    // ConnectedVehicleController
-
-    @Override public Intent willDestroy() {
-        // clear references to hmkit
-        broadcaster.setListener(null);
-
-        for (ConnectedLink link : broadcaster.getLinks()) {
-            link.setListener(null);
-        }
-
-        broadcaster.disconnectAllLinks();
-        broadcaster.stopBroadcasting();
-        broadcaster.stopAlivePinging();
-        broadcaster = null;
-
-        return super.willDestroy();
-    }
-
-    @Override public void onRevokeClicked() {
-        view.showAlert("Revoke authorisation?", "", "Yes", "No", (dialog, which) -> {
-            view.showLoadingView(true);
-            link.revoke(new Link.RevokeCallback() {
-                @Override public void onRevokeSuccess(Bytes customData) {
-                    view.getActivity().onBackPressed(); // close the activity
-                }
-
-                @Override public void onRevokeFailed(RevokeError revokeError) {
-                    view.onError(false, "Revoke failed: " + revokeError.getMessage());
-                }
-            });
-        }, null);
     }
 
     // private
