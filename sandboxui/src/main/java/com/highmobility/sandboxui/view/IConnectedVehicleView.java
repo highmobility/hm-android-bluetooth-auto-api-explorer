@@ -19,4 +19,5 @@ public interface IConnectedVehicleView {
                            decline);
 
     Activity getActivity();
+
 }

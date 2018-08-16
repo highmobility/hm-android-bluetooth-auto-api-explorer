@@ -54,7 +54,6 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         sharedPref = view.getActivity().getPreferences(Context.MODE_PRIVATE);
         isBroadcastingSerial = sharedPref.getBoolean(IS_BROADCASTING_SERIAL_PREFS_KEY, false);
         this.alivePingInterval = alivePingInterval;
-        queue = new BleCommandQueue(iQueue);
     }
 
     public boolean isBroadcastingSerial() {
@@ -94,9 +93,10 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     // this is called after the constructor so the view has access to this controller and vice versa
     @Override public void init() {
         super.init();
+
         broadcaster = Manager.getInstance().getBroadcaster();
         broadcaster.setListener(this);
-
+        queue = new BleCommandQueue(iQueue);
         // check for connected links for this vehicle and if is authenticated and show the
         // appropriate ui
         List<ConnectedLink> links = broadcaster.getLinks();
@@ -223,9 +223,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
     // ConnectedVehicleController
 
-    @Override public void willDestroy() {
-        super.willDestroy();
-
+    @Override public Intent willDestroy() {
         // clear references to hmkit
         broadcaster.setListener(null);
 
@@ -237,6 +235,8 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         broadcaster.stopBroadcasting();
         broadcaster.stopAlivePinging();
         broadcaster = null;
+
+        return super.willDestroy();
     }
 
     @Override public void onRevokeClicked() {
@@ -244,7 +244,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             view.showLoadingView(true);
             link.revoke(new Link.RevokeCallback() {
                 @Override public void onRevokeSuccess(Bytes customData) {
-                    // link will de authorise where ui will be updated
+                    view.getActivity().onBackPressed(); // close the activity
                 }
 
                 @Override public void onRevokeFailed(RevokeError revokeError) {

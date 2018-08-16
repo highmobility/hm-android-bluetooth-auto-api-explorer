@@ -32,6 +32,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         .OnFragmentInteractionListener {
     public static final int REQUEST_CODE_REMOTE_CONTROL = 12;
     public static final String EXTRA_FINISH_ON_BACK_PRESS = "EXTRA_FINISH_ON_BACK_PRESS";
+    public static final String EXTRA_VEHICLE_SERIAL = "EXTRA_REVOKED_SERIAL";
 
     ViewPager viewPager;
     TextView title;
@@ -99,7 +100,8 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
 
     @Override public void onBackPressed() {
         if (finishOnBackPress) {
-            controller.willDestroy();
+            Intent intent = controller.willDestroy();
+            setResult(Activity.RESULT_FIRST_USER, intent);
             finish();
         } else {
             moveTaskToBack(true);

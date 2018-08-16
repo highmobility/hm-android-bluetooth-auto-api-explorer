@@ -30,6 +30,7 @@ import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.Manager;
 import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.model.VehicleStatus;
+import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
 import com.highmobility.value.Bytes;
@@ -51,7 +52,7 @@ public class ConnectedVehicleController {
 
     public static VehicleStatus vehicle;
     public AccessCertificate certificate;
-    DeviceSerial vehicleSerial;
+    public DeviceSerial vehicleSerial;
 
     Manager manager;
     IConnectedVehicleView view;
@@ -71,7 +72,7 @@ public class ConnectedVehicleController {
         AccessCertificate cert;
         if (vehicleSerialBytes != null) {
             vehicleSerial = new DeviceSerial(vehicleSerialBytes);
-            cert = Manager.getInstance().getCertificate(new DeviceSerial(vehicleSerialBytes));
+            cert = Manager.getInstance().getCertificate(vehicleSerial);
         } else {
             AccessCertificate[] certificates = Manager.getInstance().getCertificates();
             if (certificates == null || certificates.length < 1)
@@ -191,8 +192,9 @@ public class ConnectedVehicleController {
         queueCommand(new GetVehicleStatus(), com.highmobility.autoapi.VehicleStatus.TYPE);
     }
 
-    public void willDestroy() {
-
+    public Intent willDestroy() {
+        return new Intent().putExtra(ConnectedVehicleActivity.EXTRA_VEHICLE_SERIAL, vehicleSerial
+                .getByteArray());
     }
 
     public void onDestroy() {
@@ -206,7 +208,7 @@ public class ConnectedVehicleController {
     void onCommandReceived(Bytes bytes, Command sentCommand) {
         Command command = CommandResolver.resolve(bytes);
         vehicle.update(command);
-        
+
         if (command instanceof Capabilities) {
             view.onCapabilitiesUpdate(vehicle);
         } else {

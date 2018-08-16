@@ -80,7 +80,6 @@ public class CommandQueue {
     }
 
     public void onCommandReceived(Bytes command) {
-        Log.d("", "onCommandReceived() called with: command = [" + command + "]" + "\n" + items.size());
         // queue is empty
         if (items.size() == 0) {
             listener.onCommandReceived(command, null);
@@ -119,8 +118,6 @@ public class CommandQueue {
     }
 
     void sendItem() {
-        Log.d("", "sendItem() called " + items.size() );
-
         if (items.size() == 0) return;
         QueueItem_ item = items.get(0);
 
@@ -132,7 +129,6 @@ public class CommandQueue {
     }
 
     void failItem() {
-        Log.d("", "failItem() called " + items.size());
         if (items.size() == 0) return;
         QueueItem_ item = items.get(0);
 
