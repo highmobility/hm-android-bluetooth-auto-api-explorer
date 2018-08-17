@@ -1,5 +1,6 @@
-import com.highmobility.autoapi.VehicleStatus;
+This queue system can be used to send multiple commands in a row. It is meant to be used as a layer between hmkit and the app, where all link communication is forwarded to the queue. It returns the commands or failure indications if the commands fail.
 
+```java
 ConnectedLink link.
 BleCommandQueue queue;
 
@@ -47,3 +48,4 @@ IBleCommandQueue iQueue = new IBleCommandQueue() {
     });
   }
 };
+```
