@@ -77,12 +77,13 @@ public class BleCommandQueue extends CommandQueue {
         if (items.size() == 0) return;
         QueueItem_ item = items.get(0);
 
-        if (command.getType().equals(item.commandSent.getType()) &&
-                item.responseType == null) {
+        if (command.getType().equals(item.commandSent.getType())) {
             // if only waiting for an ack then finish the item
-            items.remove(0);
-            sendItem();
             ((IBleCommandQueue) listener).onCommandAck(item.commandSent);
+            if (item.responseType == null) {
+                items.remove(0);
+                sendItem();
+            }
         }
     }
 

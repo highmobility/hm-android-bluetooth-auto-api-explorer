@@ -10,6 +10,7 @@ import com.highmobility.autoapi.GetGasFlapState;
 import com.highmobility.autoapi.LockState;
 import com.highmobility.autoapi.LockUnlockDoors;
 import com.highmobility.autoapi.OpenCloseTrunk;
+import com.highmobility.autoapi.OpenGasFlap;
 import com.highmobility.autoapi.Type;
 import com.highmobility.autoapi.property.FailureReason;
 import com.highmobility.autoapi.property.TrunkLockState;
@@ -265,12 +266,14 @@ public class CommandQueueTest {
         BleCommandQueue queue = new BleCommandQueue(iQueue, 0, 3);
         Command firstCommand = new LockUnlockDoors(DoorLock.LOCKED);
         Command secondCommand = new OpenCloseTrunk(TrunkLockState.LOCKED, TrunkPosition.CLOSED);
+        Command thirdCommand = new OpenGasFlap();
 
         LockState firstResponse = new LockState.Builder().addInsideLockState(new DoorLockState
                 (DoorLocation.FRONT_LEFT, DoorLock.LOCKED)).build();
 
         queue.queue(firstCommand, LockState.TYPE);
         queue.queue(secondCommand);
+        queue.queue(thirdCommand);
 
         assertTrue(commandsSent[0] == 1);
         Thread.sleep(Link.commandTimeout + 20);
@@ -286,8 +289,12 @@ public class CommandQueueTest {
         assertTrue(commandsSent[0] == 3); // assert trunk command sent after response
         Thread.sleep(10);
         queue.onCommandSent(secondCommand);
-        assertTrue(commandsSent[0] == 3);
+        assertTrue(commandsSent[0] == 4); // sent OpenGasFlap(third command)
         assertTrue(ackCommand[0].getType().equals(OpenCloseTrunk.TYPE));
+        Thread.sleep(10);
+        queue.onCommandSent(thirdCommand);
+        assertTrue(ackCommand[0].getType().equals(OpenGasFlap.TYPE));
+        assertTrue(commandsSent[0] == 4);
 
         assertTrue(failure[0] == null);
     }

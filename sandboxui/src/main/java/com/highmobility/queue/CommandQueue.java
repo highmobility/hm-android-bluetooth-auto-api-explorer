@@ -81,9 +81,9 @@ public class CommandQueue {
                             ByteUtils.startsWith(command.getByteArray(), item.responseType
                                     .getIdentifierAndType()))) {
                 // received a command of expected type
+                listener.onCommandReceived(command, item.commandSent);
                 items.remove(0);
                 sendItem();
-                listener.onCommandReceived(command, item.commandSent);
             }
         }
     }
