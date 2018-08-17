@@ -10,9 +10,11 @@ void sendCommands() {
   queue.queue(new GetVehicleStatus(), VehicleStatus.TYPE); 
   // send OpenGasFlap and only wait for the ack, not the GasFlapState response.
   queue.queue(new OpenGasFlap());
-  // send HonkAndFlash straight after OpenGasFlap ack.
+  // send HonkAndFlash straight after the OpenGasFlap ack.
   queue.queue(new HonkAndFlash(3, 3));
 }
+
+// forward all link communication to the queue.
 
 @Override
 public void onCommandReceived(Link link, Bytes bytes) {
