@@ -1,8 +1,5 @@
 package com.highmobility.queue;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.Failure;
 import com.highmobility.autoapi.GasFlapState;
@@ -26,6 +23,12 @@ import com.highmobility.value.Bytes;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertSame;
 import static junit.framework.TestCase.assertTrue;
 
 public class CommandQueueTest {
@@ -66,7 +69,7 @@ public class CommandQueueTest {
         queue.queue(command);
         Thread.sleep(50);
         queue.onCommandSent(command);
-        assertTrue(ackCommand[0].getType().equals(LockUnlockDoors.TYPE));
+        assertEquals(ackCommand[0].getType(), LockUnlockDoors.TYPE);
     }
 
     @Test public void responseCommandDispatched() throws InterruptedException {
@@ -81,7 +84,7 @@ public class CommandQueueTest {
                 (DoorLocation.FRONT_LEFT, DoorLock.LOCKED)).build();
         queue.onCommandReceived(response);
 
-        assertTrue(commandsSent[0] == 1);
+        assertEquals(1, commandsSent[0]);
         assertTrue(bytesStartsWithType(responseCommand[0], LockState.TYPE));
     }
 
@@ -93,10 +96,10 @@ public class CommandQueueTest {
         queue.queue(command);
         secondResult = queue.queue(command);
 
-        assertTrue(secondResult == false);
-        assertTrue(commandsSent[0] == 1);
+        assertEquals(false, secondResult);
+        assertEquals(1, commandsSent[0]);
         queue.onCommandSent(command);
-        assertTrue(ackCommand[0].getType().equals(command.getType()));
+        assertEquals(ackCommand[0].getType(), command.getType());
     }
 
     @Test public void newCommandsNotSentWhenWaitingForAResponse() {
@@ -106,13 +109,13 @@ public class CommandQueueTest {
         queue.queue(command, LockState.TYPE);
         secondResult = queue.queue(command, LockState.TYPE);
 
-        assertTrue(secondResult == false);
-        assertTrue(commandsSent[0] == 1);
+        assertEquals(false, secondResult);
+        assertEquals(1, commandsSent[0]);
         Command response = new LockState.Builder().addInsideLockState(new DoorLockState
                 (DoorLocation.FRONT_LEFT, DoorLock.LOCKED)).build();
         queue.onCommandReceived(response);
         assertTrue(bytesStartsWithType(responseCommand[0], LockState.TYPE));
-        assertTrue(ackCommand[0] == null);
+        assertNull(ackCommand[0]);
     }
 
     @Test public void ackCommandRetriedAndFailed() throws InterruptedException {
@@ -124,27 +127,27 @@ public class CommandQueueTest {
         LinkError error = new LinkError(LinkError.Type.TIME_OUT, 0, "");
 
         queue.queue(command, LockState.TYPE);
-        assertTrue(commandsSent[0] == 1);
+        assertEquals(1, commandsSent[0]);
 
         Thread.sleep(40);
         queue.onCommandFailedToSend(command, error);
-        assertTrue(commandsSent[0] == 2);
+        assertEquals(2, commandsSent[0]);
 
         Thread.sleep(40);
         queue.onCommandFailedToSend(command, error);
-        assertTrue(commandsSent[0] == 3);
+        assertEquals(3, commandsSent[0]);
 
         Thread.sleep(40);
         queue.onCommandFailedToSend(command, error);
-        assertTrue(commandsSent[0] == 4);
+        assertEquals(4, commandsSent[0]);
 
         Thread.sleep(40); // command is retried 3 times
         queue.onCommandFailedToSend(command, error);
-        assertTrue(commandsSent[0] == 4);
+        assertEquals(4, commandsSent[0]);
 
-        assertTrue(failure[0].getReason() == CommandFailure.Reason.TIMEOUT);
+        assertSame(failure[0].getReason(), CommandFailure.Reason.TIMEOUT);
         LinkError linkError = ((LinkError) failure[0].getErrorObject());
-        assertTrue(linkError.getType() == LinkError.Type.TIME_OUT);
+        assertSame(linkError.getType(), LinkError.Type.TIME_OUT);
     }
 
     @Test public void notSentCommandNotTriedAgain() {
@@ -154,9 +157,9 @@ public class CommandQueueTest {
         queue.queue(command, LockState.TYPE);
 
         LinkError error = new LinkError(LinkError.Type.INTERNAL_ERROR, 0, "");
-        assertTrue(commandsSent[0] == 1);
+        assertEquals(1, commandsSent[0]);
         queue.onCommandFailedToSend(command, error);
-        assertTrue(commandsSent[0] == 1);
+        assertEquals(1, commandsSent[0]);
     }
 
     @Test public void responseCommandAckWillStillWaitForResponseAndTryAgain() throws
@@ -168,25 +171,25 @@ public class CommandQueueTest {
 
         Thread.sleep(10);
         queue.onCommandSent(command);
-        assertTrue(commandsSent[0] == 1);
+        assertEquals(1, commandsSent[0]);
 
         Thread.sleep(Link.commandTimeout + 20); //sends command again(no response)
-        assertTrue(commandsSent[0] == 2);
+        assertEquals(2, commandsSent[0]);
         queue.onCommandSent(command);
 
         Thread.sleep(Link.commandTimeout + 20); //sends command again(no response)
-        assertTrue(commandsSent[0] == 3);
+        assertEquals(3, commandsSent[0]);
         queue.onCommandSent(command);
 
         Thread.sleep(Link.commandTimeout + 20); //sends command again(no response)
-        assertTrue(commandsSent[0] == 4);
+        assertEquals(4, commandsSent[0]);
         queue.onCommandSent(command);
 
         Thread.sleep(Link.commandTimeout + 20); //sends command again(no response)
-        assertTrue(commandsSent[0] == 4);
+        assertEquals(4, commandsSent[0]);
 
-        assertTrue(failure[0].getReason() == CommandFailure.Reason.TIMEOUT);
-        assertTrue(failure[0].getErrorObject() == null);
+        assertSame(failure[0].getReason(), CommandFailure.Reason.TIMEOUT);
+        assertNull(failure[0].getErrorObject());
     }
 
     @Test public void ackCommandRetriedAndDispatched() throws InterruptedException {
@@ -195,15 +198,15 @@ public class CommandQueueTest {
         BleCommandQueue queue = new BleCommandQueue(iQueue, 0, 3);
         Command command = new LockUnlockDoors(DoorLock.LOCKED);
         queue.queue(command);
-        assertTrue(commandsSent[0] == 1);
+        assertEquals(1, commandsSent[0]);
 
         Thread.sleep(Link.commandTimeout + 20); //sends command again(no ack)
-        assertTrue(commandsSent[0] == 2);
+        assertEquals(2, commandsSent[0]);
 
         Thread.sleep(10);
         queue.onCommandSent(command);
 
-        assertTrue(ackCommand[0].getType().equals(LockUnlockDoors.TYPE));
+        assertEquals(ackCommand[0].getType(), LockUnlockDoors.TYPE);
     }
 
     @Test public void responseCommandRetriedAndDispatched() throws InterruptedException {
@@ -215,18 +218,18 @@ public class CommandQueueTest {
 
         Thread.sleep(10);
         queue.onCommandSent(command);
-        assertTrue(commandsSent[0] == 1);
+        assertEquals(1, commandsSent[0]);
 
         Thread.sleep(Link.commandTimeout + 20); //sends command again(no response)
-        assertTrue(commandsSent[0] == 2);
+        assertEquals(2, commandsSent[0]);
         queue.onCommandSent(command);
 
         Thread.sleep(20);
 
         queue.onCommandReceived(response);
-        assertTrue(commandsSent[0] == 2);
+        assertEquals(2, commandsSent[0]);
 
-        assertTrue(failure[0] == null);
+        assertNull(failure[0]);
         assertTrue(bytesStartsWithType(responseCommand[0], LockState.TYPE));
     }
 
@@ -244,22 +247,22 @@ public class CommandQueueTest {
         queue.queue(firstCommand, LockState.TYPE);
         queue.queue(secondCommand, GasFlapState.TYPE);
 
-        assertTrue(commandsSent[0] == 1);
+        assertEquals(1, commandsSent[0]);
         Thread.sleep(10);
         queue.onCommandSent(firstCommand);
         Thread.sleep(10);
         queue.onCommandReceived(firstResponse);
         assertTrue(bytesStartsWithType(responseCommand[0], LockState.TYPE));
 
-        assertTrue(commandsSent[0] == 2); // assert get gas flap state sent
+        assertEquals(2, commandsSent[0]); // assert get gas flap state sent
         Thread.sleep(10);
         queue.onCommandSent(firstCommand);
         Thread.sleep(10);
         queue.onCommandReceived(secondResponse);
-        assertTrue(commandsSent[0] == 2);
+        assertEquals(2, commandsSent[0]);
         assertTrue(bytesStartsWithType(responseCommand[0], GasFlapState.TYPE));
 
-        assertTrue(failure[0] == null);
+        assertNull(failure[0]);
     }
 
     @Test public void ackAndResponseCommandResponsesReceived() throws InterruptedException {
@@ -275,28 +278,28 @@ public class CommandQueueTest {
         queue.queue(secondCommand);
         queue.queue(thirdCommand);
 
-        assertTrue(commandsSent[0] == 1);
+        assertEquals(1, commandsSent[0]);
         Thread.sleep(Link.commandTimeout + 20);
-        assertTrue(commandsSent[0] == 2); //assert retried
+        assertEquals(2, commandsSent[0]); //assert retried
 
         Thread.sleep(10);
         queue.onCommandSent(firstCommand);
-        assertTrue(commandsSent[0] == 2); //assert still no new commands sent
+        assertEquals(2, commandsSent[0]); //assert still no new commands sent
         Thread.sleep(10);
         queue.onCommandReceived(firstResponse);
         assertTrue(bytesStartsWithType(responseCommand[0], LockState.TYPE));
 
-        assertTrue(commandsSent[0] == 3); // assert trunk command sent after response
+        assertEquals(3, commandsSent[0]); // assert trunk command sent after response
         Thread.sleep(10);
         queue.onCommandSent(secondCommand);
-        assertTrue(commandsSent[0] == 4); // sent OpenGasFlap(third command)
-        assertTrue(ackCommand[0].getType().equals(OpenCloseTrunk.TYPE));
+        assertEquals(4, commandsSent[0]); // sent OpenGasFlap(third command)
+        assertEquals(ackCommand[0].getType(), OpenCloseTrunk.TYPE);
         Thread.sleep(10);
         queue.onCommandSent(thirdCommand);
-        assertTrue(ackCommand[0].getType().equals(OpenGasFlap.TYPE));
-        assertTrue(commandsSent[0] == 4);
+        assertEquals(ackCommand[0].getType(), OpenGasFlap.TYPE);
+        assertEquals(4, commandsSent[0]);
 
-        assertTrue(failure[0] == null);
+        assertNull(failure[0]);
     }
 
     @Test public void multipleResponsesReceivedSomeTimedOut() throws InterruptedException {
@@ -310,21 +313,21 @@ public class CommandQueueTest {
         queue.queue(firstCommand, LockState.TYPE);
         queue.queue(secondCommand, GasFlapState.TYPE);
 
-        assertTrue(commandsSent[0] == 1);
+        assertEquals(1, commandsSent[0]);
         Thread.sleep(10);
         queue.onCommandSent(firstCommand);
         Thread.sleep(10);
         queue.onCommandReceived(firstResponse);
         assertTrue(bytesStartsWithType(responseCommand[0], LockState.TYPE));
 
-        assertTrue(commandsSent[0] == 2); // assert get gas flap state sent
+        assertEquals(2, commandsSent[0]); // assert get gas flap state sent
         // time out the second one
         Thread.sleep((Link.commandTimeout + 20) * 3);
-        assertTrue(commandsSent[0] == 5); // assert get gas flap state sent 4x
+        assertEquals(5, commandsSent[0]); // assert get gas flap state sent 4x
         Thread.sleep((Link.commandTimeout + 20));
 
-        assertTrue(failure[0].getReason() == CommandFailure.Reason.TIMEOUT);
-        assertTrue(failure[0].getErrorObject() == null);
+        assertSame(failure[0].getReason(), CommandFailure.Reason.TIMEOUT);
+        assertNull(failure[0].getErrorObject());
     }
 
     @Test public void failureStopsQueue() throws InterruptedException {
@@ -338,24 +341,24 @@ public class CommandQueueTest {
         queue.queue(firstCommand, LockState.TYPE);
         queue.queue(secondCommand, GasFlapState.TYPE);
 
-        assertTrue(commandsSent[0] == 1);
+        assertEquals(1, commandsSent[0]);
         Thread.sleep(10);
         queue.onCommandSent(firstCommand);
         Thread.sleep(10);
         queue.onCommandReceived(firstResponse);
-        assertTrue(responseCommand[0] == null);
+        assertNull(responseCommand[0]);
 
-        assertTrue(failure[0].getReason() == CommandFailure.Reason.FAILURE_RESPONSE);
-        assertTrue(failure[0].getErrorObject() == null);
-        assertTrue(failure[0].getFailureResponse().getFailedType().equals(LockUnlockDoors.TYPE));
-        assertTrue(failure[0].getFailureResponse().getFailureReason().equals(FailureReason
-                .UNSUPPORTED_CAPABILITY));
+        assertSame(failure[0].getReason(), CommandFailure.Reason.FAILURE_RESPONSE);
+        assertNull(failure[0].getErrorObject());
+        assertEquals(failure[0].getFailureResponse().getFailedType(), LockUnlockDoors.TYPE);
+        assertEquals(failure[0].getFailureResponse().getFailureReason(), FailureReason
+                .UNSUPPORTED_CAPABILITY);
 
-        assertTrue(commandsSent[0] == 1); // assert get gas flap state was not sent.
+        assertEquals(1, commandsSent[0]); // assert get gas flap state was not sent.
         Thread.sleep(10);
     }
 
-    boolean bytesStartsWithType(@NonNull Bytes bytes, Type type) {
+    boolean bytesStartsWithType(@Nonnull Bytes bytes, Type type) {
         return ByteUtils.startsWith(bytes.getByteArray(), type.getIdentifierAndType());
     }
 }
