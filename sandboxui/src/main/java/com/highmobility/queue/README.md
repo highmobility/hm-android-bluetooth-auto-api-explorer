@@ -6,9 +6,12 @@ BleCommandQueue queue;
 
 void sendCommands() {
   queue = new BleCommandQueue(iQueue);
-  queue.queue(new GetVehicleStatus(), VehicleStatus.TYPE); // get the VS and wait for a response before sending OpenGasFlap.
-  queue.queue(new OpenGasFlap()); // send open gas flap, only wait for the ack, not the GasFlapState response.
-  queue.queue(new HonkAndFlash(3, 3)); // sent straight after OpenGasFlap ack.
+  // get the VehicleStatus and wait for a response before sending OpenGasFlap.
+  queue.queue(new GetVehicleStatus(), VehicleStatus.TYPE); 
+  // send OpenGasFlap and only wait for the ack, not the GasFlapState response.
+  queue.queue(new OpenGasFlap());
+  // send HonkAndFlash straight after OpenGasFlap ack.
+  queue.queue(new HonkAndFlash(3, 3));
 }
 
 @Override
