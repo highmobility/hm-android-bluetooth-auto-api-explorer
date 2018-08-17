@@ -16,6 +16,8 @@ void sendCommands() {
 
 // forward all link communication to the queue.
 
+// MARK: LinkListener
+
 @Override
 public void onCommandReceived(Link link, Bytes bytes) {
   queue.onCommandReceived(bytes);
