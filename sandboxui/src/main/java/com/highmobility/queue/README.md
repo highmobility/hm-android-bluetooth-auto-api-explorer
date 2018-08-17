@@ -1,6 +1,6 @@
 Queue can be used to send multiple commands in a row. It is meant to be used as a layer between HMKit and the app, where all link communication is forwarded to the queue. It returns the response commands or failure indications if the commands fail.
 
-See [BleCommandQueue](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/blob/master/sandboxui/src/main/java/com/highmobility/queue/BleCommandQueue.java) or [TelematicsCommandQueue](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/blob/master/sandboxui/src/main/java/com/highmobility/queue/TelematicsCommandQueue.java) for more implementation details.
+See [BleCommandQueue](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/blob/master/sandboxui/src/main/java/com/highmobility/queue/BleCommandQueue.java) or [TelematicsCommandQueue](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/blob/master/sandboxui/src/main/java/com/highmobility/queue/TelematicsCommandQueue.java) for more info about using the queue.
 
 ```java
 ConnectedLink link;
