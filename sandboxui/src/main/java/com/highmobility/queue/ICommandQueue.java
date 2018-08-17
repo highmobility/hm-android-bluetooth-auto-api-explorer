@@ -1,9 +1,9 @@
 package com.highmobility.queue;
 
-import android.support.annotation.Nullable;
-
 import com.highmobility.autoapi.Command;
 import com.highmobility.value.Bytes;
+
+import javax.annotation.Nullable;
 
 public interface ICommandQueue {
     /**

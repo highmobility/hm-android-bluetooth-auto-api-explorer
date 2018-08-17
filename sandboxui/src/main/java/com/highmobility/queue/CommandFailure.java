@@ -2,7 +2,7 @@ package com.highmobility.queue;
 
 import com.highmobility.autoapi.Failure;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 /**
  * Command can fail:

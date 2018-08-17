@@ -33,5 +33,5 @@
             android:layout_height="15dp"
             android:src="@drawable/arrowhdpi"
             android:layout_gravity="center_vertical"/>
-    </LinearLayout>-
+    </LinearLayout>
 </LinearLayout>

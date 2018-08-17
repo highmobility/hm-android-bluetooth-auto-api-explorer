@@ -18,7 +18,6 @@ import com.highmobility.sandboxui.util.TapToControlCommandConverter;
 import com.highmobility.autoapi.Command;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
-import com.highmobility.hmkit.Constants;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.hmkit.Link;
 import com.highmobility.hmkit.Manager;
