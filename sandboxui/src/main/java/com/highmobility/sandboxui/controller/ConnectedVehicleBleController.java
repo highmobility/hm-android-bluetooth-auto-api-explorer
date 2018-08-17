@@ -41,7 +41,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     IConnectedVehicleBleView bleView;
     BleCommandQueue queue;
     boolean isBroadcastingSerial;
-    int alivePingInterval = -1;
+    int alivePingInterval;
     SharedPreferences sharedPref;
 
     ConnectedVehicleBleController(IConnectedVehicleView view, IConnectedVehicleBleView bleView,
