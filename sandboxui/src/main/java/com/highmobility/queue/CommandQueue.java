@@ -84,7 +84,11 @@ public class CommandQueue {
                 listener.onCommandReceived(command, item.commandSent);
                 items.remove(0);
                 sendItem();
+            } else {
+                listener.onCommandReceived(command, null);
             }
+        } else {
+            listener.onCommandReceived(command, null);
         }
     }
 

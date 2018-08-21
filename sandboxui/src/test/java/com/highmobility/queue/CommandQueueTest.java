@@ -23,8 +23,8 @@ import com.highmobility.value.Bytes;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.annotation.Nullable;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
@@ -356,6 +356,34 @@ public class CommandQueueTest {
 
         assertEquals(1, commandsSent[0]); // assert get gas flap state was not sent.
         Thread.sleep(10);
+    }
+
+    @Test public void irrelevantCommandDispatchedQueueContinued() throws InterruptedException {
+        BleCommandQueue queue = new BleCommandQueue(iQueue, 0, 3);
+        Command firstCommand = new LockUnlockDoors(DoorLock.LOCKED);
+
+        Command firstResponse = new GasFlapState.Builder().setState(com.highmobility.autoapi
+                .property.GasFlapState.CLOSED).build();
+        Command secondResponse = new LockState.Builder().addInsideLockState(new DoorLockState
+                (DoorLocation.FRONT_LEFT, DoorLock.LOCKED)).build();
+
+        queue.queue(firstCommand, LockState.TYPE);
+
+        assertEquals(1, commandsSent[0]);
+        Thread.sleep(10);
+        queue.onCommandSent(firstCommand);
+        Thread.sleep(10);
+        // send a random command
+        queue.onCommandReceived(firstResponse);
+        // make sure random command is dispatched as well
+        assertTrue(bytesStartsWithType(responseCommand[0], GasFlapState.TYPE));
+
+        assertEquals(1, commandsSent[0]); // assert still same amount of commands sent.
+        Thread.sleep(10);
+        queue.onCommandReceived(secondResponse); // the real response
+        assertTrue(bytesStartsWithType(responseCommand[0], LockState.TYPE)); // assert real command dispatched
+
+        assertNull(failure[0]);
     }
 
     boolean bytesStartsWithType(@Nonnull Bytes bytes, Type type) {
