@@ -35,9 +35,14 @@ configurations.all {
 }
 
 dependencies {
-    implementation("com.highmobility:hmkit-android:${artifactProperties.hmkitVersion}@aar") {
-        transitive = true
-        changing = true
+    if (project.hasProperty('masterProject') == false || project.property('release') > 0) {
+        implementation("com.highmobility:hmkit-android:${artifactProperties.hmkitVersion}@aar") {
+            transitive = true
+        }
+    } else {
+        implementation project(path: ':hmkit-android')
+        implementation project(path: ':hm-java-crypto')
+        implementation project(path: ':hm-java-utils')
     }
 
     implementation('com.highmobility:hmkit-auto-api:1.8.0')

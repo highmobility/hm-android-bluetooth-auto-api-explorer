@@ -76,7 +76,7 @@ public class ConnectedVehicleController {
         } else {
             AccessCertificate[] certificates = Manager.getInstance().getCertificates();
             if (certificates == null || certificates.length < 1)
-                throw new IllegalStateException("Manager not initialized");
+                throw new IllegalStateException("Manager not initialised");
             cert = Manager.getInstance().getCertificates()[0];
             vehicleSerial = cert.getGainerSerial();
         }

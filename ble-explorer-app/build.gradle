@@ -10,6 +10,7 @@ android {
         versionCode 1
         versionName "1.0.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -34,7 +35,7 @@ android {
 }
 
 def artifactProperties = new Properties()
-artifactProperties.load(new FileInputStream("$rootProject.projectDir/sandboxui/deploy.settings"))
+artifactProperties.load(new FileInputStream("$projectDir/../sandboxui/deploy.settings"))
 
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
@@ -42,11 +43,19 @@ configurations.all {
 
 dependencies {
     implementation project(path: ':sandboxui')
-    implementation("com.highmobility:hmkit-auto-api:1.8.0")
-    implementation("com.highmobility:hmkit-android:${artifactProperties.hmkitVersion}@aar") {
-        transitive = true
-        changing = true
+    if (project.hasProperty('masterProject') == false || project.property('release') > 0) {
+        implementation("com.highmobility:hmkit-android:${artifactProperties.hmkitVersion}@aar") {
+            transitive = true
+            changing = true
+        }
     }
+    else {
+        implementation project(path: ':hmkit-android')
+        implementation project(path: ':hm-java-crypto')
+        implementation project(path: ':hm-java-utils')
+    }
+
+    implementation("com.highmobility:hmkit-auto-api:1.8.0")
     implementation 'com.android.support:support-v4:26.1.0'
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'

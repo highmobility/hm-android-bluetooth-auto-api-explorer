@@ -54,7 +54,7 @@ public class MainActivity extends Activity {
 
             // PASTE ACCESS TOKEN HERE
             String accessToken = "";
-
+            
             Manager.getInstance().downloadCertificate(accessToken, new
                     Manager.DownloadCallback() {
                         @Override
@@ -64,16 +64,20 @@ public class MainActivity extends Activity {
 
                         @Override
                         public void onDownloadFailed(DownloadAccessCertificateError error) {
-                            progressBar.setVisibility(GONE);
-                            statusTextView.setText("Could not download the certificate:\n\n" + error
-                                    .getMessage());
-                            Log.d(TAG, "Could not download a certificate with token: " + error
+                            MainActivity.this.onDownloadFailed(error
                                     .getMessage());
                         }
                     });
         } catch (Exception e) {
             Log.e(TAG, "onCreate: ", e);
+            onDownloadFailed(e.getMessage());
         }
+    }
+
+    private void onDownloadFailed(String message) {
+        progressBar.setVisibility(GONE);
+        statusTextView.setText("Could not download the certificate:\n\n" + message);
+        Log.d(TAG, "Could not download the certificate with token: " + message);
     }
 
     private void onCertificateDownloaded(DeviceSerial serial) {
