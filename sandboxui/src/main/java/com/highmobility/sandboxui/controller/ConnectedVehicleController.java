@@ -48,7 +48,7 @@ public class ConnectedVehicleController {
     public static final String EXTRA_ALIVE_PING_AMOUNT_NAME = "EXTRA_ALIVE";
 
     public boolean useBle;
-    public String serviceName;
+    private String serviceName;
 
     public static VehicleStatus vehicle;
     public AccessCertificate certificate;
@@ -59,6 +59,10 @@ public class ConnectedVehicleController {
 
     boolean initialising;
 
+    public String getVehicleName() {
+        return vehicle.name;
+    }
+
     public static ConnectedVehicleController create(IConnectedVehicleView view,
                                                     IConnectedVehicleBleView bleView, Intent
                                                             intent) {
@@ -67,7 +71,6 @@ public class ConnectedVehicleController {
         boolean useBle = intent.getBooleanExtra(EXTRA_USE_BLE, true);
 
         String serviceName = intent.getStringExtra(EXTRA_SERVICE_NAME);
-        if (serviceName == null) serviceName = "High-Mobility";
 
         AccessCertificate cert;
         if (vehicleSerialBytes != null) {

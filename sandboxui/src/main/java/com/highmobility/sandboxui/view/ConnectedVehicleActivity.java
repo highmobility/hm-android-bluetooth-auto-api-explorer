@@ -69,7 +69,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
                 .broadcast_fragment);
         controller = ConnectedVehicleController.create(this, this, getIntent());
 
-        title.setText(controller.serviceName);
+        title.setText(controller.getVehicleName());
 
         if (controller.useBle) {
             revokeButton.setOnClickListener(v -> controller.onRevokeClicked());
@@ -164,6 +164,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
     public void onVehicleStatusUpdate(VehicleStatus vehicle) {
         overviewFragment.onVehicleStatusUpdate();
         exteriorFragment.onVehicleStatusUpdate(ExteriorListItem.createExteriorListItems(vehicle));
+        title.setText(controller.getVehicleName());
     }
 
     @Override

@@ -30,6 +30,8 @@ public class VehicleStatus {
         return vehicleConnectedWithBle != null && serial.equals(vehicleConnectedWithBle) == true;
     }
 
+    public String name;
+
     public Float insideTemperature;
     public Float batteryPercentage;
 
@@ -56,8 +58,8 @@ public class VehicleStatus {
             com.highmobility.autoapi.VehicleStatus status = (com.highmobility.autoapi
                     .VehicleStatus) command;
 
+            name = status.getName();
             Command[] states = status.getStates();
-
             if (states == null) {
                 Log.e(TAG, "update: null featureStates");
                 return;
