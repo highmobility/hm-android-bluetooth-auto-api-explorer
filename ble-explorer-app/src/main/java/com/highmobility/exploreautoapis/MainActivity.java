@@ -30,48 +30,42 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        try {
-            /*
-             * Before using HMKit, you'll have to initialise the Manager singleton
-             * with a snippet from the Platform Workspace:
-             *
-             *   1. Sign in to the workspace
-             *   2. Go to the LEARN section and choose Android
-             *   3. Follow the Getting Started instructions
-             *
-             * By the end of the tutorial you will have a snippet for initialisation,
-             * that looks something like this:
-             *
-             *   Manager.getInstance().initialize(
-             *     Base64String,
-             *     Base64String,
-             *     Base64String,
-             *     getApplicationContext()
-             *   );
-             *
-             *   Access token is also required for downloading the access certificate.
-             */
 
-            // PASTE ACCESS TOKEN HERE
-            String accessToken = "";
-            
-            Manager.getInstance().downloadCertificate(accessToken, new
-                    Manager.DownloadCallback() {
-                        @Override
-                        public void onDownloaded(DeviceSerial serial) {
-                            onCertificateDownloaded(serial);
-                        }
+        /*
+         * Before using HMKit, you'll have to initialise the Manager singleton
+         * with a snippet from the Platform Workspace:
+         *
+         *   1. Sign in to the workspace
+         *   2. Go to the LEARN section and choose Android
+         *   3. Follow the Getting Started instructions
+         *
+         * By the end of the tutorial you will have a snippet for initialisation,
+         * that looks something like this:
+         *
+         *   Manager.getInstance().initialise(
+         *     Base64String,
+         *     Base64String,
+         *     Base64String,
+         *     getApplicationContext()
+         *   );
+         *
+         *   Access token is also required for downloading the access certificate.
+         */
 
-                        @Override
-                        public void onDownloadFailed(DownloadAccessCertificateError error) {
-                            MainActivity.this.onDownloadFailed(error
-                                    .getMessage());
-                        }
-                    });
-        } catch (Exception e) {
-            Log.e(TAG, "onCreate: ", e);
-            onDownloadFailed(e.getMessage());
-        }
+        // PASTE ACCESS TOKEN HERE
+        String accessToken = "";
+
+        Manager.getInstance().downloadCertificate(accessToken, new Manager.DownloadCallback() {
+            @Override
+            public void onDownloaded(DeviceSerial serial) {
+                onCertificateDownloaded(serial);
+            }
+
+            @Override
+            public void onDownloadFailed(DownloadAccessCertificateError error) {
+                MainActivity.this.onDownloadFailed(error.getMessage());
+            }
+        });
     }
 
     private void onDownloadFailed(String message) {
