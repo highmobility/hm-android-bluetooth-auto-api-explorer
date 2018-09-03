@@ -48,14 +48,12 @@ dependencies {
             transitive = true
             changing = true
         }
-    }
-    else {
+    } else {
         implementation project(path: ':hmkit-android')
         implementation project(path: ':hm-java-crypto')
         implementation project(path: ':hm-java-utils')
     }
-
-    implementation("com.highmobility:hmkit-auto-api:1.8.0")
+    implementation 'com.highmobility:hmkit-auto-api:1.8.0'
     implementation 'com.android.support:support-v4:26.1.0'
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'

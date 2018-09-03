@@ -30,7 +30,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-
         /*
          * Before using HMKit, you'll have to initialise the Manager singleton
          * with a snippet from the Platform Workspace:
@@ -83,7 +82,6 @@ public class MainActivity extends Activity {
         i.putExtra(ConnectedVehicleController.EXTRA_USE_BLE, true);
         i.putExtra(ConnectedVehicleActivity.EXTRA_FINISH_ON_BACK_PRESS, false);
         startActivity(i);
-        MainActivity.this.finish(); // this activity is irrelevant now. SDK is
-        // initialized.
+        MainActivity.this.finish(); // this activity is irrelevant now. SDK is initialised.
     }
 }
