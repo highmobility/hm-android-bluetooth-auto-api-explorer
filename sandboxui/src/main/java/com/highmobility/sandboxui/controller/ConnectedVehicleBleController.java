@@ -94,6 +94,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         broadcaster = Manager.getInstance().getBroadcaster();
         broadcaster.setListener(this);
         queue = new BleCommandQueue(iQueue);
+
         // check for connected links for this vehicle and if is authenticated and show the
         // appropriate ui
         List<ConnectedLink> links = broadcaster.getLinks();
@@ -101,7 +102,6 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         boolean linkExists = false;
         for (ConnectedLink link : links) {
             if (certificate.getGainerSerial().equals(link.getSerial())) {
-                // the link is to our vehicle, show either authenticated or connected view
                 linkExists = true;
                 onLinkReceived(link);
                 onStateChanged(link, link.getState());
@@ -193,7 +193,8 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         link.setListener(this);
         bleView.showBleInfoView(true, "link: " + connectedLink.getState());
         bleView.onLinkReceived(true);
-        vehicle.onLinkReceived();
+        vehicle.onLinkConnected(link);
+
         Log.d(SandboxUi.TAG, "onLinkReceived: ");
     }
 
@@ -235,9 +236,9 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         Log.d(SandboxUi.TAG, "link state changed " + link.getState());
         if (link == this.link) {
             if (link.getState() == Link.State.AUTHENTICATED) {
-                vehicle.onLinkAuthenticated(link);
                 bleView.showBleInfoView(false, "link: " + "authenticated");
                 readyToSendCommands();
+                vehicle.onLinkAuthenticated(link);
             } else if (link.getState() == Link.State.CONNECTED) {
                 bleView.showBleInfoView(true, "link: " + "connected");
             }

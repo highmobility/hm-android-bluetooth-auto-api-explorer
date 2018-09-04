@@ -69,7 +69,6 @@ public class ConnectedVehicleController {
         byte[] vehicleSerialBytes = intent.getByteArrayExtra(EXTRA_SERIAL);
         DeviceSerial vehicleSerial;
         boolean useBle = intent.getBooleanExtra(EXTRA_USE_BLE, true);
-
         String serviceName = intent.getStringExtra(EXTRA_SERVICE_NAME);
 
         AccessCertificate cert;
