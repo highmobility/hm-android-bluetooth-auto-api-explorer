@@ -26,8 +26,12 @@ public class VehicleStatus {
     // means SDK cannot be terminated
     public static DeviceSerial vehicleConnectedWithBle;
 
-    public static boolean isVehicleConnectedWithBle(DeviceSerial serial) {
+    public static boolean isVehicleConnected(DeviceSerial serial) {
         return vehicleConnectedWithBle != null && serial.equals(vehicleConnectedWithBle) == true;
+    }
+
+    public static boolean isVehicleConnectedButNotTo(DeviceSerial serial) {
+        return vehicleConnectedWithBle != null && serial.equals(vehicleConnectedWithBle) == false;
     }
 
     public String name;
