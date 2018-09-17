@@ -15,12 +15,11 @@ import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import timber.log.Timber;
 
 import static android.view.View.GONE;
 
 public class MainActivity extends Activity {
-    private static final String TAG = "MainActivity";
-
     @BindView(R.id.progress_bar) ProgressBar progressBar;
     @BindView(R.id.status_text_view) TextView statusTextView;
 
@@ -29,6 +28,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        Timber.plant(new Timber.DebugTree());
 
         /*
          * Before using HMKit, you'll have to initialise the Manager singleton
@@ -70,12 +70,12 @@ public class MainActivity extends Activity {
     private void onDownloadFailed(String message) {
         progressBar.setVisibility(GONE);
         statusTextView.setText("Could not download the certificate:\n\n" + message);
-        Log.d(TAG, "Could not download the certificate with token: " + message);
+        Timber.d("Could not download the certificate with token: %s", message);
     }
 
     private void onCertificateDownloaded(DeviceSerial serial) {
         progressBar.setVisibility(GONE);
-        Log.d(TAG, "Certificate downloaded for vehicle: " + serial);
+        Timber.d("Certificate downloaded for vehicle: %s", serial);
         Intent i = new Intent(MainActivity.this, ConnectedVehicleActivity
                 .class);
         i.putExtra(ConnectedVehicleController.EXTRA_SERIAL, serial.getByteArray());
