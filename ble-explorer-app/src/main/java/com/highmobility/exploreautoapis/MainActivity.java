@@ -54,7 +54,7 @@ public class MainActivity extends Activity {
         // PASTE ACCESS TOKEN HERE
         String accessToken = "";
 
-        Manager.getInstance().downloadCertificate(accessToken, new Manager.DownloadCallback() {
+        Manager.getInstance().downloadAccessCertificate(accessToken, new Manager.DownloadCallback() {
             @Override
             public void onDownloaded(DeviceSerial serial) {
                 onCertificateDownloaded(serial);
