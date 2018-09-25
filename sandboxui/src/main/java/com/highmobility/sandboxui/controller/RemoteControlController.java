@@ -11,6 +11,7 @@ import com.highmobility.autoapi.ControlMode;
 import com.highmobility.autoapi.Failure;
 import com.highmobility.autoapi.GetControlMode;
 import com.highmobility.autoapi.StartControlMode;
+import com.highmobility.hmkit.HmKit;
 import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.view.IRemoteControlView;
 import com.highmobility.sandboxui.util.ITapToControlCommandConverter;
@@ -20,7 +21,6 @@ import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.hmkit.Link;
-import com.highmobility.hmkit.Manager;
 import com.highmobility.utils.ByteUtils;
 import com.highmobility.value.Bytes;
 
@@ -52,7 +52,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
         byte[] serial = intent.getByteArrayExtra(LINK_IDENTIFIER_MESSAGE);
 
         vehicle = ConnectedVehicleController.vehicle;
-        List<ConnectedLink> links = Manager.getInstance().getBroadcaster().getLinks();
+        List<ConnectedLink> links = HmKit.getInstance().getBroadcaster().getLinks();
 
         for (ConnectedLink link : links) {
             if (link.getSerial().equals(serial)) {
@@ -128,11 +128,11 @@ public class RemoteControlController implements IRemoteControlController, Connec
     public void onSpeedChanged(int speed) {
         if (speed != 0) {
             view.showStopButton(true);
-            Manager.getInstance().getBroadcaster().startAlivePinging(50);
+            HmKit.getInstance().getBroadcaster().startAlivePinging(50);
             sendControlCommand();
         } else {
             view.showStopButton(false);
-            Manager.getInstance().getBroadcaster().stopAlivePinging();
+            HmKit.getInstance().getBroadcaster().stopAlivePinging();
         }
     }
 

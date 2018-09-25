@@ -27,7 +27,7 @@ import com.highmobility.autoapi.property.TrunkPosition;
 import com.highmobility.autoapi.property.doors.DoorLock;
 import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.crypto.value.DeviceSerial;
-import com.highmobility.hmkit.Manager;
+import com.highmobility.hmkit.HmKit;
 import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
@@ -54,7 +54,7 @@ public class ConnectedVehicleController {
     public AccessCertificate certificate;
     public DeviceSerial vehicleSerial;
 
-    Manager manager;
+    HmKit hmKit;
     IConnectedVehicleView view;
 
     boolean initialising;
@@ -74,12 +74,12 @@ public class ConnectedVehicleController {
         AccessCertificate cert;
         if (vehicleSerialBytes != null) {
             vehicleSerial = new DeviceSerial(vehicleSerialBytes);
-            cert = Manager.getInstance().getCertificate(vehicleSerial);
+            cert = HmKit.getInstance().getCertificate(vehicleSerial);
         } else {
-            AccessCertificate[] certificates = Manager.getInstance().getCertificates();
+            AccessCertificate[] certificates = HmKit.getInstance().getCertificates();
             if (certificates == null || certificates.length < 1)
-                throw new IllegalStateException("Manager not initialised");
-            cert = Manager.getInstance().getCertificates()[0];
+                throw new IllegalStateException("HmKit not initialised");
+            cert = HmKit.getInstance().getCertificates()[0];
             vehicleSerial = cert.getGainerSerial();
         }
 
@@ -101,7 +101,7 @@ public class ConnectedVehicleController {
     }
 
     ConnectedVehicleController(boolean useBle, IConnectedVehicleView view) {
-        manager = Manager.getInstance();
+        hmKit = HmKit.getInstance();
         this.view = view;
         this.useBle = useBle;
         vehicle = new VehicleStatus();

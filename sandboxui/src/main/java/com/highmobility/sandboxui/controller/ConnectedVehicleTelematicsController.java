@@ -36,7 +36,7 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
         }
 
         @Override public void sendCommand(Command command) {
-            manager.getTelematics().sendCommand(command, certificate.getGainerSerial(), new
+            hmKit.getTelematics().sendCommand(command, certificate.getGainerSerial(), new
                     Telematics.CommandCallback() {
                         @Override
                         public void onCommandResponse(Bytes bytes) {

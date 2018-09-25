@@ -13,8 +13,8 @@ import com.highmobility.hmkit.Broadcaster.State;
 import com.highmobility.hmkit.BroadcasterListener;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
+import com.highmobility.hmkit.HmKit;
 import com.highmobility.hmkit.Link;
-import com.highmobility.hmkit.Manager;
 import com.highmobility.hmkit.error.BroadcastError;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.hmkit.error.RevokeError;
@@ -91,7 +91,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     @Override public void init() {
         super.init();
 
-        broadcaster = Manager.getInstance().getBroadcaster();
+        broadcaster = HmKit.getInstance().getBroadcaster();
         broadcaster.setListener(this);
         queue = new BleCommandQueue(iQueue);
 
@@ -175,7 +175,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
                 break;
             case BROADCASTING:
                 if (link == null) {
-                    bleView.showBleInfoView(true, "Looking for links... " + manager
+                    bleView.showBleInfoView(true, "Looking for links... " + hmKit
                             .getBroadcaster().getName());
                 }
                 break;
