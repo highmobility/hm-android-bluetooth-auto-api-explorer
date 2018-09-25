@@ -7,7 +7,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.highmobility.crypto.value.DeviceSerial;
-import com.highmobility.hmkit.HmKit;
+import com.highmobility.hmkit.HMKit;
 import com.highmobility.hmkit.error.DownloadAccessCertificateError;
 import com.highmobility.sandboxui.controller.ConnectedVehicleController;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
@@ -30,7 +30,7 @@ public class MainActivity extends Activity {
         Timber.plant(new Timber.DebugTree());
 
         /*
-         * Before using HMKit, you'll have to initialise the HmKit singleton
+         * Before using HMKit, you'll have to initialise the HMKit singleton
          * with a snippet from the Platform Workspace:
          *
          *   1. Sign in to the workspace
@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
          * By the end of the tutorial you will have a snippet for initialisation,
          * that looks something like this:
          *
-         *   HmKit.getInstance().initialise(
+         *   HMKit.getInstance().initialise(
          *     Base64String,
          *     Base64String,
          *     Base64String,
@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
         // PASTE ACCESS TOKEN HERE
         String accessToken = "";
 
-        HmKit.getInstance().downloadAccessCertificate(accessToken, new HmKit.DownloadCallback() {
+        HMKit.getInstance().downloadAccessCertificate(accessToken, new HMKit.DownloadCallback() {
             @Override
             public void onDownloaded(DeviceSerial serial) {
                 onCertificateDownloaded(serial);

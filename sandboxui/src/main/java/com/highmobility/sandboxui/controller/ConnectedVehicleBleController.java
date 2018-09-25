@@ -13,7 +13,6 @@ import com.highmobility.hmkit.Broadcaster.State;
 import com.highmobility.hmkit.BroadcasterListener;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
-import com.highmobility.hmkit.HmKit;
 import com.highmobility.hmkit.Link;
 import com.highmobility.hmkit.error.BroadcastError;
 import com.highmobility.hmkit.error.LinkError;
@@ -91,7 +90,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     @Override public void init() {
         super.init();
 
-        broadcaster = HmKit.getInstance().getBroadcaster();
+        broadcaster = hmKit.getInstance().getBroadcaster();
         broadcaster.setListener(this);
         queue = new BleCommandQueue(iQueue);
 
@@ -235,12 +234,14 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     public void onStateChanged(Link link, Link.State state) {
         Log.d(SandboxUi.TAG, "link state changed " + link.getState());
         if (link == this.link) {
+            String stateString = "link: " + link.getState().toString().toLowerCase();
+
             if (link.getState() == Link.State.AUTHENTICATED) {
-                bleView.showBleInfoView(false, "link: " + "authenticated");
                 readyToSendCommands();
                 vehicle.onLinkAuthenticated(link);
-            } else if (link.getState() == Link.State.CONNECTED) {
-                bleView.showBleInfoView(true, "link: " + "connected");
+                bleView.showBleInfoView(false, stateString);
+            } else {
+                bleView.showBleInfoView(true, stateString);
             }
         }
     }
