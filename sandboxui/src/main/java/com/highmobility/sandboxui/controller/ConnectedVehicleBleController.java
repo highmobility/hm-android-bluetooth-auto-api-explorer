@@ -127,7 +127,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             view.showLoadingView(true);
             link.revoke(new Link.RevokeCallback() {
                 @Override public void onRevokeSuccess(Bytes customData) {
-                    view.getActivity().onBackPressed(); // close the activity
+                    // will get Link State not_authenticated
                 }
 
                 @Override public void onRevokeFailed(RevokeError revokeError) {
