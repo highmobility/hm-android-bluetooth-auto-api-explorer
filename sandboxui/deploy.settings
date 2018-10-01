@@ -5,4 +5,4 @@ groupId = com.highmobility
 licenses = ['GPL-3.0']
 id = sandboxui
 repo = gradle-dev-local
-hmkitVersion = 1.5.0
+hmkitVersion = 1.6.0
