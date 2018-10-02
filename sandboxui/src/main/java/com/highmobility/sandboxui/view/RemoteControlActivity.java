@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-//import android.os.Vibrator;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.View;
@@ -55,6 +54,7 @@ public class RemoteControlActivity extends Activity implements IRemoteControlVie
         stopButton.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    @SuppressWarnings("deprecation") // we need vibrate on < 26 versions as well
     public void onMoveButtonClicked(View view) {
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
