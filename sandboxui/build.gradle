@@ -1,10 +1,7 @@
 apply plugin: 'com.android.library'
 
-def artifactProperties = new Properties()
-artifactProperties.load(new FileInputStream("$project.projectDir/deploy.settings"))
-
-group artifactProperties.groupId
-version artifactProperties.version
+group "com.highmobility"
+version "1.7.1"
 
 android {
     compileSdkVersion 26
@@ -36,7 +33,7 @@ configurations.all {
 
 dependencies {
     if (project.hasProperty('masterProject') == false || project.property('release') > 0) {
-        implementation("com.highmobility:hmkit-android:${artifactProperties.hmkitVersion}@aar") {
+        implementation("com.highmobility:hmkit-android:${rootProject.ext.hmkitVersion}@aar") {
             transitive = true
         }
     } else {

@@ -1,8 +1,0 @@
-siteUrl = https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer
-gitUrl = https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer
-version = 1.7.1
-groupId = com.highmobility
-licenses = ['GPL-3.0']
-id = sandboxui
-repo = gradle-dev-local
-hmkitVersion = 1.6.0

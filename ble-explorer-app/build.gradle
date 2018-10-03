@@ -34,9 +34,6 @@ android {
     }
 }
 
-def artifactProperties = new Properties()
-artifactProperties.load(new FileInputStream("$projectDir/../sandboxui/deploy.settings"))
-
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
@@ -44,7 +41,7 @@ configurations.all {
 dependencies {
     implementation project(path: ':sandboxui')
     if (project.hasProperty('masterProject') == false || project.property('release') > 0) {
-        implementation("com.highmobility:hmkit-android:${artifactProperties.hmkitVersion}@aar") {
+        implementation("com.highmobility:hmkit-android:${rootProject.ext.hmkitVersion}@aar") {
             transitive = true
             changing = true
         }
