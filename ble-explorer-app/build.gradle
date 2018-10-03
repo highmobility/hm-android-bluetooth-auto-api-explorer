@@ -40,7 +40,7 @@ configurations.all {
 
 dependencies {
     implementation project(path: ':sandboxui')
-    if (project.hasProperty('masterProject') == false || project.property('release') > 0) {
+    if (project.hasProperty('releaseType') == false || project.releaseType > 0) {
         implementation("com.highmobility:hmkit-android:${rootProject.ext.hmkitVersion}@aar") {
             transitive = true
             changing = true
