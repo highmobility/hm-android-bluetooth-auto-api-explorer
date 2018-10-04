@@ -33,7 +33,7 @@ configurations.all {
 
 dependencies {
     if (project.hasProperty('releaseType') == false || project.releaseType > 0) {
-        implementation("com.highmobility:hmkit-android:${rootProject.ext.hmkitVersion}@aar") {
+        implementation("com.highmobility:hmkit-android:${project.hmkitVersion}@aar") {
             transitive = true
         }
     } else {
