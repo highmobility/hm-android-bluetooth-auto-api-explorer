@@ -14,7 +14,6 @@ import com.highmobility.hmkit.BroadcasterListener;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
 import com.highmobility.hmkit.Link;
-import com.highmobility.hmkit.Manager;
 import com.highmobility.hmkit.error.BroadcastError;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.hmkit.error.RevokeError;
@@ -91,9 +90,10 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     @Override public void init() {
         super.init();
 
-        broadcaster = Manager.getInstance().getBroadcaster();
+        broadcaster = hmKit.getInstance().getBroadcaster();
         broadcaster.setListener(this);
         queue = new BleCommandQueue(iQueue);
+
         // check for connected links for this vehicle and if is authenticated and show the
         // appropriate ui
         List<ConnectedLink> links = broadcaster.getLinks();
@@ -101,7 +101,6 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         boolean linkExists = false;
         for (ConnectedLink link : links) {
             if (certificate.getGainerSerial().equals(link.getSerial())) {
-                // the link is to our vehicle, show either authenticated or connected view
                 linkExists = true;
                 onLinkReceived(link);
                 onStateChanged(link, link.getState());
@@ -128,7 +127,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             view.showLoadingView(true);
             link.revoke(new Link.RevokeCallback() {
                 @Override public void onRevokeSuccess(Bytes customData) {
-                    view.getActivity().onBackPressed(); // close the activity
+                    // will get Link State not_authenticated
                 }
 
                 @Override public void onRevokeFailed(RevokeError revokeError) {
@@ -175,7 +174,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
                 break;
             case BROADCASTING:
                 if (link == null) {
-                    bleView.showBleInfoView(true, "Looking for links... " + manager
+                    bleView.showBleInfoView(true, "Looking for links... " + hmKit
                             .getBroadcaster().getName());
                 }
                 break;
@@ -193,7 +192,8 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         link.setListener(this);
         bleView.showBleInfoView(true, "link: " + connectedLink.getState());
         bleView.onLinkReceived(true);
-        vehicle.onLinkReceived();
+        vehicle.onLinkConnected(link);
+
         Log.d(SandboxUi.TAG, "onLinkReceived: ");
     }
 
@@ -234,12 +234,14 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     public void onStateChanged(Link link, Link.State state) {
         Log.d(SandboxUi.TAG, "link state changed " + link.getState());
         if (link == this.link) {
+            String stateString = "link: " + link.getState().toString().toLowerCase();
+
             if (link.getState() == Link.State.AUTHENTICATED) {
-                vehicle.onLinkAuthenticated(link);
-                bleView.showBleInfoView(false, "link: " + "authenticated");
                 readyToSendCommands();
-            } else if (link.getState() == Link.State.CONNECTED) {
-                bleView.showBleInfoView(true, "link: " + "connected");
+                vehicle.onLinkAuthenticated(link);
+                bleView.showBleInfoView(false, stateString);
+            } else {
+                bleView.showBleInfoView(true, stateString);
             }
         }
     }

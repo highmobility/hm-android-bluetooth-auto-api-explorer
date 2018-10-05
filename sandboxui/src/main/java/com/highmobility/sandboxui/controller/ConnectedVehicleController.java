@@ -27,7 +27,7 @@ import com.highmobility.autoapi.property.TrunkPosition;
 import com.highmobility.autoapi.property.doors.DoorLock;
 import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.crypto.value.DeviceSerial;
-import com.highmobility.hmkit.Manager;
+import com.highmobility.hmkit.HMKit;
 import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
@@ -48,16 +48,20 @@ public class ConnectedVehicleController {
     public static final String EXTRA_ALIVE_PING_AMOUNT_NAME = "EXTRA_ALIVE";
 
     public boolean useBle;
-    public String serviceName;
+    private String serviceName;
 
     public static VehicleStatus vehicle;
     public AccessCertificate certificate;
     public DeviceSerial vehicleSerial;
 
-    Manager manager;
+    HMKit hmKit;
     IConnectedVehicleView view;
 
     boolean initialising;
+
+    public String getVehicleName() {
+        return vehicle.name;
+    }
 
     public static ConnectedVehicleController create(IConnectedVehicleView view,
                                                     IConnectedVehicleBleView bleView, Intent
@@ -65,19 +69,17 @@ public class ConnectedVehicleController {
         byte[] vehicleSerialBytes = intent.getByteArrayExtra(EXTRA_SERIAL);
         DeviceSerial vehicleSerial;
         boolean useBle = intent.getBooleanExtra(EXTRA_USE_BLE, true);
-
         String serviceName = intent.getStringExtra(EXTRA_SERVICE_NAME);
-        if (serviceName == null) serviceName = "High-Mobility";
 
         AccessCertificate cert;
         if (vehicleSerialBytes != null) {
             vehicleSerial = new DeviceSerial(vehicleSerialBytes);
-            cert = Manager.getInstance().getCertificate(vehicleSerial);
+            cert = HMKit.getInstance().getCertificate(vehicleSerial);
         } else {
-            AccessCertificate[] certificates = Manager.getInstance().getCertificates();
+            AccessCertificate[] certificates = HMKit.getInstance().getCertificates();
             if (certificates == null || certificates.length < 1)
-                throw new IllegalStateException("Manager not initialized");
-            cert = Manager.getInstance().getCertificates()[0];
+                throw new IllegalStateException("HMKit not initialised");
+            cert = HMKit.getInstance().getCertificates()[0];
             vehicleSerial = cert.getGainerSerial();
         }
 
@@ -99,7 +101,7 @@ public class ConnectedVehicleController {
     }
 
     ConnectedVehicleController(boolean useBle, IConnectedVehicleView view) {
-        manager = Manager.getInstance();
+        hmKit = hmKit.getInstance();
         this.view = view;
         this.useBle = useBle;
         vehicle = new VehicleStatus();

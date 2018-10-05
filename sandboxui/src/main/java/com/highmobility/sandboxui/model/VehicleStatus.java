@@ -15,8 +15,8 @@ import com.highmobility.autoapi.property.CapabilityProperty;
 import com.highmobility.autoapi.property.FrontExteriorLightState;
 import com.highmobility.autoapi.property.TrunkLockState;
 import com.highmobility.autoapi.property.TrunkPosition;
-import com.highmobility.hmkit.Link;
 import com.highmobility.crypto.value.DeviceSerial;
+import com.highmobility.hmkit.Link;
 
 /**
  * This class will keep the state of the vehicle according to commands received.
@@ -24,11 +24,17 @@ import com.highmobility.crypto.value.DeviceSerial;
 public class VehicleStatus {
     public static final String TAG = "VehicleStatus";
     // means SDK cannot be terminated
-    public static byte[] vehicleConnectedWithBle;
+    public static DeviceSerial vehicleConnectedWithBle;
 
-    public static boolean isVehicleConnectedWithBle(DeviceSerial serial) {
+    public static boolean isVehicleConnected(DeviceSerial serial) {
         return vehicleConnectedWithBle != null && serial.equals(vehicleConnectedWithBle) == true;
     }
+
+    public static boolean isVehicleConnectedButNotTo(DeviceSerial serial) {
+        return vehicleConnectedWithBle != null && serial.equals(vehicleConnectedWithBle) == false;
+    }
+
+    public String name;
 
     public Float insideTemperature;
     public Float batteryPercentage;
@@ -56,8 +62,8 @@ public class VehicleStatus {
             com.highmobility.autoapi.VehicleStatus status = (com.highmobility.autoapi
                     .VehicleStatus) command;
 
+            name = status.getName();
             Command[] states = status.getStates();
-
             if (states == null) {
                 Log.e(TAG, "update: null featureStates");
                 return;
@@ -120,11 +126,19 @@ public class VehicleStatus {
     }
 
     public void onLinkAuthenticated(Link link) {
-        vehicleConnectedWithBle = link.getSerial().getByteArray();
+        // when link first connects, it has no serial(auth gives serial). We use the serial from
+        // backend.
+        vehicleConnectedWithBle = link.getSerial();
     }
 
-    public void onLinkReceived() {
-        vehicleConnectedWithBle = new byte[]{0x00};
+    public void onLinkConnected(Link link) {
+        // we do not have a serial yet.
+
+        // Could be that previously link connected but did not authenticate and its serial
+        // is null(vehicleConnectedWithBle not set), this means we will start broadcasting
+        // when a link is connected. Currently the SDK does not have a fix to it.
+
+        vehicleConnectedWithBle = new DeviceSerial("000000000000000000");
     }
 
     public boolean isSupported(Type type) {
