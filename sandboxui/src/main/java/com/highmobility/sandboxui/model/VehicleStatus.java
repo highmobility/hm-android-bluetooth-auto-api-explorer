@@ -13,8 +13,11 @@ import com.highmobility.autoapi.TrunkState;
 import com.highmobility.autoapi.Type;
 import com.highmobility.autoapi.property.CapabilityProperty;
 import com.highmobility.autoapi.property.FrontExteriorLightState;
-import com.highmobility.autoapi.property.TrunkLockState;
-import com.highmobility.autoapi.property.TrunkPosition;
+
+import com.highmobility.autoapi.property.doors.DoorLockState;
+import com.highmobility.autoapi.property.doors.DoorPosition;
+import com.highmobility.autoapi.property.value.Lock;
+import com.highmobility.autoapi.property.value.Position;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.Link;
 
@@ -40,8 +43,8 @@ public class VehicleStatus {
     public Float batteryPercentage;
 
     public Boolean doorsLocked;
-    public TrunkLockState trunkLockState;
-    public TrunkPosition trunkLockPosition;
+    public Lock trunkLockState;
+    public Position trunkLockPosition;
     public Boolean isWindshieldDefrostingActive;
     public Float rooftopDimmingPercentage;
     public Float rooftopOpenPercentage;

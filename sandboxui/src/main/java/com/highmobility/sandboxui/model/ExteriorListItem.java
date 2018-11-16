@@ -3,14 +3,14 @@ package com.highmobility.sandboxui.model;
 import com.highmobility.autoapi.ControlCommand;
 import com.highmobility.autoapi.ControlLights;
 import com.highmobility.autoapi.ControlRooftop;
+import com.highmobility.autoapi.ControlTrunk;
 import com.highmobility.autoapi.LockUnlockDoors;
-import com.highmobility.autoapi.OpenCloseTrunk;
 import com.highmobility.autoapi.StartStopDefrosting;
 import com.highmobility.autoapi.property.FrontExteriorLightState;
-import com.highmobility.autoapi.property.TrunkLockState;
 
 import java.util.ArrayList;
 
+import com.highmobility.autoapi.property.value.Lock;
 import com.highmobility.sandboxui.R;
 
 /**
@@ -64,13 +64,13 @@ public class ExteriorListItem {
         if (vehicle.trunkLockState != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.TRUNK_LOCK_STATE;
-            item.actionSupported = vehicle.isSupported(OpenCloseTrunk.TYPE);
+            item.actionSupported = vehicle.isSupported(ControlTrunk.TYPE);
             item.title = "TRUNK LOCK";
 
             item.segmentCount = 2;
             item.segmentTitles = new String[2];
 
-            if (vehicle.trunkLockState == TrunkLockState.LOCKED) {
+            if (vehicle.trunkLockState == Lock.LOCKED) {
                 item.stateTitle = "LOCKED";
                 item.segmentTitles[0] = "LOCKED";
                 item.segmentTitles[1] = "UNLOCK";

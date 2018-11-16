@@ -10,21 +10,20 @@ import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.CommandResolver;
 import com.highmobility.autoapi.ControlLights;
 import com.highmobility.autoapi.ControlRooftop;
+import com.highmobility.autoapi.ControlTrunk;
 import com.highmobility.autoapi.Failure;
 import com.highmobility.autoapi.GetCapabilities;
 import com.highmobility.autoapi.GetVehicleStatus;
 import com.highmobility.autoapi.LightsState;
 import com.highmobility.autoapi.LockState;
 import com.highmobility.autoapi.LockUnlockDoors;
-import com.highmobility.autoapi.OpenCloseTrunk;
 import com.highmobility.autoapi.RooftopState;
 import com.highmobility.autoapi.StartStopDefrosting;
 import com.highmobility.autoapi.TrunkState;
 import com.highmobility.autoapi.Type;
 import com.highmobility.autoapi.property.FrontExteriorLightState;
-import com.highmobility.autoapi.property.TrunkLockState;
-import com.highmobility.autoapi.property.TrunkPosition;
-import com.highmobility.autoapi.property.doors.DoorLock;
+import com.highmobility.autoapi.property.value.Lock;
+import com.highmobility.autoapi.property.value.Position;
 import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.HMKit;
@@ -35,8 +34,8 @@ import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
 import com.highmobility.value.Bytes;
 
-import static com.highmobility.autoapi.property.doors.DoorLock.LOCKED;
-import static com.highmobility.autoapi.property.doors.DoorLock.UNLOCKED;
+import static com.highmobility.autoapi.property.value.Lock.LOCKED;
+import static com.highmobility.autoapi.property.value.Lock.UNLOCKED;
 
 /**
  * Created by root on 24/05/2017.
@@ -112,24 +111,24 @@ public class ConnectedVehicleController {
 
     public void onLockDoorsClicked() {
         view.showLoadingView(true);
-        DoorLock lockState = vehicle.doorsLocked == true ? UNLOCKED : LOCKED;
+        Lock lockState = vehicle.doorsLocked == true ? UNLOCKED : LOCKED;
         queueCommand(new LockUnlockDoors(lockState), LockState.TYPE);
     }
 
     public void onLockTrunkClicked() {
         view.showLoadingView(true);
-        TrunkLockState newLockState;
-        TrunkPosition newPosition;
+        Lock newLockState;
+        Position newPosition;
 
-        if (vehicle.trunkLockState == TrunkLockState.LOCKED) {
-            newLockState = TrunkLockState.UNLOCKED;
-            newPosition = TrunkPosition.OPEN;
+        if (vehicle.trunkLockState == Lock.LOCKED) {
+            newLockState = Lock.UNLOCKED;
+            newPosition = Position.OPEN;
         } else {
-            newLockState = TrunkLockState.LOCKED;
-            newPosition = TrunkPosition.CLOSED;
+            newLockState = Lock.LOCKED;
+            newPosition = Position.CLOSED;
         }
 
-        Command command = new OpenCloseTrunk(newLockState, newPosition);
+        Command command = new ControlTrunk(newLockState, newPosition);
         queueCommand(command, TrunkState.TYPE);
     }
 
@@ -145,8 +144,7 @@ public class ConnectedVehicleController {
 
         float dimPercentage = vehicle.rooftopDimmingPercentage == 1f ? 0f : 1f;
 
-        Command command = new ControlRooftop(dimPercentage, vehicle
-                .rooftopOpenPercentage);
+        Command command = new ControlRooftop(dimPercentage, vehicle.rooftopOpenPercentage, null, null);
         queueCommand(command, RooftopState.TYPE);
     }
 
@@ -154,7 +152,7 @@ public class ConnectedVehicleController {
         view.showLoadingView(true);
         float openPercentage = vehicle.rooftopOpenPercentage == 0f ? 1f : 0f;
         Command command = new ControlRooftop(vehicle
-                .rooftopDimmingPercentage, openPercentage);
+                .rooftopDimmingPercentage, openPercentage, null, null);
         queueCommand(command, RooftopState.TYPE);
     }
 
