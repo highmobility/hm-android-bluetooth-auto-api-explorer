@@ -12,13 +12,13 @@ import android.widget.TextView;
 
 import com.highmobility.autoapi.ControlCommand;
 import com.highmobility.autoapi.ControlRooftop;
+import com.highmobility.autoapi.ControlTrunk;
 import com.highmobility.autoapi.Identifier;
 import com.highmobility.autoapi.LockUnlockDoors;
-import com.highmobility.autoapi.OpenCloseTrunk;
 import com.highmobility.autoapi.StartStopDefrosting;
 import com.highmobility.autoapi.VehicleLocation;
 import com.highmobility.autoapi.property.CapabilityProperty;
-import com.highmobility.autoapi.property.TrunkLockState;
+import com.highmobility.autoapi.property.value.Lock;
 import com.highmobility.sandboxui.R;
 import com.highmobility.sandboxui.model.VehicleStatus;
 
@@ -143,17 +143,17 @@ public class VehicleOverviewFragment extends Fragment {
                     lockButton.setVisibility(View.GONE);
                 }
             } else if (capability.getIdentifier() == Identifier.TRUNK_ACCESS) {
-                TrunkLockState state = vehicle.trunkLockState;
+                Lock state = vehicle.trunkLockState;
                 if (state != null) {
                     trunkButton.setVisibility(View.VISIBLE);
 
-                    if (state == TrunkLockState.LOCKED) {
+                    if (state == Lock.LOCKED) {
                         trunkButton.setImageResource(R.drawable.ovr_trunklockedhdpi);
                     } else {
                         trunkButton.setImageResource(R.drawable.ovr_trunkunlockedhdpi);
                     }
 
-                    if (capability.isSupported(OpenCloseTrunk.TYPE)) {
+                    if (capability.isSupported(ControlTrunk.TYPE)) {
                         trunkButton.setEnabled(true);
 
                         trunkButton.setOnClickListener(v -> parent.controller.onLockTrunkClicked());

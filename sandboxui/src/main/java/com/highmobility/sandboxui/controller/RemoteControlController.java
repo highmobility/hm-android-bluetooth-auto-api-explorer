@@ -163,7 +163,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
         if (initializing) {
             // we are initializing
             if (controlMode.getMode() == com.highmobility.autoapi.property.ControlModeValue.AVAILABLE) {
-                link.sendCommand(new StartControlMode(), new Link.CommandCallback() {
+                link.sendCommand(new StartControlMode(true), new Link.CommandCallback() {
                     @Override
                     public void onCommandSent() {
                         // wait for the control command
