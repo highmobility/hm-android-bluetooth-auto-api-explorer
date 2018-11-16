@@ -1,7 +1,6 @@
 package com.highmobility.sandboxui.controller;
 
 import android.content.Intent;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.highmobility.autoapi.Capabilities;
@@ -11,7 +10,6 @@ import com.highmobility.autoapi.CommandResolver;
 import com.highmobility.autoapi.ControlLights;
 import com.highmobility.autoapi.ControlRooftop;
 import com.highmobility.autoapi.ControlTrunk;
-import com.highmobility.autoapi.Failure;
 import com.highmobility.autoapi.GetCapabilities;
 import com.highmobility.autoapi.GetVehicleStatus;
 import com.highmobility.autoapi.LightsState;
@@ -27,6 +25,7 @@ import com.highmobility.autoapi.property.value.Position;
 import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.HMKit;
+import com.highmobility.queue.CommandFailure;
 import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
@@ -144,7 +143,8 @@ public class ConnectedVehicleController {
 
         float dimPercentage = vehicle.rooftopDimmingPercentage == 1f ? 0f : 1f;
 
-        Command command = new ControlRooftop(dimPercentage, vehicle.rooftopOpenPercentage, null, null);
+        Command command = new ControlRooftop(dimPercentage, vehicle.rooftopOpenPercentage, null,
+                null);
         queueCommand(command, RooftopState.TYPE);
     }
 
@@ -221,14 +221,10 @@ public class ConnectedVehicleController {
     }
 
     // timeout or other reason
-    void onCommandFailed(Command sentCommand, @Nullable Failure failure) {
-        String reason;
-        if (failure != null) {
-            reason = "Command " + failure.getFailedType() + " failed with: " + failure
-                    .getFailureReason();
-        } else {
-            reason = "Failed to send " + sentCommand.getType();
-        }
+    void onCommandFailed(Command sentCommand, CommandFailure failure) {
+        String reason = sentCommand.getType() + " " + failure.getReason() +
+                failure.getFailureResponse() != null ?
+                failure.getFailureResponse().getFailureReason().toString() : "";
 
         Log.e(SandboxUi.TAG, "onCommandFailed: " + reason);
 
