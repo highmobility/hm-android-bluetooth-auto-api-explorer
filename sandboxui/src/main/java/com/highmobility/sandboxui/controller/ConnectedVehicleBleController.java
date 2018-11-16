@@ -263,8 +263,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         }
 
         @Override public void onCommandFailed(CommandFailure reason, Command sentCommand) {
-            ConnectedVehicleBleController.this.onCommandFailed(sentCommand, reason
-                    .getFailureResponse());
+            ConnectedVehicleBleController.this.onCommandFailed(sentCommand, reason);
         }
 
         @Override public void sendCommand(Command command) {
