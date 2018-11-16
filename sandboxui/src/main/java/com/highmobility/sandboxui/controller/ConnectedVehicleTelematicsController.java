@@ -31,8 +31,7 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
         }
 
         @Override public void onCommandFailed(CommandFailure reason, Command sentCommand) {
-            ConnectedVehicleTelematicsController.this.onCommandFailed(sentCommand, reason
-                    .getFailureResponse());
+            ConnectedVehicleTelematicsController.this.onCommandFailed(sentCommand, reason);
         }
 
         @Override public void sendCommand(Command command) {
