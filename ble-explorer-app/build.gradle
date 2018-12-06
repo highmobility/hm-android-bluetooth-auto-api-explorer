@@ -48,8 +48,8 @@ dependencies {
         implementation 'com.highmobility:hmkit-auto-api:1.8.1'
     } else {
         implementation project(path: ':hmkit-android')
-        implementation project(path: ':hm-java-crypto')
-        implementation project(path: ':hm-java-utils')
+        implementation project(path: ':hmkit-crypto')
+        implementation project(path: ':hmkit-utils')
         implementation 'com.highmobility:hmkit-auto-api:1.8.1', {
             exclude group: 'com.highmobility', module: 'hmkit-utils'
         }
