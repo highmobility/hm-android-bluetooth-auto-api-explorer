@@ -55,21 +55,21 @@
             />
     </RelativeLayout>
 
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/view_pager"
         android:alpha="0"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/navigation_bar_height">
 
-        <android.support.v4.view.PagerTitleStrip
+        <androidx.viewpager.widget.PagerTitleStrip
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="12dp"
             android:layout_gravity="top"
             android:textAppearance="@style/viewPagerTitleStrip"
             />
-    </android.support.v4.view.ViewPager>
+    </androidx.viewpager.widget.ViewPager>
 
     <fragment
         android:id="@+id/broadcast_fragment"

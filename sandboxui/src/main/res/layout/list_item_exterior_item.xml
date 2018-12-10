@@ -10,7 +10,7 @@
         android:paddingLeft="@dimen/exterior_item_padding"
         android:paddingRight="@dimen/exterior_item_padding"
         android:orientation="vertical">
-        <android.support.v4.widget.Space
+        <androidx.legacy.widget.Space
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"/>
@@ -35,7 +35,7 @@
                 android:layout_gravity="center_vertical"/>
         </LinearLayout>
 
-        <android.support.v4.widget.Space
+        <androidx.legacy.widget.Space
             android:layout_width="match_parent"
             android:layout_height="10dp" />
 
@@ -79,7 +79,7 @@
                     style="@style/RadioButton" />
             </info.hoang8f.android.segmented.SegmentedGroup>
         </LinearLayout>
-        <android.support.v4.widget.Space
+        <androidx.legacy.widget.Space
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"/>

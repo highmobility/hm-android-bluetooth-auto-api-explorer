@@ -1,6 +1,6 @@
 package com.highmobility.queue;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.Failure;
