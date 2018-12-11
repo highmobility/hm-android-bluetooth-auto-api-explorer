@@ -4,11 +4,11 @@ group "com.highmobility"
 version "1.7.1"
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion = rootProject.ext.compileSdkVersion
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 23
+        targetSdkVersion rootProject.ext.compileSdkVersion
         versionCode 1
         versionName "${version}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
