@@ -1,6 +1,6 @@
 package com.highmobility.sandboxui.controller;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.highmobility.autoapi.Command;
