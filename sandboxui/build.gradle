@@ -27,29 +27,23 @@ android {
     }
 }
 
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-}
-
 dependencies {
     if (project.hasProperty('releaseType') == false || project.releaseType > 0) {
         implementation("com.highmobility:hmkit-android:${project.hmkitVersion}@aar") {
             transitive = true
         }
-        implementation 'com.highmobility:hmkit-auto-api:1.8.1'
+        implementation 'com.highmobility:hmkit-auto-api:1.8.2'
     } else {
         implementation project(path: ':hmkit-android')
         implementation project(path: ':hmkit-crypto')
         implementation project(path: ':hmkit-utils')
-        implementation 'com.highmobility:hmkit-auto-api:1.8.1', {
+        implementation 'com.highmobility:hmkit-auto-api:1.8.2', {
             exclude group: 'com.highmobility', module: 'hmkit-utils'
         }
     }
 
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'info.hoang8f:android-segmented:1.0.6'
     implementation 'com.jakewharton.timber:timber:4.7.1'
-
     implementation('com.google.code.findbugs:jsr305:3.0.2')
 
     testImplementation 'junit:junit:4.12'
