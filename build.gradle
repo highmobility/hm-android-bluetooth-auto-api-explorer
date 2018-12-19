@@ -33,6 +33,6 @@ task clean(type: Delete) {
 }
 
 ext {
-    hmkitVersion = "1.6.0"
+    hmkitVersion = "1.6.3"
     compileSdkVersion = 28
 }
