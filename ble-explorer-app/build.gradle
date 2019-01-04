@@ -44,14 +44,10 @@ dependencies {
         implementation("com.highmobility:hmkit-android:${rootProject.ext.hmkitVersion}@aar") {
             transitive = true
         }
-        implementation 'com.highmobility:hmkit-auto-api:1.8.2'
     } else {
         implementation project(path: ':hmkit-android')
         implementation project(path: ':hmkit-crypto')
         implementation project(path: ':hmkit-utils')
-        implementation 'com.highmobility:hmkit-auto-api:1.8.2', {
-            exclude group: 'com.highmobility', module: 'hmkit-utils'
-        }
     }
 
     implementation 'com.jakewharton.timber:timber:4.7.1'

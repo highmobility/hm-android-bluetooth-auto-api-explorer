@@ -19,7 +19,7 @@ import com.highmobility.autoapi.RooftopState;
 import com.highmobility.autoapi.StartStopDefrosting;
 import com.highmobility.autoapi.TrunkState;
 import com.highmobility.autoapi.Type;
-import com.highmobility.autoapi.property.FrontExteriorLightState;
+import com.highmobility.autoapi.property.lights.FrontExteriorLightState;
 import com.highmobility.autoapi.property.value.Lock;
 import com.highmobility.autoapi.property.value.Position;
 import com.highmobility.crypto.AccessCertificate;
@@ -144,15 +144,15 @@ public class ConnectedVehicleController {
         float dimPercentage = vehicle.rooftopDimmingPercentage == 1f ? 0f : 1f;
 
         Command command = new ControlRooftop(dimPercentage, vehicle.rooftopOpenPercentage, null,
-                null);
+                null, null);
         queueCommand(command, RooftopState.TYPE);
     }
 
     public void onSunroofOpenClicked() {
         view.showLoadingView(true);
         float openPercentage = vehicle.rooftopOpenPercentage == 0f ? 1f : 0f;
-        Command command = new ControlRooftop(vehicle
-                .rooftopDimmingPercentage, openPercentage, null, null);
+        Command command = new ControlRooftop(vehicle.rooftopDimmingPercentage, openPercentage,
+                null, null, null);
         queueCommand(command, RooftopState.TYPE);
     }
 
@@ -160,16 +160,18 @@ public class ConnectedVehicleController {
         FrontExteriorLightState state;
         if (segment == 0) state = FrontExteriorLightState.INACTIVE;
         else if (segment == 1) state = FrontExteriorLightState.ACTIVE;
-        else state = FrontExteriorLightState.ACTIVE_WITH_FULL_BEAM;
+        else state = FrontExteriorLightState.ACTIVE_FULL_BEAM;
 
-        if (state == vehicle.frontExteriorLightState) return;
+        if (state == vehicle.lightsState.getFrontExteriorLightState()) return;
 
         view.showLoadingView(true);
 
         Command command = new ControlLights(state,
-                vehicle.isRearExteriorLightActive,
-                vehicle.isInteriorLightActive,
-                vehicle.lightsAmbientColor);
+                vehicle.lightsState.isRearExteriorLightActive(),
+                vehicle.lightsState.getAmbientColor(),
+                vehicle.lightsState.getFogLights(),
+                vehicle.lightsState.getReadingLamps(),
+                vehicle.lightsState.getInteriorLamps());
 
         queueCommand(command, LightsState.TYPE);
     }
@@ -224,7 +226,7 @@ public class ConnectedVehicleController {
     void onCommandFailed(Command sentCommand, CommandFailure failure) {
         String reason = sentCommand.getType() + " " + failure.getReason() +
                 ((failure.getFailureResponse() != null && failure.getFailureResponse().getFailureReason() != null) ?
-                failure.getFailureResponse().getFailureReason().toString() : "");
+                        failure.getFailureResponse().getFailureReason().toString() : "");
 
         Log.e(SandboxUi.TAG, "onCommandFailed: " + reason);
 
