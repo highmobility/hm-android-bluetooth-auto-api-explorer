@@ -39,7 +39,7 @@ public class BleCommandQueue extends CommandQueue {
      * @param listener The queue interface.
      */
     public BleCommandQueue(IBleCommandQueue listener) {
-        this(listener, 20000, 3);
+        this(listener, 45000, 3);
     }
 
     /**

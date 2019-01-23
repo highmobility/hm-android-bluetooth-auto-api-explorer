@@ -68,30 +68,8 @@ public class VehicleStatus {
                 return;
             }
 
-            for (int i = 0; i < states.length; i++) {
-                Command subCommand = states[i];
-                if (subCommand instanceof ClimateState) {
-                    ClimateState state = (ClimateState) subCommand;
-                    insideTemperature = state.getInsideTemperature();
-                    isWindshieldDefrostingActive = state.isDefrostingActive();
-                } else if (subCommand instanceof ChargeState) {
-                    ChargeState state = (ChargeState) subCommand;
-                    batteryPercentage = state.getBatteryLevel();
-                } else if (subCommand instanceof LockState) {
-                    LockState state = (LockState) subCommand;
-                    doorsLocked = state.isLocked();
-                } else if (subCommand instanceof TrunkState) {
-                    TrunkState state = (TrunkState) subCommand;
-                    trunkLockState = state.getLockState();
-                    trunkLockPosition = state.getPosition();
-                } else if (subCommand instanceof RooftopState) {
-                    RooftopState state = (RooftopState) subCommand;
-                    rooftopDimmingPercentage = state.getDimmingPercentage();
-                    rooftopOpenPercentage = state.getOpenPercentage();
-                } else if (subCommand instanceof LightsState) {
-                    lightsState = (LightsState) subCommand;
-                }
-            }
+            for (int i = 0; i < states.length; i++) update(states[i]);
+            
         } else if (command instanceof ClimateState) {
             ClimateState state = (ClimateState) command;
             insideTemperature = state.getInsideTemperature();
