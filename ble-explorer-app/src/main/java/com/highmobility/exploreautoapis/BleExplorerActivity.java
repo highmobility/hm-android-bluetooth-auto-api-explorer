@@ -18,7 +18,7 @@ import timber.log.Timber;
 
 import static android.view.View.GONE;
 
-public class MainActivity extends Activity {
+public class BleExplorerActivity extends Activity {
     @BindView(R.id.progress_bar) ProgressBar progressBar;
     @BindView(R.id.status_text_view) TextView statusTextView;
 
@@ -61,7 +61,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void onDownloadFailed(DownloadAccessCertificateError error) {
-                MainActivity.this.onDownloadFailed(error.getMessage());
+                BleExplorerActivity.this.onDownloadFailed(error.getMessage());
             }
         });
     }
@@ -75,12 +75,12 @@ public class MainActivity extends Activity {
     private void onCertificateDownloaded(DeviceSerial serial) {
         progressBar.setVisibility(GONE);
         Timber.d("Certificate downloaded for vehicle: %s", serial);
-        Intent i = new Intent(MainActivity.this, ConnectedVehicleActivity
+        Intent i = new Intent(BleExplorerActivity.this, ConnectedVehicleActivity
                 .class);
         i.putExtra(ConnectedVehicleController.EXTRA_SERIAL, serial.getByteArray());
         i.putExtra(ConnectedVehicleController.EXTRA_USE_BLE, true);
         i.putExtra(ConnectedVehicleActivity.EXTRA_FINISH_ON_BACK_PRESS, false);
         startActivity(i);
-        MainActivity.this.finish(); // this activity is irrelevant now. SDK is initialised.
+        BleExplorerActivity.this.finish(); // this activity is irrelevant now. SDK is initialised.
     }
 }

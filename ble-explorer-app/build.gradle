@@ -49,7 +49,6 @@ dependencies {
         implementation project(path: ':hmkit-crypto')
         implementation project(path: ':hmkit-utils')
     }
-
     implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation 'com.jakewharton:butterknife:10.0.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
