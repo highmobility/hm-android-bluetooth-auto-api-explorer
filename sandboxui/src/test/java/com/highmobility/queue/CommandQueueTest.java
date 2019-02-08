@@ -1,21 +1,21 @@
 package com.highmobility.queue;
 
 import com.highmobility.autoapi.Command;
+import com.highmobility.autoapi.ControlTrunk;
 import com.highmobility.autoapi.Failure;
 import com.highmobility.autoapi.GasFlapState;
 import com.highmobility.autoapi.GetGasFlapState;
 import com.highmobility.autoapi.LockState;
 import com.highmobility.autoapi.LockUnlockDoors;
-import com.highmobility.autoapi.OpenCloseTrunk;
-import com.highmobility.autoapi.OpenGasFlap;
+
+import com.highmobility.autoapi.OpenCloseGasFlap;
 import com.highmobility.autoapi.Type;
 import com.highmobility.autoapi.property.FailureReason;
 import com.highmobility.autoapi.property.GasFlapStateValue;
-import com.highmobility.autoapi.property.TrunkLockState;
-import com.highmobility.autoapi.property.TrunkPosition;
 import com.highmobility.autoapi.property.doors.DoorLocation;
 import com.highmobility.autoapi.property.doors.DoorLockState;
 import com.highmobility.autoapi.property.value.Lock;
+import com.highmobility.autoapi.property.value.Position;
 import com.highmobility.hmkit.Link;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.utils.ByteUtils;
@@ -269,8 +269,8 @@ public class CommandQueueTest {
     @Test public void ackAndResponseCommandResponsesReceived() throws InterruptedException {
         BleCommandQueue queue = new BleCommandQueue(iQueue, 0, 3);
         Command firstCommand = new LockUnlockDoors(Lock.LOCKED);
-        Command secondCommand = new OpenCloseTrunk(TrunkLockState.LOCKED, TrunkPosition.CLOSED);
-        Command thirdCommand = new OpenGasFlap();
+        Command secondCommand = new ControlTrunk(Lock.LOCKED, Position.CLOSED);
+        Command thirdCommand = new OpenCloseGasFlap(GasFlapStateValue.OPEN);
 
         LockState firstResponse = new LockState.Builder().addInsideLock(new DoorLockState
                 (DoorLocation.FRONT_LEFT, Lock.LOCKED)).build();
@@ -294,10 +294,10 @@ public class CommandQueueTest {
         Thread.sleep(10);
         queue.onCommandSent(secondCommand);
         assertEquals(4, commandsSent[0]); // sent OpenGasFlap(third command)
-        assertEquals(ackCommand[0].getType(), OpenCloseTrunk.TYPE);
+        assertEquals(ackCommand[0].getType(), ControlTrunk.TYPE);
         Thread.sleep(10);
         queue.onCommandSent(thirdCommand);
-        assertEquals(ackCommand[0].getType(), OpenGasFlap.TYPE);
+        assertEquals(ackCommand[0].getType(), OpenCloseGasFlap.TYPE);
         assertEquals(4, commandsSent[0]);
 
         assertNull(failure[0]);

@@ -12,10 +12,6 @@ import com.highmobility.autoapi.RooftopState;
 import com.highmobility.autoapi.TrunkState;
 import com.highmobility.autoapi.Type;
 import com.highmobility.autoapi.property.CapabilityProperty;
-import com.highmobility.autoapi.property.FrontExteriorLightState;
-
-import com.highmobility.autoapi.property.doors.DoorLockState;
-import com.highmobility.autoapi.property.doors.DoorPosition;
 import com.highmobility.autoapi.property.value.Lock;
 import com.highmobility.autoapi.property.value.Position;
 import com.highmobility.crypto.value.DeviceSerial;
@@ -48,10 +44,10 @@ public class VehicleStatus {
     public Boolean isWindshieldDefrostingActive;
     public Float rooftopDimmingPercentage;
     public Float rooftopOpenPercentage;
-    public FrontExteriorLightState frontExteriorLightState;
-    // unused
-    public Boolean isRearExteriorLightActive;
-    public Boolean isInteriorLightActive;
+
+    // retained for set commands
+    public LightsState lightsState;
+
     public int[] lightsAmbientColor;
 
     private Capabilities capabilities;
@@ -72,33 +68,8 @@ public class VehicleStatus {
                 return;
             }
 
-            for (int i = 0; i < states.length; i++) {
-                Command subCommand = states[i];
-                if (subCommand instanceof ClimateState) {
-                    ClimateState state = (ClimateState) subCommand;
-                    insideTemperature = state.getInsideTemperature();
-                    isWindshieldDefrostingActive = state.isDefrostingActive();
-                } else if (subCommand instanceof ChargeState) {
-                    ChargeState state = (ChargeState) subCommand;
-                    batteryPercentage = state.getBatteryLevel();
-                } else if (subCommand instanceof LockState) {
-                    LockState state = (LockState) subCommand;
-                    doorsLocked = state.isLocked();
-                } else if (subCommand instanceof TrunkState) {
-                    TrunkState state = (TrunkState) subCommand;
-                    trunkLockState = state.getLockState();
-                    trunkLockPosition = state.getPosition();
-                } else if (subCommand instanceof RooftopState) {
-                    RooftopState state = (RooftopState) subCommand;
-                    rooftopDimmingPercentage = state.getDimmingPercentage();
-                    rooftopOpenPercentage = state.getOpenPercentage();
-                } else if (subCommand instanceof LightsState) {
-                    LightsState lights = (LightsState) subCommand;
-                    frontExteriorLightState = lights.getFrontExteriorLightState();
-                    isRearExteriorLightActive = lights.isRearExteriorLightActive();
-                    isInteriorLightActive = lights.isInteriorLightActive();
-                }
-            }
+            for (int i = 0; i < states.length; i++) update(states[i]);
+            
         } else if (command instanceof ClimateState) {
             ClimateState state = (ClimateState) command;
             insideTemperature = state.getInsideTemperature();
@@ -118,11 +89,7 @@ public class VehicleStatus {
             ChargeState state = (ChargeState) command;
             batteryPercentage = state.getBatteryLevel();
         } else if (command instanceof LightsState) {
-            LightsState state = (LightsState) command;
-            frontExteriorLightState = state.getFrontExteriorLightState();
-            isRearExteriorLightActive = state.isRearExteriorLightActive();
-            isInteriorLightActive = state.isInteriorLightActive();
-            lightsAmbientColor = state.getAmbientColor();
+            lightsState = (LightsState) command;
         } else if (command instanceof Capabilities) {
             capabilities = (Capabilities) command;
         }

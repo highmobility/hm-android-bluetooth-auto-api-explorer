@@ -1,7 +1,5 @@
 package com.highmobility.queue;
 
-import androidx.annotation.Nullable;
-
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.Failure;
 import com.highmobility.autoapi.Type;
@@ -14,6 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 
 /**
  * This is the Command queue base class. Depending on the environment, the subclasses {@link

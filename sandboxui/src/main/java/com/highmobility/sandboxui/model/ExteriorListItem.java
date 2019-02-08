@@ -6,12 +6,11 @@ import com.highmobility.autoapi.ControlRooftop;
 import com.highmobility.autoapi.ControlTrunk;
 import com.highmobility.autoapi.LockUnlockDoors;
 import com.highmobility.autoapi.StartStopDefrosting;
-import com.highmobility.autoapi.property.FrontExteriorLightState;
-
-import java.util.ArrayList;
-
+import com.highmobility.autoapi.property.lights.FrontExteriorLightState;
 import com.highmobility.autoapi.property.value.Lock;
 import com.highmobility.sandboxui.R;
+
+import java.util.ArrayList;
 
 /**
  * Created by ttiganik on 15/03/2018.
@@ -162,7 +161,7 @@ public class ExteriorListItem {
             builder.add(item);
         }
 
-        if (vehicle.frontExteriorLightState != null) {
+        if (vehicle.lightsState != null && vehicle.lightsState.getFrontExteriorLightState() != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.FRONT_EXTERIOR_LIGHT_STATE;
             item.actionSupported = vehicle.isSupported(ControlLights.TYPE);
@@ -175,16 +174,15 @@ public class ExteriorListItem {
             item.segmentTitles[1] = "ACTIVE";
             item.segmentTitles[2] = "FULL BEAM";
 
-            if (vehicle.frontExteriorLightState == FrontExteriorLightState.INACTIVE) {
+            if (vehicle.lightsState.getFrontExteriorLightState() == FrontExteriorLightState.INACTIVE) {
                 item.stateTitle = item.segmentTitles[0];
                 item.iconResId = R.drawable.ext_front_lights_off;
                 item.selectedSegment = 0;
-            } else if (vehicle.frontExteriorLightState == FrontExteriorLightState.ACTIVE) {
+            } else if (vehicle.lightsState.getFrontExteriorLightState() == FrontExteriorLightState.ACTIVE) {
                 item.stateTitle = item.segmentTitles[1];
                 item.iconResId = R.drawable.ext_front_lights_on;
                 item.selectedSegment = 1;
-            } else if (vehicle.frontExteriorLightState == FrontExteriorLightState
-                    .ACTIVE_WITH_FULL_BEAM) {
+            } else if (vehicle.lightsState.getFrontExteriorLightState() == FrontExteriorLightState.ACTIVE_FULL_BEAM) {
                 item.stateTitle = item.segmentTitles[2];
                 item.iconResId = R.drawable.ext_front_lights_full_beam;
                 item.selectedSegment = 2;
