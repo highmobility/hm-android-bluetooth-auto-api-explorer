@@ -170,7 +170,7 @@ public class VehicleOverviewFragment extends Fragment {
                     gpsIndicatorContainer.setVisibility(View.GONE);
                 }
             } else if (capability.getIdentifier() == Identifier.CHARGING) {
-                Float batteryPercentage = vehicle.batteryPercentage;
+                Double batteryPercentage = vehicle.batteryPercentage;
 
                 if (batteryPercentage != null) {
                     batteryIndicatorContainer.setVisibility(View.VISIBLE);

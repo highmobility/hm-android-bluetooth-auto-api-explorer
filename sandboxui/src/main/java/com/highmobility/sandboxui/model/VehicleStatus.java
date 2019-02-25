@@ -11,11 +11,15 @@ import com.highmobility.autoapi.LockState;
 import com.highmobility.autoapi.RooftopState;
 import com.highmobility.autoapi.TrunkState;
 import com.highmobility.autoapi.Type;
+import com.highmobility.autoapi.VehicleTime;
 import com.highmobility.autoapi.property.CapabilityProperty;
 import com.highmobility.autoapi.property.value.Lock;
 import com.highmobility.autoapi.property.value.Position;
 import com.highmobility.crypto.value.DeviceSerial;
+import com.highmobility.hmkit.HMLog;
 import com.highmobility.hmkit.Link;
+
+import java.util.Date;
 
 /**
  * This class will keep the state of the vehicle according to commands received.
@@ -36,14 +40,14 @@ public class VehicleStatus {
     public String name;
 
     public Float insideTemperature;
-    public Float batteryPercentage;
+    public Double batteryPercentage;
 
     public Boolean doorsLocked;
     public Lock trunkLockState;
     public Position trunkLockPosition;
     public Boolean isWindshieldDefrostingActive;
-    public Float rooftopDimmingPercentage;
-    public Float rooftopOpenPercentage;
+    public Double rooftopDimmingPercentage;
+    public Double rooftopOpenPercentage;
 
     // retained for set commands
     public LightsState lightsState;
