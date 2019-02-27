@@ -11,15 +11,11 @@ import com.highmobility.autoapi.LockState;
 import com.highmobility.autoapi.RooftopState;
 import com.highmobility.autoapi.TrunkState;
 import com.highmobility.autoapi.Type;
-import com.highmobility.autoapi.VehicleTime;
 import com.highmobility.autoapi.property.CapabilityProperty;
 import com.highmobility.autoapi.property.value.Lock;
 import com.highmobility.autoapi.property.value.Position;
 import com.highmobility.crypto.value.DeviceSerial;
-import com.highmobility.hmkit.HMLog;
 import com.highmobility.hmkit.Link;
-
-import java.util.Date;
 
 /**
  * This class will keep the state of the vehicle according to commands received.

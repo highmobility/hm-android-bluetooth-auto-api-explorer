@@ -32,7 +32,7 @@ dependencies {
         implementation("com.highmobility:hmkit-android:${project.hmkitVersion}@aar") {
             transitive = true
         }
-        implementation("com.highmobility:hmkit-auto-api:${rootProject.ext.autoApiVersion}")
+        implementation("com.highmobility:hmkit-auto-api:${project.autoApiVersion}")
     } else {
         implementation project(path: ':hmkit-android')
         implementation project(path: ':hmkit-crypto')
