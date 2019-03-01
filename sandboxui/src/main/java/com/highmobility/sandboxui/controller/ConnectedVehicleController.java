@@ -19,7 +19,9 @@ import com.highmobility.autoapi.RooftopState;
 import com.highmobility.autoapi.StartStopDefrosting;
 import com.highmobility.autoapi.TrunkState;
 import com.highmobility.autoapi.Type;
+import com.highmobility.autoapi.property.doors.DoorLockState;
 import com.highmobility.autoapi.property.lights.FrontExteriorLightState;
+import com.highmobility.autoapi.property.value.Location;
 import com.highmobility.autoapi.property.value.Lock;
 import com.highmobility.autoapi.property.value.Position;
 import com.highmobility.crypto.AccessCertificate;
@@ -141,7 +143,7 @@ public class ConnectedVehicleController {
     public void onSunroofVisibilityClicked() {
         view.showLoadingView(true);
 
-        float dimPercentage = vehicle.rooftopDimmingPercentage == 1f ? 0f : 1f;
+        double dimPercentage = vehicle.rooftopDimmingPercentage == 1d ? 0d : 1d;
 
         Command command = new ControlRooftop(dimPercentage, vehicle.rooftopOpenPercentage, null,
                 null, null);
@@ -150,7 +152,7 @@ public class ConnectedVehicleController {
 
     public void onSunroofOpenClicked() {
         view.showLoadingView(true);
-        float openPercentage = vehicle.rooftopOpenPercentage == 0f ? 1f : 0f;
+        double openPercentage = vehicle.rooftopOpenPercentage == 0d ? 1d : 0d;
         Command command = new ControlRooftop(vehicle.rooftopDimmingPercentage, openPercentage,
                 null, null, null);
         queueCommand(command, RooftopState.TYPE);
@@ -188,6 +190,7 @@ public class ConnectedVehicleController {
     public void readyToSendCommands() {
         initialising = true;
         view.showLoadingView(true);
+        
         // capabilities are required to know if action commands are available.
         queueCommand(new GetCapabilities(), Capabilities.TYPE);
         queueCommand(new GetVehicleStatus(), com.highmobility.autoapi.VehicleStatus.TYPE);

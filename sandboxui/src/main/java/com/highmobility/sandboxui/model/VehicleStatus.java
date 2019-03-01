@@ -36,14 +36,14 @@ public class VehicleStatus {
     public String name;
 
     public Float insideTemperature;
-    public Float batteryPercentage;
+    public Double batteryPercentage;
 
     public Boolean doorsLocked;
     public Lock trunkLockState;
     public Position trunkLockPosition;
     public Boolean isWindshieldDefrostingActive;
-    public Float rooftopDimmingPercentage;
-    public Float rooftopOpenPercentage;
+    public Double rooftopDimmingPercentage;
+    public Double rooftopOpenPercentage;
 
     // retained for set commands
     public LightsState lightsState;

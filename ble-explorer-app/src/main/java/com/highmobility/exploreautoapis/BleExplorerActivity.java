@@ -50,6 +50,8 @@ public class BleExplorerActivity extends Activity {
          *   Access token is also required for downloading the access certificate.
          */
 
+        // PASTE SNIPPET HERE
+
         // PASTE ACCESS TOKEN HERE
         String accessToken = "";
 

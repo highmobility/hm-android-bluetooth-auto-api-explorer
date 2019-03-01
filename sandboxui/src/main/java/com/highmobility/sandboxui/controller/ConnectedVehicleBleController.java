@@ -1,11 +1,13 @@
 package com.highmobility.sandboxui.controller;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.highmobility.autoapi.Command;
+import com.highmobility.autoapi.LockUnlockDoors;
 import com.highmobility.autoapi.Type;
 import com.highmobility.hmkit.BroadcastConfiguration;
 import com.highmobility.hmkit.Broadcaster;
@@ -267,6 +269,10 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         }
 
         @Override public void sendCommand(Command command) {
+            if (link == null) {
+                queue.onCommandFailedToSend(command, new LinkError(LinkError.Type.BLUETOOTH_FAILURE, 0, ""));
+                return;
+            }
             link.sendCommand(command, new Link.CommandCallback() {
                 @Override public void onCommandSent() {
                     queue.onCommandSent(command);
