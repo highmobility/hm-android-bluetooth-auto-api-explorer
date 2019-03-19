@@ -19,11 +19,13 @@ import com.highmobility.autoapi.RooftopState;
 import com.highmobility.autoapi.StartStopDefrosting;
 import com.highmobility.autoapi.TrunkState;
 import com.highmobility.autoapi.Type;
-import com.highmobility.autoapi.property.doors.DoorLockState;
-import com.highmobility.autoapi.property.lights.FrontExteriorLightState;
-import com.highmobility.autoapi.property.value.Location;
-import com.highmobility.autoapi.property.value.Lock;
-import com.highmobility.autoapi.property.value.Position;
+import com.highmobility.autoapi.property.Property;
+import com.highmobility.autoapi.value.Lock;
+import com.highmobility.autoapi.value.Position;
+import com.highmobility.autoapi.value.lights.FogLight;
+import com.highmobility.autoapi.value.lights.FrontExteriorLightState;
+import com.highmobility.autoapi.value.lights.InteriorLamp;
+import com.highmobility.autoapi.value.lights.ReadingLamp;
 import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.HMKit;
@@ -35,8 +37,11 @@ import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
 import com.highmobility.value.Bytes;
 
-import static com.highmobility.autoapi.property.value.Lock.LOCKED;
-import static com.highmobility.autoapi.property.value.Lock.UNLOCKED;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
+import static com.highmobility.autoapi.value.Lock.LOCKED;
+import static com.highmobility.autoapi.value.Lock.UNLOCKED;
 
 /**
  * Created by root on 24/05/2017.
@@ -121,11 +126,11 @@ public class ConnectedVehicleController {
         Lock newLockState;
         Position newPosition;
 
-        if (vehicle.trunkLockState == Lock.LOCKED) {
-            newLockState = Lock.UNLOCKED;
+        if (vehicle.trunkLockState == LOCKED) {
+            newLockState = UNLOCKED;
             newPosition = Position.OPEN;
         } else {
-            newLockState = Lock.LOCKED;
+            newLockState = LOCKED;
             newPosition = Position.CLOSED;
         }
 
@@ -164,16 +169,16 @@ public class ConnectedVehicleController {
         else if (segment == 1) state = FrontExteriorLightState.ACTIVE;
         else state = FrontExteriorLightState.ACTIVE_FULL_BEAM;
 
-        if (state == vehicle.lightsState.getFrontExteriorLightState()) return;
+        if (state == vehicle.lightsState.getFrontExteriorLightState().getValue()) return;
 
         view.showLoadingView(true);
 
         Command command = new ControlLights(state,
-                vehicle.lightsState.isRearExteriorLightActive(),
-                vehicle.lightsState.getAmbientColor(),
-                vehicle.lightsState.getFogLights(),
-                vehicle.lightsState.getReadingLamps(),
-                vehicle.lightsState.getInteriorLamps());
+                vehicle.lightsState.isRearExteriorLightActive().getValue(),
+                vehicle.lightsState.getAmbientColor().getValue(),
+                Property.propertiesToValues(vehicle.lightsState.getFogLights(), FogLight.class),
+                Property.propertiesToValues(vehicle.lightsState.getReadingLamps(), ReadingLamp.class),
+                Property.propertiesToValues(vehicle.lightsState.getInteriorLamps(), InteriorLamp.class));
 
         queueCommand(command, LightsState.TYPE);
     }
@@ -190,7 +195,7 @@ public class ConnectedVehicleController {
     public void readyToSendCommands() {
         initialising = true;
         view.showLoadingView(true);
-        
+
         // capabilities are required to know if action commands are available.
         queueCommand(new GetCapabilities(), Capabilities.TYPE);
         queueCommand(new GetVehicleStatus(), com.highmobility.autoapi.VehicleStatus.TYPE);

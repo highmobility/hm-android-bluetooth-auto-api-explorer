@@ -5,22 +5,22 @@ import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.CommandResolver;
 import com.highmobility.autoapi.ControlCommand;
 import com.highmobility.autoapi.ControlMode;
 import com.highmobility.autoapi.Failure;
 import com.highmobility.autoapi.GetControlMode;
 import com.highmobility.autoapi.StartControlMode;
-import com.highmobility.hmkit.HMKit;
-import com.highmobility.sandboxui.model.VehicleStatus;
-import com.highmobility.sandboxui.view.IRemoteControlView;
-import com.highmobility.sandboxui.util.ITapToControlCommandConverter;
-import com.highmobility.sandboxui.util.TapToControlCommandConverter;
-import com.highmobility.autoapi.Command;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
-import com.highmobility.hmkit.error.LinkError;
+import com.highmobility.hmkit.HMKit;
 import com.highmobility.hmkit.Link;
+import com.highmobility.hmkit.error.LinkError;
+import com.highmobility.sandboxui.model.VehicleStatus;
+import com.highmobility.sandboxui.util.ITapToControlCommandConverter;
+import com.highmobility.sandboxui.util.TapToControlCommandConverter;
+import com.highmobility.sandboxui.view.IRemoteControlView;
 import com.highmobility.utils.ByteUtils;
 import com.highmobility.value.Bytes;
 
@@ -29,7 +29,6 @@ import java.util.List;
 /**
  * Created by root on 02/06/2017.
  */
-
 public class RemoteControlController implements IRemoteControlController, ConnectedLinkListener,
         ITapToControlCommandConverter {
     public static final String LINK_IDENTIFIER_MESSAGE = "com.highmobility.digitalkeydemo" +
@@ -160,9 +159,11 @@ public class RemoteControlController implements IRemoteControlController, Connec
 
     void onControlModeUpdate(ControlMode controlMode) {
         Log.d(TAG, controlMode.getMode().toString());
+        ControlMode.Value controlModeValue = controlMode.getMode().getValue();
+
         if (initializing) {
             // we are initializing
-            if (controlMode.getMode() == com.highmobility.autoapi.property.ControlModeValue.AVAILABLE) {
+            if (controlModeValue == ControlMode.Value.AVAILABLE) {
                 link.sendCommand(new StartControlMode(true), new Link.CommandCallback() {
                     @Override
                     public void onCommandSent() {
@@ -174,14 +175,13 @@ public class RemoteControlController implements IRemoteControlController, Connec
                         onInitializeFinished(1, linkError.getType() + ": Cant start control mode");
                     }
                 });
-            } else if (controlMode.getMode() == com.highmobility.autoapi.property.ControlModeValue
-                    .STARTED) {
+            } else if (controlModeValue == ControlMode.Value.STARTED) {
                 onInitializeFinished(0, "");
             } else {
-                onInitializeFinished(1, "Bad control mode " + controlMode.getMode().toString());
+                onInitializeFinished(1, "Bad control mode " + controlModeValue);
             }
-        } else if (controlMode.getMode() != com.highmobility.autoapi.property.ControlModeValue.STARTED) {
-            onInitializeFinished(1, "Bad control mode");
+        } else if (controlModeValue != ControlMode.Value.STARTED) {
+            onInitializeFinished(1, "Bad control mode " + controlModeValue);
         }
     }
 

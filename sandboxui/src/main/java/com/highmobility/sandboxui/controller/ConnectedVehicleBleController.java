@@ -1,13 +1,11 @@
 package com.highmobility.sandboxui.controller;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.highmobility.autoapi.Command;
-import com.highmobility.autoapi.LockUnlockDoors;
 import com.highmobility.autoapi.Type;
 import com.highmobility.hmkit.BroadcastConfiguration;
 import com.highmobility.hmkit.Broadcaster;

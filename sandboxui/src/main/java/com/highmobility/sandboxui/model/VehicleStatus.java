@@ -11,9 +11,9 @@ import com.highmobility.autoapi.LockState;
 import com.highmobility.autoapi.RooftopState;
 import com.highmobility.autoapi.TrunkState;
 import com.highmobility.autoapi.Type;
-import com.highmobility.autoapi.property.CapabilityProperty;
-import com.highmobility.autoapi.property.value.Lock;
-import com.highmobility.autoapi.property.value.Position;
+import com.highmobility.autoapi.property.Property;
+import com.highmobility.autoapi.value.Lock;
+import com.highmobility.autoapi.value.Position;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.Link;
 
@@ -52,8 +52,8 @@ public class VehicleStatus {
 
     private Capabilities capabilities;
 
-    public CapabilityProperty[] getCapabilities() {
-        return capabilities.getCapabilities();
+    public Capabilities getCapabilities() {
+        return capabilities;
     }
 
     public void update(Command command) {
@@ -61,33 +61,34 @@ public class VehicleStatus {
             com.highmobility.autoapi.VehicleStatus status = (com.highmobility.autoapi
                     .VehicleStatus) command;
 
-            name = status.getName();
-            Command[] states = status.getStates();
+            name = status.getName().getValue();
+            Property<Command>[] states = status.getStates();
             if (states == null) {
                 Log.e(TAG, "update: null featureStates");
                 return;
             }
 
-            for (int i = 0; i < states.length; i++) update(states[i]);
-            
+            for (int i = 0; i < states.length; i++) {
+                if (states[i].getValue() != null) update(states[i].getValue());
+            }
         } else if (command instanceof ClimateState) {
             ClimateState state = (ClimateState) command;
-            insideTemperature = state.getInsideTemperature();
-            isWindshieldDefrostingActive = state.isDefrostingActive();
+            insideTemperature = state.getInsideTemperature().getValue();
+            isWindshieldDefrostingActive = state.isDefrostingActive().getValue();
         } else if (command instanceof LockState) {
             LockState state = (LockState) command;
             doorsLocked = state.isLocked();
         } else if (command instanceof TrunkState) {
             TrunkState state = (TrunkState) command;
-            trunkLockState = state.getLockState();
-            trunkLockPosition = state.getPosition();
+            trunkLockState = state.getLockState().getValue();
+            trunkLockPosition = state.getPosition().getValue();
         } else if (command instanceof RooftopState) {
             RooftopState state = (RooftopState) command;
-            rooftopDimmingPercentage = state.getDimmingPercentage();
-            rooftopOpenPercentage = state.getOpenPercentage();
+            rooftopDimmingPercentage = state.getDimmingPercentage().getValue();
+            rooftopOpenPercentage = state.getOpenPercentage().getValue();
         } else if (command instanceof ChargeState) {
             ChargeState state = (ChargeState) command;
-            batteryPercentage = state.getBatteryLevel();
+            batteryPercentage = state.getBatteryLevel().getValue();
         } else if (command instanceof LightsState) {
             lightsState = (LightsState) command;
         } else if (command instanceof Capabilities) {
