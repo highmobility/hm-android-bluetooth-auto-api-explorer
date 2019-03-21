@@ -18,9 +18,9 @@ Dependencies are managed via gradle repositories.
 * Import the Gradle project with Android Studio 3+.
 
 * Initialise the HMKit with a certificate from the Developer Center. The flow is described in the
-comments of the [MainActivity.java](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/blob/master/app/src/main/java/com/highmobility/exploreautoapis/MainActivity.java#L34)
+comments of the [BleExplorerActivity.java](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/blob/master/ble-explorer-app/src/main/java/com/highmobility/exploreautoapis/BleExplorerActivity.java#L33)
 
-* Run [MainActivity.java](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/blob/master/app/src/main/java/com/highmobility/exploreautoapis/MainActivity.java#L21).
+* Run [BleExplorerActivity.java](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/blob/master/ble-explorer-app/src/main/java/com/highmobility/exploreautoapis/BleExplorerActivity.java#L21).
 
 After initialisation, the [sandboxui](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/tree/master/sandboxui/src/main/java/com/highmobility/sandboxui) module is loaded. All of the app logic is in that package.
 
