@@ -124,7 +124,8 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
     @Override public void onRevokeClicked() {
         view.showAlert("Revoke authorisation?", "", "Yes", "No", (dialog, which) -> {
-            view.showLoadingView(true);
+
+            view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
             link.revoke(new Link.RevokeCallback() {
                 @Override public void onRevokeSuccess(Bytes customData) {
                     // will get Link State not_authenticated
@@ -132,6 +133,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
                 @Override public void onRevokeFailed(RevokeError revokeError) {
                     view.onError(false, "Revoke failed: " + revokeError.getMessage());
+                    view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED);
                 }
             });
         }, null);
@@ -163,18 +165,18 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     public void onStateChanged(State state) {
         switch (broadcaster.getState()) {
             case IDLE:
-                bleView.showBleInfoView(true, "Idle");
+                bleView.setBleInfo("Idle");
 
                 if (state == BLUETOOTH_UNAVAILABLE) {
                     startBroadcasting();
                 }
                 break;
             case BLUETOOTH_UNAVAILABLE:
-                bleView.showBleInfoView(true, "Bluetooth N/A");
+                bleView.setBleInfo("Bluetooth N/A");
                 break;
             case BROADCASTING:
                 if (link == null) {
-                    bleView.showBleInfoView(true, "Looking for links... " + hmKit
+                    bleView.setBleInfo("Looking for links... " + hmKit
                             .getBroadcaster().getName());
                 }
                 break;
@@ -190,9 +192,9 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
         link = connectedLink;
         link.setListener(this);
-        bleView.showBleInfoView(true, "link: " + connectedLink.getState());
-        bleView.onLinkReceived(true);
+        bleView.setBleInfo("link: " + connectedLink.getState());
         vehicle.onLinkConnected(link);
+        bleView.setViewState(IConnectedVehicleView.ViewState.CONNECTED);
 
         Log.d(SandboxUi.TAG, "onLinkReceived: ");
     }
@@ -205,7 +207,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             link.setListener(null);
             link = null;
             onStateChanged(broadcaster.getState());
-            bleView.onLinkReceived(false);
+            bleView.setViewState(IConnectedVehicleView.ViewState.BROADCASTING);
             vehicle.vehicleConnectedWithBle = null;
             Log.d(SandboxUi.TAG, "onLinkLost: ");
 
@@ -239,9 +241,11 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             if (link.getState() == Link.State.AUTHENTICATED) {
                 readyToSendCommands();
                 vehicle.onLinkAuthenticated(link);
-                bleView.showBleInfoView(false, stateString);
+                bleView.setBleInfo(stateString);
+                bleView.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
             } else {
-                bleView.showBleInfoView(true, stateString);
+                bleView.setBleInfo(stateString);
+                bleView.setViewState(IConnectedVehicleView.ViewState.CONNECTED);
             }
         }
     }
@@ -268,7 +272,8 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
         @Override public void sendCommand(Command command) {
             if (link == null) {
-                queue.onCommandFailedToSend(command, new LinkError(LinkError.Type.BLUETOOTH_FAILURE, 0, ""));
+                queue.onCommandFailedToSend(command,
+                        new LinkError(LinkError.Type.BLUETOOTH_FAILURE, 0, ""));
                 return;
             }
             link.sendCommand(command, new Link.CommandCallback() {

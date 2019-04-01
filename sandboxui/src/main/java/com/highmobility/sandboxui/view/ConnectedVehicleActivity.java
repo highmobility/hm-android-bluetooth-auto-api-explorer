@@ -5,12 +5,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -24,12 +20,17 @@ import com.highmobility.sandboxui.controller.ConnectedVehicleController;
 import com.highmobility.sandboxui.model.ExteriorListItem;
 import com.highmobility.sandboxui.model.VehicleStatus;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class ConnectedVehicleActivity extends FragmentActivity implements
-        IConnectedVehicleBleView, IConnectedVehicleView, BroadcastFragment
-        .OnFragmentInteractionListener {
+public class ConnectedVehicleActivity extends FragmentActivity implements IConnectedVehicleBleView,
+        IConnectedVehicleView, BroadcastFragment.OnFragmentInteractionListener {
     public static final int REQUEST_CODE_REMOTE_CONTROL = 12;
     public static final String EXTRA_FINISH_ON_BACK_PRESS = "EXTRA_FINISH_ON_BACK_PRESS";
     public static final String EXTRA_VEHICLE_SERIAL = "EXTRA_REVOKED_SERIAL";
@@ -121,27 +122,15 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
     // MARK: IConnectedVehicleBleView
 
     @Override
-    public void showBleInfoView(boolean show, String status) {
+    public void setBleInfo(String status) {
         if (broadcastFragment == null) return;
-        showNormalView(!show);
-        broadcastFragment.getView().setVisibility(show ? VISIBLE : GONE);
         broadcastFragment.setStatusText(status);
     }
 
-    @Override public void onLinkReceived(boolean received) {
-        broadcastFragment.onLinkReceived(received);
-
-        if (received == false) {
-            showLoadingView(false);
-            showNormalView(false);
-        }
-    }
-
-    void showNormalView(boolean show) {
+    void showVehicleInfoView(boolean show) {
         if (show) {
             viewPager.animate().alpha(1f).setDuration(200).setListener(null);
         } else {
-            showLoadingView(false);
             viewPager.animate().alpha(0f).setDuration(200).setListener(null);
         }
 
@@ -150,9 +139,41 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
     }
 
     @Override
-    public void showLoadingView(boolean loading) {
-        showNormalView(!loading);
-        progressBar.setVisibility(loading ? VISIBLE : GONE);
+    public void setViewState(ViewState viewState) {
+        switch (viewState) {
+            case BROADCASTING:
+                broadcastFragment.getView().setVisibility(VISIBLE);
+                broadcastFragment.onLinkReceived(false);
+                showVehicleInfoView(false);
+                progressBar.setVisibility(View.INVISIBLE);
+                break;
+            case CONNECTED:
+                if (broadcastFragment != null) {
+                    broadcastFragment.getView().setVisibility(VISIBLE);
+                    broadcastFragment.onLinkReceived(true);
+                }
+                showVehicleInfoView(false);
+                progressBar.setVisibility(View.INVISIBLE);
+                break;
+            case AUTHENTICATING:
+                broadcastFragment.getView().setVisibility(VISIBLE);
+                showVehicleInfoView(false);
+                progressBar.setVisibility(View.INVISIBLE);
+                break;
+            case AUTHENTICATED:
+                if (broadcastFragment != null)
+                    broadcastFragment.getView().setVisibility(View.INVISIBLE);
+                showVehicleInfoView(true);
+                progressBar.setVisibility(View.INVISIBLE);
+                break;
+            case AUTHENTICATED_LOADING:
+                if (broadcastFragment != null)
+                    broadcastFragment.getView().setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(VISIBLE);
+                showVehicleInfoView(false);
+                break;
+        }
+
     }
 
     @Override
@@ -173,8 +194,8 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
         if (fatal) {
-            showLoadingView(false);
-            showBleInfoView(true, message);
+            setBleInfo(message);
+            finish();
         } else {
             overviewFragment.onVehicleStatusUpdate();
             exteriorFragment.onVehicleStatusUpdate(ExteriorListItem.createExteriorListItems

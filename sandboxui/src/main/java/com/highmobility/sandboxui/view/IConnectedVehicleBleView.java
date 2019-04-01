@@ -5,6 +5,5 @@ package com.highmobility.sandboxui.view;
  */
 
 public interface IConnectedVehicleBleView extends IConnectedVehicleView {
-    void showBleInfoView(boolean show, String status);
-    void onLinkReceived(boolean received);
+    void setBleInfo(String status);
 }

@@ -49,8 +49,7 @@ public class VehicleOverviewFragment extends Fragment {
     }
 
     public static VehicleOverviewFragment newInstance(VehicleStatus vehicle,
-                                                      ConnectedVehicleActivity
-                                                              connectedVehicleActivity) {
+                                                      ConnectedVehicleActivity connectedVehicleActivity) {
         VehicleOverviewFragment fragment = new VehicleOverviewFragment();
         fragment.vehicle = vehicle;
         fragment.parent = connectedVehicleActivity;
@@ -66,7 +65,6 @@ public class VehicleOverviewFragment extends Fragment {
     }
 
     void updateViews() {
-
         if (vehicle.isSupported(ControlCommand.TYPE)) {
             remoteControlButton.setVisibility(View.VISIBLE);
         } else {

@@ -37,9 +37,6 @@ import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
 import com.highmobility.value.Bytes;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-
 import static com.highmobility.autoapi.value.Lock.LOCKED;
 import static com.highmobility.autoapi.value.Lock.UNLOCKED;
 
@@ -69,8 +66,8 @@ public class ConnectedVehicleController {
     }
 
     public static ConnectedVehicleController create(IConnectedVehicleView view,
-                                                    IConnectedVehicleBleView bleView, Intent
-                                                            intent) {
+                                                    IConnectedVehicleBleView bleView,
+                                                    Intent intent) {
         byte[] vehicleSerialBytes = intent.getByteArrayExtra(EXTRA_SERIAL);
         DeviceSerial vehicleSerial;
         boolean useBle = intent.getBooleanExtra(EXTRA_USE_BLE, true);
@@ -116,13 +113,13 @@ public class ConnectedVehicleController {
     }
 
     public void onLockDoorsClicked() {
-        view.showLoadingView(true);
+        view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
         Lock lockState = vehicle.doorsLocked == true ? UNLOCKED : LOCKED;
         queueCommand(new LockUnlockDoors(lockState), LockState.TYPE);
     }
 
     public void onLockTrunkClicked() {
-        view.showLoadingView(true);
+        view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
         Lock newLockState;
         Position newPosition;
 
@@ -139,14 +136,14 @@ public class ConnectedVehicleController {
     }
 
     public void onWindshieldDefrostingClicked() {
-        view.showLoadingView(true);
+        view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
         boolean startDefrosting = vehicle.isWindshieldDefrostingActive ? false : true;
         Command command = new StartStopDefrosting(startDefrosting);
         queueCommand(command, ClimateState.TYPE);
     }
 
     public void onSunroofVisibilityClicked() {
-        view.showLoadingView(true);
+        view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
 
         double dimPercentage = vehicle.rooftopDimmingPercentage == 1d ? 0d : 1d;
 
@@ -156,7 +153,7 @@ public class ConnectedVehicleController {
     }
 
     public void onSunroofOpenClicked() {
-        view.showLoadingView(true);
+        view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
         double openPercentage = vehicle.rooftopOpenPercentage == 0d ? 1d : 0d;
         Command command = new ControlRooftop(vehicle.rooftopDimmingPercentage, openPercentage,
                 null, null, null);
@@ -171,14 +168,16 @@ public class ConnectedVehicleController {
 
         if (state == vehicle.lightsState.getFrontExteriorLightState().getValue()) return;
 
-        view.showLoadingView(true);
+        view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
 
         Command command = new ControlLights(state,
                 vehicle.lightsState.isRearExteriorLightActive().getValue(),
                 vehicle.lightsState.getAmbientColor().getValue(),
                 Property.propertiesToValues(vehicle.lightsState.getFogLights(), FogLight.class),
-                Property.propertiesToValues(vehicle.lightsState.getReadingLamps(), ReadingLamp.class),
-                Property.propertiesToValues(vehicle.lightsState.getInteriorLamps(), InteriorLamp.class));
+                Property.propertiesToValues(vehicle.lightsState.getReadingLamps(),
+                        ReadingLamp.class),
+                Property.propertiesToValues(vehicle.lightsState.getInteriorLamps(),
+                        InteriorLamp.class));
 
         queueCommand(command, LightsState.TYPE);
     }
@@ -188,13 +187,13 @@ public class ConnectedVehicleController {
     }
 
     public void onRefreshClicked() {
-        view.showLoadingView(true);
+        view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
         queueCommand(new GetVehicleStatus(), com.highmobility.autoapi.VehicleStatus.TYPE);
     }
 
     public void readyToSendCommands() {
         initialising = true;
-        view.showLoadingView(true);
+        view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
 
         // capabilities are required to know if action commands are available.
         queueCommand(new GetCapabilities(), Capabilities.TYPE);
@@ -226,7 +225,7 @@ public class ConnectedVehicleController {
             }
 
             view.onVehicleStatusUpdate(vehicle);
-            view.showLoadingView(false);
+            view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED);
         }
     }
 
@@ -243,7 +242,7 @@ public class ConnectedVehicleController {
             initialising = false;
             view.onError(true, reason);
         } else {
-            view.showLoadingView(false);
+            view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED);
             view.onError(false, reason);
         }
     }

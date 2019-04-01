@@ -6,7 +6,7 @@ import android.content.DialogInterface;
 import com.highmobility.sandboxui.model.VehicleStatus;
 
 public interface IConnectedVehicleView {
-    void showLoadingView(boolean loading);
+    void setViewState(ViewState viewState);
 
     void onCapabilitiesUpdate(VehicleStatus vehicle);
 
@@ -20,4 +20,11 @@ public interface IConnectedVehicleView {
 
     Activity getActivity();
 
+    enum ViewState {
+        BROADCASTING,
+        CONNECTED,
+        AUTHENTICATING,
+        AUTHENTICATED,
+        AUTHENTICATED_LOADING
+    }
 }
