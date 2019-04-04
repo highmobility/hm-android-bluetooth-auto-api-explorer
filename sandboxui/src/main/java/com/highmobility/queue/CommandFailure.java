@@ -1,6 +1,8 @@
 package com.highmobility.queue;
 
 import com.highmobility.autoapi.Failure;
+import com.highmobility.hmkit.error.LinkError;
+import com.highmobility.hmkit.error.TelematicsError;
 
 import javax.annotation.Nullable;
 
@@ -30,6 +32,20 @@ public class CommandFailure {
 
     @Nullable public Failure getFailureResponse() {
         return failureResponse;
+    }
+
+    @Nullable public String getErrorMessage() {
+        if (failureResponse != null) {
+            return failureResponse.getFailureDescription().getValue();
+        } else if (errorObject instanceof TelematicsError) {
+            TelematicsError sdkError = (TelematicsError) errorObject;
+            return sdkError.getMessage();
+        } else if (errorObject instanceof LinkError) {
+            LinkError sdkError = (LinkError) errorObject;
+            return sdkError.getMessage();
+        }
+
+        return null;
     }
 
     /**

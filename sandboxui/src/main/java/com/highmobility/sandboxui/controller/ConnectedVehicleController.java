@@ -231,9 +231,7 @@ public class ConnectedVehicleController {
 
     // timeout or other reason
     void onCommandFailed(Command sentCommand, CommandFailure failure) {
-        String reason = sentCommand.getType() + " " + failure.getReason() +
-                ((failure.getFailureResponse() != null && failure.getFailureResponse().getFailureReason() != null) ?
-                        failure.getFailureResponse().getFailureReason().toString() : "");
+        String reason = String.format("Command failed: %s", failure.getErrorMessage());
 
         Log.e(SandboxUi.TAG, "onCommandFailed: " + reason);
 

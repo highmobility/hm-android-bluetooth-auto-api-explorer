@@ -3,6 +3,8 @@ package com.highmobility.queue;
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.Failure;
 import com.highmobility.autoapi.Type;
+import com.highmobility.hmkit.error.LinkError;
+import com.highmobility.hmkit.error.TelematicsError;
 import com.highmobility.utils.ByteUtils;
 import com.highmobility.value.Bytes;
 
@@ -12,6 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Nullable;
 
 /**
