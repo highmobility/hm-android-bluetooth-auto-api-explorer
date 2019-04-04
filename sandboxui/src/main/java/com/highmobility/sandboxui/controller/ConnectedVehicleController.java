@@ -232,13 +232,13 @@ public class ConnectedVehicleController {
     // timeout or other reason
     void onCommandFailed(Command sentCommand, CommandFailure failure) {
         String reason = String.format("Command failed: %s", failure.getErrorMessage());
-
         Log.e(SandboxUi.TAG, "onCommandFailed: " + reason);
 
         if (initialising) {
             // initialization failed
             initialising = false;
             view.onError(true, reason);
+            view.getActivity().finish();
         } else {
             view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED);
             view.onError(false, reason);

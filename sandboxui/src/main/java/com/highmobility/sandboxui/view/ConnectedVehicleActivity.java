@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -190,12 +189,10 @@ public class ConnectedVehicleActivity extends FragmentActivity implements IConne
 
     @Override
     public void onError(boolean fatal, String message) {
-        Log.e("", "onError: " + message);
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
         if (fatal) {
             setBleInfo(message);
-            finish();
         } else {
             overviewFragment.onVehicleStatusUpdate();
             exteriorFragment.onVehicleStatusUpdate(ExteriorListItem.createExteriorListItems

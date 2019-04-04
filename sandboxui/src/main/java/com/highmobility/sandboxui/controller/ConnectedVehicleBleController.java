@@ -230,6 +230,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     @Override
     public void onAuthorizationTimeout(ConnectedLink connectedLink) {
         view.onError(true, "authorization request timed out");
+        view.getActivity().finish();
     }
 
     @Override
