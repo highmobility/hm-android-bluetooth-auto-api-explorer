@@ -1,7 +1,6 @@
 package com.highmobility.sandboxui.controller;
 
 import android.content.Intent;
-import android.util.Log;
 
 import com.highmobility.autoapi.Capabilities;
 import com.highmobility.autoapi.ClimateState;
@@ -30,18 +29,15 @@ import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.HMKit;
 import com.highmobility.queue.CommandFailure;
-import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
 import com.highmobility.value.Bytes;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-
 import static com.highmobility.autoapi.value.Lock.LOCKED;
 import static com.highmobility.autoapi.value.Lock.UNLOCKED;
+import static timber.log.Timber.e;
 
 /**
  * Created by root on 24/05/2017.
@@ -177,8 +173,10 @@ public class ConnectedVehicleController {
                 vehicle.lightsState.isRearExteriorLightActive().getValue(),
                 vehicle.lightsState.getAmbientColor().getValue(),
                 Property.propertiesToValues(vehicle.lightsState.getFogLights(), FogLight.class),
-                Property.propertiesToValues(vehicle.lightsState.getReadingLamps(), ReadingLamp.class),
-                Property.propertiesToValues(vehicle.lightsState.getInteriorLamps(), InteriorLamp.class));
+                Property.propertiesToValues(vehicle.lightsState.getReadingLamps(),
+                        ReadingLamp.class),
+                Property.propertiesToValues(vehicle.lightsState.getInteriorLamps(),
+                        InteriorLamp.class));
 
         queueCommand(command, LightsState.TYPE);
     }
@@ -236,7 +234,7 @@ public class ConnectedVehicleController {
                 ((failure.getFailureResponse() != null && failure.getFailureResponse().getFailureReason() != null) ?
                         failure.getFailureResponse().getFailureReason().toString() : "");
 
-        Log.e(SandboxUi.TAG, "onCommandFailed: " + reason);
+        e("onCommandFailed: %s", reason);
 
         if (initialising) {
             // initialization failed

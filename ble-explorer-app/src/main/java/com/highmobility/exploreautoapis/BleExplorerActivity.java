@@ -17,6 +17,7 @@ import butterknife.ButterKnife;
 import timber.log.Timber;
 
 import static android.view.View.GONE;
+import static timber.log.Timber.d;
 
 public class BleExplorerActivity extends Activity {
     @BindView(R.id.progress_bar) ProgressBar progressBar;
@@ -27,6 +28,7 @@ public class BleExplorerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        // get logs from HMKit
         Timber.plant(new Timber.DebugTree());
 
         /*
@@ -71,12 +73,12 @@ public class BleExplorerActivity extends Activity {
     private void onDownloadFailed(String message) {
         progressBar.setVisibility(GONE);
         statusTextView.setText("Could not download the certificate:\n\n" + message);
-        Timber.d("Could not download the certificate with token: %s", message);
+        d("Could not download the certificate with token: %s", message);
     }
 
     private void onCertificateDownloaded(DeviceSerial serial) {
         progressBar.setVisibility(GONE);
-        Timber.d("Certificate downloaded for vehicle: %s", serial);
+        d("Certificate downloaded for vehicle: %s", serial);
         Intent i = new Intent(BleExplorerActivity.this, ConnectedVehicleActivity
                 .class);
         i.putExtra(ConnectedVehicleController.EXTRA_SERIAL, serial.getByteArray());

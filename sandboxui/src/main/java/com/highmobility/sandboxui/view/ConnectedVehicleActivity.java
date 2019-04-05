@@ -5,12 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -24,8 +18,15 @@ import com.highmobility.sandboxui.controller.ConnectedVehicleController;
 import com.highmobility.sandboxui.model.ExteriorListItem;
 import com.highmobility.sandboxui.model.VehicleStatus;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static timber.log.Timber.e;
 
 public class ConnectedVehicleActivity extends FragmentActivity implements
         IConnectedVehicleBleView, IConnectedVehicleView, BroadcastFragment
@@ -169,7 +170,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements
 
     @Override
     public void onError(boolean fatal, String message) {
-        Log.e("", "onError: " + message);
+        e("onError: %s", message);
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
         if (fatal) {

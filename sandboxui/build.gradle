@@ -44,7 +44,6 @@ dependencies {
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'info.hoang8f:android-segmented:1.0.6'
-    implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation('com.google.code.findbugs:jsr305:3.0.2')
 
     testImplementation 'junit:junit:4.12'
