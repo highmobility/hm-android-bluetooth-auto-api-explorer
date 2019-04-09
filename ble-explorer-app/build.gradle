@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdkVersion ver.compileSdk
 
     defaultConfig {
         applicationId "com.highmobility.exploreautoapis"
         minSdkVersion 21
-        targetSdkVersion rootProject.ext.compileSdkVersion
+        targetSdkVersion ver.compileSdk
         versionCode 1
         versionName "1.0.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -41,7 +41,7 @@ configurations.all {
 dependencies {
     implementation project(path: ':sandboxui')
     if (project.hasProperty('releaseType') == false || project.releaseType > 0) {
-        implementation("com.highmobility:hmkit-android:${rootProject.ext.hmkitVersion}@aar") {
+        implementation(deps.hmkit) {
             transitive = true
         }
     } else {
