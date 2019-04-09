@@ -1,7 +1,6 @@
 package com.highmobility.sandboxui.controller;
 
 import android.content.Intent;
-import android.util.Log;
 
 import com.highmobility.autoapi.Capabilities;
 import com.highmobility.autoapi.ClimateState;
@@ -30,7 +29,6 @@ import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.HMKit;
 import com.highmobility.queue.CommandFailure;
-import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
@@ -39,6 +37,7 @@ import com.highmobility.value.Bytes;
 
 import static com.highmobility.autoapi.value.Lock.LOCKED;
 import static com.highmobility.autoapi.value.Lock.UNLOCKED;
+import static timber.log.Timber.e;
 
 /**
  * Created by root on 24/05/2017.
@@ -232,7 +231,7 @@ public class ConnectedVehicleController {
     // timeout or other reason
     void onCommandFailed(Command sentCommand, CommandFailure failure) {
         String reason = String.format("Command failed: %s", failure.getErrorMessage());
-        Log.e(SandboxUi.TAG, "onCommandFailed: " + reason);
+        e("onCommandFailed: %s", reason);
 
         if (initialising) {
             // initialization failed
