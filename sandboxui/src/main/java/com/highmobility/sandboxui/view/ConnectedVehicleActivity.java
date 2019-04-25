@@ -61,7 +61,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements IConne
         finishOnBackPress = getIntent().getBooleanExtra(EXTRA_FINISH_ON_BACK_PRESS, true);
         viewPager = findViewById(R.id.view_pager);
         title = findViewById(R.id.title);
-        progressBar = findViewById(R.id.progress_bar);
+        progressBar = findViewById(R.id.progress_bar_connected);
         refreshButton = findViewById(R.id.refresh_button);
         revokeButton = findViewById(R.id.revoke_button);
 

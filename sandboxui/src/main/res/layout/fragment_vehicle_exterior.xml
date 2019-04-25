@@ -7,7 +7,7 @@
     <ListView
         android:layout_marginTop="20dp"
         android:divider="@null"
-        android:id="@+id/list_view"
+        android:id="@+id/services_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="15dp"

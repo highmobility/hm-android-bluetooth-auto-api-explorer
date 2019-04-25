@@ -1,21 +1,20 @@
 package com.highmobility.queue;
 
 import com.highmobility.autoapi.Command;
+import com.highmobility.autoapi.ControlGasFlap;
 import com.highmobility.autoapi.ControlTrunk;
 import com.highmobility.autoapi.Failure;
 import com.highmobility.autoapi.GasFlapState;
 import com.highmobility.autoapi.GetGasFlapState;
 import com.highmobility.autoapi.LockState;
 import com.highmobility.autoapi.LockUnlockDoors;
-
-import com.highmobility.autoapi.OpenCloseGasFlap;
 import com.highmobility.autoapi.Type;
-import com.highmobility.autoapi.property.FailureReason;
-import com.highmobility.autoapi.property.GasFlapStateValue;
-import com.highmobility.autoapi.property.doors.DoorLocation;
-import com.highmobility.autoapi.property.doors.DoorLockState;
-import com.highmobility.autoapi.property.value.Lock;
-import com.highmobility.autoapi.property.value.Position;
+import com.highmobility.autoapi.property.Property;
+import com.highmobility.autoapi.value.FailureReason;
+import com.highmobility.autoapi.value.Location;
+import com.highmobility.autoapi.value.Lock;
+import com.highmobility.autoapi.value.Position;
+import com.highmobility.autoapi.value.doors.DoorLockState;
 import com.highmobility.hmkit.Link;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.utils.ByteUtils;
@@ -81,8 +80,8 @@ public class CommandQueueTest {
         queue.queue(command, LockState.TYPE);
 
         Thread.sleep(50);
-        Command response = new LockState.Builder().addInsideLock(new DoorLockState
-                (DoorLocation.FRONT_LEFT, Lock.LOCKED)).build();
+        Command response = new LockState.Builder().addInsideLock(new Property(new DoorLockState
+                (Location.FRONT_LEFT, Lock.LOCKED))).build();
         queue.onCommandReceived(response);
 
         assertEquals(1, commandsSent[0]);
@@ -112,8 +111,8 @@ public class CommandQueueTest {
 
         assertEquals(false, secondResult);
         assertEquals(1, commandsSent[0]);
-        Command response = new LockState.Builder().addInsideLock(new DoorLockState
-                (DoorLocation.FRONT_LEFT, Lock.LOCKED)).build();
+        Command response = new LockState.Builder().addInsideLock(new Property(new DoorLockState
+                (Location.FRONT_LEFT, Lock.LOCKED))).build();
         queue.onCommandReceived(response);
         assertTrue(bytesStartsWithType(responseCommand[0], LockState.TYPE));
         assertNull(ackCommand[0]);
@@ -214,8 +213,8 @@ public class CommandQueueTest {
         BleCommandQueue queue = new BleCommandQueue(iQueue, 0, 3);
         Command command = new LockUnlockDoors(Lock.LOCKED);
         queue.queue(command, LockState.TYPE);
-        LockState response = new LockState.Builder().addInsideLock(new DoorLockState
-                (DoorLocation.FRONT_LEFT, Lock.LOCKED)).build();
+        LockState response = new LockState.Builder().addInsideLock(new Property(new DoorLockState
+                (Location.FRONT_LEFT, Lock.LOCKED))).build();
 
         Thread.sleep(10);
         queue.onCommandSent(command);
@@ -240,10 +239,11 @@ public class CommandQueueTest {
         Command firstCommand = new LockUnlockDoors(Lock.LOCKED);
         Command secondCommand = new GetGasFlapState();
 
-        LockState firstResponse = new LockState.Builder().addInsideLock(new DoorLockState
-                (DoorLocation.FRONT_LEFT, Lock.LOCKED)).build();
+        LockState firstResponse =
+                new LockState.Builder().addInsideLock(new Property(new DoorLockState
+                        (Location.FRONT_LEFT, Lock.LOCKED))).build();
         GasFlapState secondResponse =
-                new GasFlapState.Builder().setState(GasFlapStateValue.CLOSED).build();
+                new GasFlapState.Builder().setPosition(new Property(Position.CLOSED)).build();
 
         queue.queue(firstCommand, LockState.TYPE);
         queue.queue(secondCommand, GasFlapState.TYPE);
@@ -270,10 +270,11 @@ public class CommandQueueTest {
         BleCommandQueue queue = new BleCommandQueue(iQueue, 0, 3);
         Command firstCommand = new LockUnlockDoors(Lock.LOCKED);
         Command secondCommand = new ControlTrunk(Lock.LOCKED, Position.CLOSED);
-        Command thirdCommand = new OpenCloseGasFlap(GasFlapStateValue.OPEN);
+        Command thirdCommand = new ControlGasFlap(Lock.LOCKED, Position.OPEN);
 
-        LockState firstResponse = new LockState.Builder().addInsideLock(new DoorLockState
-                (DoorLocation.FRONT_LEFT, Lock.LOCKED)).build();
+        LockState firstResponse =
+                new LockState.Builder().addInsideLock(new Property(new DoorLockState
+                        (Location.FRONT_LEFT, Lock.LOCKED))).build();
 
         queue.queue(firstCommand, LockState.TYPE);
         queue.queue(secondCommand);
@@ -297,7 +298,7 @@ public class CommandQueueTest {
         assertEquals(ackCommand[0].getType(), ControlTrunk.TYPE);
         Thread.sleep(10);
         queue.onCommandSent(thirdCommand);
-        assertEquals(ackCommand[0].getType(), OpenCloseGasFlap.TYPE);
+        assertEquals(ackCommand[0].getType(), ControlGasFlap.TYPE);
         assertEquals(4, commandsSent[0]);
 
         assertNull(failure[0]);
@@ -308,8 +309,9 @@ public class CommandQueueTest {
         Command firstCommand = new LockUnlockDoors(Lock.LOCKED);
         Command secondCommand = new GetGasFlapState();
 
-        LockState firstResponse = new LockState.Builder().addInsideLock(new DoorLockState
-                (DoorLocation.FRONT_LEFT, Lock.LOCKED)).build();
+        LockState firstResponse =
+                new LockState.Builder().addInsideLock(new Property(new DoorLockState
+                        (Location.FRONT_LEFT, Lock.LOCKED))).build();
 
         queue.queue(firstCommand, LockState.TYPE);
         queue.queue(secondCommand, GasFlapState.TYPE);
@@ -337,8 +339,9 @@ public class CommandQueueTest {
         Command firstCommand = new LockUnlockDoors(Lock.LOCKED);
         Command secondCommand = new GetGasFlapState();
 
-        Failure firstResponse = new Failure.Builder().setFailedType(LockUnlockDoors.TYPE)
-                .setFailureReason(FailureReason.UNSUPPORTED_CAPABILITY).build();
+        Failure firstResponse =
+                new Failure.Builder().setFailedTypeByte(new Property(LockUnlockDoors.TYPE.getType()))
+                        .setFailureReason(new Property(FailureReason.UNSUPPORTED_CAPABILITY)).build();
         queue.queue(firstCommand, LockState.TYPE);
         queue.queue(secondCommand, GasFlapState.TYPE);
 
@@ -364,9 +367,10 @@ public class CommandQueueTest {
         Command firstCommand = new LockUnlockDoors(Lock.LOCKED);
 
         Command firstResponse =
-                new GasFlapState.Builder().setState(GasFlapStateValue.CLOSED).build();
-        Command secondResponse = new LockState.Builder().addInsideLock(new DoorLockState
-                (DoorLocation.FRONT_LEFT, Lock.LOCKED)).build();
+                new GasFlapState.Builder().setPosition(new Property(Position.CLOSED)).build();
+        Command secondResponse =
+                new LockState.Builder().addInsideLock(new Property(new DoorLockState
+                (Location.FRONT_LEFT, Lock.LOCKED))).build();
 
         queue.queue(firstCommand, LockState.TYPE);
 
