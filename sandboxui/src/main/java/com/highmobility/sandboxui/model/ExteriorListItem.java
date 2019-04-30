@@ -1,5 +1,7 @@
 package com.highmobility.sandboxui.model;
 
+import android.content.res.Resources;
+
 import com.highmobility.autoapi.ControlCommand;
 import com.highmobility.autoapi.ControlLights;
 import com.highmobility.autoapi.ControlRooftop;
@@ -31,7 +33,7 @@ public class ExteriorListItem {
     /**
      * Create the items that are displayed in exterior list view from VehicleStatus.
      */
-    public static ExteriorListItem[] createExteriorListItems(VehicleStatus vehicle) {
+    public static ExteriorListItem[] createExteriorListItems(Resources resources, VehicleStatus vehicle) {
         ArrayList<ExteriorListItem> builder = new ArrayList<>();
 
         // create the items:
@@ -167,7 +169,7 @@ public class ExteriorListItem {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.FRONT_EXTERIOR_LIGHT_STATE;
             item.actionSupported = vehicle.isSupported(ControlLights.TYPE);
-            item.title = "FRONT LIGHTS";
+            item.title = resources.getString(R.string.frontLightsTitle);
 
             item.segmentCount = 3;
             item.segmentTitles = new String[3];

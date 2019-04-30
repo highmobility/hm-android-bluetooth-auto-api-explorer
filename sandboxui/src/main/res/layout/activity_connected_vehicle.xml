@@ -56,7 +56,7 @@
     </RelativeLayout>
 
     <androidx.viewpager.widget.ViewPager
-        android:id="@+id/view_pager"
+        android:id="@+id/connected_vehicle_view_pager"
         android:alpha="0"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

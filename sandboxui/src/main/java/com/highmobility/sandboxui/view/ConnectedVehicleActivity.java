@@ -59,7 +59,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements IConne
         setContentView(R.layout.activity_connected_vehicle);
 
         finishOnBackPress = getIntent().getBooleanExtra(EXTRA_FINISH_ON_BACK_PRESS, true);
-        viewPager = findViewById(R.id.view_pager);
+        viewPager = findViewById(R.id.connected_vehicle_view_pager);
         title = findViewById(R.id.title);
         progressBar = findViewById(R.id.progress_bar_connected);
         refreshButton = findViewById(R.id.refresh_button);
@@ -183,7 +183,9 @@ public class ConnectedVehicleActivity extends FragmentActivity implements IConne
     @Override
     public void onVehicleStatusUpdate(VehicleStatus vehicle) {
         overviewFragment.onVehicleStatusUpdate();
-        exteriorFragment.onVehicleStatusUpdate(ExteriorListItem.createExteriorListItems(vehicle));
+        exteriorFragment.onVehicleStatusUpdate(ExteriorListItem.createExteriorListItems(
+                getApplicationContext().getResources(),
+                vehicle));
         title.setText(controller.getVehicleName());
     }
 
@@ -196,7 +198,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements IConne
         } else {
             overviewFragment.onVehicleStatusUpdate();
             exteriorFragment.onVehicleStatusUpdate(ExteriorListItem.createExteriorListItems
-                    (controller.vehicle));
+                    (getApplicationContext().getResources(), controller.vehicle));
         }
     }
 

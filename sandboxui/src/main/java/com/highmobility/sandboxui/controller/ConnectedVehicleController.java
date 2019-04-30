@@ -28,6 +28,7 @@ import com.highmobility.autoapi.value.lights.ReadingLamp;
 import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.HMKit;
+import com.highmobility.hmkit.error.DownloadAccessCertificateError;
 import com.highmobility.queue.CommandFailure;
 import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
@@ -47,9 +48,12 @@ public class ConnectedVehicleController {
     public static final String EXTRA_USE_BLE = "EXTRA_USE_BLE";
     public static final String EXTRA_SERVICE_NAME = "EXTRA_SERVICE_NAME";
     public static final String EXTRA_ALIVE_PING_AMOUNT_NAME = "EXTRA_ALIVE";
+    // expects hmkit init values + accessToken separated by : (4 values)
+    public static final String EXTRA_INIT_INFO = "EXTRA_INIT_INFO";
 
     public boolean useBle;
     private String serviceName;
+    private String[] initInfo;
 
     public static VehicleStatus vehicle;
     public AccessCertificate certificate;
@@ -67,24 +71,14 @@ public class ConnectedVehicleController {
     public static ConnectedVehicleController create(IConnectedVehicleView view,
                                                     IConnectedVehicleBleView bleView,
                                                     Intent intent) {
-        byte[] vehicleSerialBytes = intent.getByteArrayExtra(EXTRA_SERIAL);
-        DeviceSerial vehicleSerial;
+        String vehicleSerialBytes = intent.getStringExtra(EXTRA_SERIAL);
         boolean useBle = intent.getBooleanExtra(EXTRA_USE_BLE, true);
         String serviceName = intent.getStringExtra(EXTRA_SERVICE_NAME);
-
-        AccessCertificate cert;
-        if (vehicleSerialBytes != null) {
-            vehicleSerial = new DeviceSerial(vehicleSerialBytes);
-            cert = HMKit.getInstance().getCertificate(vehicleSerial);
-        } else {
-            AccessCertificate[] certificates = HMKit.getInstance().getCertificates();
-            if (certificates == null || certificates.length < 1)
-                throw new IllegalStateException("HMKit not initialised");
-            cert = HMKit.getInstance().getCertificates()[0];
-            vehicleSerial = cert.getGainerSerial();
-        }
+        String initInfo = intent.getStringExtra(EXTRA_INIT_INFO);
 
         ConnectedVehicleController controller;
+
+        DeviceSerial vehicleSerial = null;
 
         if (useBle) {
             int alivePingInterval = intent.getIntExtra(EXTRA_ALIVE_PING_AMOUNT_NAME, -1);
@@ -93,7 +87,13 @@ public class ConnectedVehicleController {
             controller = new ConnectedVehicleTelematicsController(view);
         }
 
-        controller.certificate = cert;
+        if (vehicleSerialBytes != null) vehicleSerial = new DeviceSerial(vehicleSerialBytes);
+
+        if (initInfo != null) {
+            // we are expected to be initialised in this class
+            controller.initInfo = initInfo.split(":");
+        }
+
         controller.useBle = useBle;
         controller.vehicleSerial = vehicleSerial;
         controller.serviceName = serviceName;
@@ -194,6 +194,46 @@ public class ConnectedVehicleController {
         initialising = true;
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
 
+        // according to the controller params, find the certificate from the sdk
+        if (initInfo != null) {
+            if (initInfo.length != 4) throw new IllegalArgumentException("invalid init info");
+            hmKit.setDeviceCertificate(initInfo[0], initInfo[1], initInfo[2]);
+
+            if (vehicleSerial != null) certificate = hmKit.getCertificate(vehicleSerial);
+            if (certificate == null) {
+                hmKit.downloadAccessCertificate(initInfo[3], new HMKit.DownloadCallback() {
+                    @Override public void onDownloaded(DeviceSerial serial) {
+                        vehicleSerial = serial;
+                        certificate = hmKit.getCertificate(serial);
+                        sendInitCommands();
+                    }
+
+                    @Override
+                    public void onDownloadFailed(DownloadAccessCertificateError error) {
+                        throw new IllegalArgumentException("failed to download cert");
+                    }
+                });
+            } else {
+                sendInitCommands();
+            }
+        } else {
+            // we are expected to be initialised before
+            if (vehicleSerial != null) {
+                certificate = HMKit.getInstance().getCertificate(vehicleSerial);
+            } else {
+                AccessCertificate[] certificates = HMKit.getInstance().getCertificates();
+                if (certificates == null || certificates.length < 1)
+                    throw new IllegalStateException("No certificates in HMKit");
+                certificate = HMKit.getInstance().getCertificates()[0];
+                vehicleSerial = certificate.getGainerSerial();
+            }
+
+            if (certificate != null) sendInitCommands();
+            else throw new IllegalStateException("No certificate to send commands");
+        }
+    }
+
+    private void sendInitCommands() {
         // capabilities are required to know if action commands are available.
         queueCommand(new GetCapabilities(), Capabilities.TYPE);
         queueCommand(new GetVehicleStatus(), com.highmobility.autoapi.VehicleStatus.TYPE);

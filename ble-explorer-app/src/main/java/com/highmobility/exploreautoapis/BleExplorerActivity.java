@@ -81,7 +81,7 @@ public class BleExplorerActivity extends Activity {
         d("Certificate downloaded for vehicle: %s", serial);
         Intent i = new Intent(BleExplorerActivity.this, ConnectedVehicleActivity
                 .class);
-        i.putExtra(ConnectedVehicleController.EXTRA_SERIAL, serial.getByteArray());
+        i.putExtra(ConnectedVehicleController.EXTRA_SERIAL, serial.getHex());
         i.putExtra(ConnectedVehicleController.EXTRA_USE_BLE, true);
         i.putExtra(ConnectedVehicleActivity.EXTRA_FINISH_ON_BACK_PRESS, false);
         startActivity(i);
