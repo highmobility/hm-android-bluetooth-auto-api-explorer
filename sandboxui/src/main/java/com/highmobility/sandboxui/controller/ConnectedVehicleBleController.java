@@ -3,6 +3,8 @@ package com.highmobility.sandboxui.controller;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.Type;
@@ -19,6 +21,7 @@ import com.highmobility.hmkit.error.RevokeError;
 import com.highmobility.queue.BleCommandQueue;
 import com.highmobility.queue.CommandFailure;
 import com.highmobility.queue.IBleCommandQueue;
+import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
@@ -87,9 +90,12 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     // MARK: ConnectedVehicleController
 
     // this is called after the constructor so the view has access to this controller and vice versa
-    @Override public void init() {
-        super.init();
+    @Override public void onViewInitialised() {
+        super.onViewInitialised();
+    }
 
+    @Override protected void onCertificateDownloaded() {
+        super.onCertificateDownloaded();
         broadcaster = hmKit.getInstance().getBroadcaster();
         broadcaster.setListener(this);
         queue = new BleCommandQueue(iQueue);
@@ -299,6 +305,14 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         broadcaster.startBroadcasting(new Broadcaster.StartCallback() {
             @Override
             public void onBroadcastingStarted() {
+                bleView.setViewState(IConnectedVehicleView.ViewState.BROADCASTING);
+
+                if (SandboxUi.isRunningTest && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    VibrationEffect effect = VibrationEffect.createOneShot(2000,
+                            VibrationEffect.DEFAULT_AMPLITUDE);
+                    ((Vibrator) view.getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(effect);
+                }
+
                 if (alivePingInterval != -1) broadcaster.startAlivePinging(alivePingInterval);
                 onStateChanged(broadcaster.getState());
             }

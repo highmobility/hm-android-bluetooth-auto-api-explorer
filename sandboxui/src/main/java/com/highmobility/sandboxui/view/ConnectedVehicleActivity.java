@@ -83,7 +83,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements IConne
         }
 
         viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager(), controller.vehicle));
-        controller.init();
+        controller.onViewInitialised();
         if (controller.useBle) {
             // this has to happen after init
             broadcastFragment.onBroadcastingSerial(((ConnectedVehicleBleController) controller)
@@ -165,6 +165,7 @@ public class ConnectedVehicleActivity extends FragmentActivity implements IConne
                 showVehicleInfoView(true);
                 progressBar.setVisibility(View.INVISIBLE);
                 break;
+            case DOWNLOADING_CERT:
             case AUTHENTICATED_LOADING:
                 if (broadcastFragment != null)
                     broadcastFragment.getView().setVisibility(View.INVISIBLE);

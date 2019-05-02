@@ -68,49 +68,6 @@ public class ConnectedVehicleController {
         return vehicle.name;
     }
 
-    public static ConnectedVehicleController create(IConnectedVehicleView view,
-                                                    IConnectedVehicleBleView bleView,
-                                                    Intent intent) {
-        String vehicleSerialBytes = intent.getStringExtra(EXTRA_SERIAL);
-        boolean useBle = intent.getBooleanExtra(EXTRA_USE_BLE, true);
-        String serviceName = intent.getStringExtra(EXTRA_SERVICE_NAME);
-        String initInfo = intent.getStringExtra(EXTRA_INIT_INFO);
-
-        ConnectedVehicleController controller;
-
-        DeviceSerial vehicleSerial = null;
-
-        if (useBle) {
-            int alivePingInterval = intent.getIntExtra(EXTRA_ALIVE_PING_AMOUNT_NAME, -1);
-            controller = new ConnectedVehicleBleController(view, bleView, alivePingInterval);
-        } else {
-            controller = new ConnectedVehicleTelematicsController(view);
-        }
-
-        if (vehicleSerialBytes != null) vehicleSerial = new DeviceSerial(vehicleSerialBytes);
-
-        if (initInfo != null) {
-            // we are expected to be initialised in this class
-            controller.initInfo = initInfo.split(":");
-        }
-
-        controller.useBle = useBle;
-        controller.vehicleSerial = vehicleSerial;
-        controller.serviceName = serviceName;
-
-        return controller;
-    }
-
-    ConnectedVehicleController(boolean useBle, IConnectedVehicleView view) {
-        hmKit = hmKit.getInstance();
-        this.view = view;
-        this.useBle = useBle;
-        vehicle = new VehicleStatus();
-    }
-
-    public void init() {
-    }
-
     public void onLockDoorsClicked() {
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
         Lock lockState = vehicle.doorsLocked == true ? UNLOCKED : LOCKED;
@@ -190,12 +147,59 @@ public class ConnectedVehicleController {
         queueCommand(new GetVehicleStatus(), com.highmobility.autoapi.VehicleStatus.TYPE);
     }
 
-    public void readyToSendCommands() {
-        initialising = true;
-        view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
+    public static ConnectedVehicleController create(IConnectedVehicleView view,
+                                                    IConnectedVehicleBleView bleView,
+                                                    Intent intent) {
+        String vehicleSerialBytes = intent.getStringExtra(EXTRA_SERIAL);
+        boolean useBle = intent.getBooleanExtra(EXTRA_USE_BLE, true);
+        String serviceName = intent.getStringExtra(EXTRA_SERVICE_NAME);
+        String initInfo = intent.getStringExtra(EXTRA_INIT_INFO);
 
-        // according to the controller params, find the certificate from the sdk
+        ConnectedVehicleController controller;
+
+        DeviceSerial vehicleSerial = null;
+
+        if (useBle) {
+            int alivePingInterval = intent.getIntExtra(EXTRA_ALIVE_PING_AMOUNT_NAME, -1);
+            controller = new ConnectedVehicleBleController(view, bleView, alivePingInterval);
+        } else {
+            controller = new ConnectedVehicleTelematicsController(view);
+        }
+
+        if (vehicleSerialBytes != null) vehicleSerial = new DeviceSerial(vehicleSerialBytes);
+
         if (initInfo != null) {
+            // we are expected to be initialised in this class
+            controller.initInfo = initInfo.split(":");
+        }
+
+        controller.useBle = useBle;
+        controller.vehicleSerial = vehicleSerial;
+        controller.serviceName = serviceName;
+
+        return controller;
+    }
+
+    ConnectedVehicleController(boolean useBle, IConnectedVehicleView view) {
+        hmKit = hmKit.getInstance();
+        this.view = view;
+        this.useBle = useBle;
+        vehicle = new VehicleStatus();
+    }
+
+    public void onViewInitialised() {
+        downloadCertOrUseFromStorage();
+    }
+
+    protected void onCertificateDownloaded() {
+
+    }
+
+    protected void downloadCertOrUseFromStorage() {
+        // initInfo is used in instrumented tests
+        if (initInfo != null) {
+            view.setViewState(IConnectedVehicleView.ViewState.DOWNLOADING_CERT);
+
             if (initInfo.length != 4) throw new IllegalArgumentException("invalid init info");
             hmKit.setDeviceCertificate(initInfo[0], initInfo[1], initInfo[2]);
 
@@ -205,16 +209,16 @@ public class ConnectedVehicleController {
                     @Override public void onDownloaded(DeviceSerial serial) {
                         vehicleSerial = serial;
                         certificate = hmKit.getCertificate(serial);
-                        sendInitCommands();
+                        onCertificateDownloaded();
                     }
 
                     @Override
                     public void onDownloadFailed(DownloadAccessCertificateError error) {
-                        throw new IllegalArgumentException("failed to download cert");
+                        view.onError(true, "failed to download cert");
                     }
                 });
             } else {
-                sendInitCommands();
+                onCertificateDownloaded();
             }
         } else {
             // we are expected to be initialised before
@@ -223,14 +227,20 @@ public class ConnectedVehicleController {
             } else {
                 AccessCertificate[] certificates = HMKit.getInstance().getCertificates();
                 if (certificates == null || certificates.length < 1)
-                    throw new IllegalStateException("No certificates in HMKit");
+                    view.onError(true, "No certificates in HMKit");
                 certificate = HMKit.getInstance().getCertificates()[0];
                 vehicleSerial = certificate.getGainerSerial();
             }
 
-            if (certificate != null) sendInitCommands();
-            else throw new IllegalStateException("No certificate to send commands");
+            if (certificate != null) onCertificateDownloaded();
+            else view.onError(true, "No certificate to send commands");
         }
+    }
+
+    protected void readyToSendCommands() {
+        initialising = true;
+        view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
+        sendInitCommands();
     }
 
     private void sendInitCommands() {

@@ -50,8 +50,12 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
         }
     };
 
-    @Override public void init() {
-        super.init();
+    @Override public void onViewInitialised() {
+        super.onViewInitialised();
+    }
+
+    @Override protected void onCertificateDownloaded() {
+        super.onCertificateDownloaded();
         readyToSendCommands();
     }
 
