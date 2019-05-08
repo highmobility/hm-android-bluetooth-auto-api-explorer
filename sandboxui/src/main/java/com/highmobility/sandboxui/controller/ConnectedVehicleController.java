@@ -248,7 +248,7 @@ public class ConnectedVehicleController {
         // capabilities are required to know if action commands are available.
         queueCommand(new GetCapabilities(), Capabilities.TYPE);
         queueCommand(new GetVehicleStatus(), com.highmobility.autoapi.VehicleStatus.TYPE);
-        
+
         /*new Handler().postDelayed(() -> {
             onCommandReceived(new Bytes(("001001" +
                     "0100080100050020000112" +

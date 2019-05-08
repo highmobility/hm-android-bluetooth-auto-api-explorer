@@ -6,6 +6,7 @@ import com.highmobility.autoapi.ControlTrunk;
 import com.highmobility.autoapi.Failure;
 import com.highmobility.autoapi.GasFlapState;
 import com.highmobility.autoapi.GetGasFlapState;
+import com.highmobility.autoapi.Identifier;
 import com.highmobility.autoapi.LockState;
 import com.highmobility.autoapi.LockUnlockDoors;
 import com.highmobility.autoapi.Type;
@@ -340,7 +341,9 @@ public class CommandQueueTest {
         Command secondCommand = new GetGasFlapState();
 
         Failure firstResponse =
-                new Failure.Builder().setFailedTypeByte(new Property(LockUnlockDoors.TYPE.getType()))
+                new Failure.Builder()
+                        .setFailedTypeByte(new Property(LockUnlockDoors.TYPE.getType()))
+                        .setFailedIdentifier(new Property(Identifier.DOOR_LOCKS))
                         .setFailureReason(new Property(FailureReason.UNSUPPORTED_CAPABILITY)).build();
         queue.queue(firstCommand, LockState.TYPE);
         queue.queue(secondCommand, GasFlapState.TYPE);
@@ -355,7 +358,7 @@ public class CommandQueueTest {
         assertSame(failure[0].getReason(), CommandFailure.Reason.FAILURE_RESPONSE);
         assertNull(failure[0].getErrorObject());
         assertEquals(failure[0].getFailureResponse().getFailedType(), LockUnlockDoors.TYPE);
-        assertEquals(failure[0].getFailureResponse().getFailureReason(), FailureReason
+        assertEquals(failure[0].getFailureResponse().getFailureReason().getValue(), FailureReason
                 .UNSUPPORTED_CAPABILITY);
 
         assertEquals(1, commandsSent[0]); // assert get gas flap state was not sent.
@@ -370,7 +373,7 @@ public class CommandQueueTest {
                 new GasFlapState.Builder().setPosition(new Property(Position.CLOSED)).build();
         Command secondResponse =
                 new LockState.Builder().addInsideLock(new Property(new DoorLockState
-                (Location.FRONT_LEFT, Lock.LOCKED))).build();
+                        (Location.FRONT_LEFT, Lock.LOCKED))).build();
 
         queue.queue(firstCommand, LockState.TYPE);
 
