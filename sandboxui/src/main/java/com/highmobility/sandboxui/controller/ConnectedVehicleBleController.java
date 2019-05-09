@@ -3,8 +3,7 @@ package com.highmobility.sandboxui.controller;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
+import android.content.res.Resources;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.Type;
@@ -21,7 +20,7 @@ import com.highmobility.hmkit.error.RevokeError;
 import com.highmobility.queue.BleCommandQueue;
 import com.highmobility.queue.CommandFailure;
 import com.highmobility.queue.IBleCommandQueue;
-import com.highmobility.sandboxui.SandboxUi;
+import com.highmobility.sandboxui.R;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
@@ -45,12 +44,14 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     boolean isBroadcastingSerial;
     int alivePingInterval;
     SharedPreferences sharedPref;
+    Resources resources;
 
     ConnectedVehicleBleController(IConnectedVehicleView view, IConnectedVehicleBleView bleView,
                                   int alivePingInterval) {
         super(true, view);
         this.bleView = bleView;
         sharedPref = view.getActivity().getPreferences(Context.MODE_PRIVATE);
+        resources = view.getActivity().getResources();
         isBroadcastingSerial = sharedPref.getBoolean(IS_BROADCASTING_SERIAL_PREFS_KEY, false);
         this.alivePingInterval = alivePingInterval;
     }
@@ -171,20 +172,23 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     public void onStateChanged(State state) {
         switch (broadcaster.getState()) {
             case IDLE:
-                bleView.setBleInfo("Idle");
+                bleView.setBleInfo(resources.getString(R.string.idle));
 
                 if (state == BLUETOOTH_UNAVAILABLE) {
                     startBroadcasting();
                 }
+
                 break;
             case BLUETOOTH_UNAVAILABLE:
-                bleView.setBleInfo("Bluetooth N/A");
+                bleView.setBleInfo(resources.getString(R.string.ble_na));
+
                 break;
             case BROADCASTING:
                 if (link == null) {
-                    bleView.setBleInfo("Looking for links... " + hmKit
-                            .getBroadcaster().getName());
+                    bleView.setBleInfo(String.format(resources.getString(R.string.looking_for_links), hmKit
+                            .getBroadcaster().getName()));
                 }
+
                 break;
         }
     }
@@ -306,13 +310,6 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             @Override
             public void onBroadcastingStarted() {
                 bleView.setViewState(IConnectedVehicleView.ViewState.BROADCASTING);
-
-                if (SandboxUi.isRunningTest && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    VibrationEffect effect = VibrationEffect.createOneShot(2000,
-                            VibrationEffect.DEFAULT_AMPLITUDE);
-                    ((Vibrator) view.getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(effect);
-                }
-
                 if (alivePingInterval != -1) broadcaster.startAlivePinging(alivePingInterval);
                 onStateChanged(broadcaster.getState());
             }

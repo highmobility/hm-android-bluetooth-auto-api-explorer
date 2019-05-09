@@ -1,7 +1,6 @@
 package com.highmobility.sandboxui.controller;
 
 import android.content.Intent;
-import android.os.Handler;
 
 import com.highmobility.autoapi.Capabilities;
 import com.highmobility.autoapi.ClimateState;
@@ -248,53 +247,11 @@ public class ConnectedVehicleController {
         // capabilities are required to know if action commands are available.
         queueCommand(new GetCapabilities(), Capabilities.TYPE);
         queueCommand(new GetVehicleStatus(), com.highmobility.autoapi.VehicleStatus.TYPE);
-
-        /*new Handler().postDelayed(() -> {
-            onCommandReceived(new Bytes(("001001" +
-                    "0100080100050020000112" +
-                    "0100080100050021000112" +
-                    "010009010006002300011213" +
-                    "01000C010009002400011213141516" +
-                    "0100080100050025000112" +
-                    "010009010006002600011213" +
-                    "010009010006002700011204" +
-                    "0100080100050028000112" +
-                    "010006010003002912" +
-                    "01000701000400300001" +
-                    "0100080100050031000102")), null);
-            onCommandReceived(new Bytes("001101" +
-                    "0100140100114a46325348424443374348343531383639" +
-                    "02000401000101" +
-                    "030009010006547970652058" +
-                    "0400090100064d7920436172" +
-                    "050009010006414243313233" +
-                    "06000B0100085061636B6167652B" +
-                    "07000501000207E1" +
-                    "08000F01000C4573746f72696c20426c6175" +
-                    "09000501000200DC" +
-                    "0A000401000105" +
-                    "0B000401000105" +
-                    "0C000701000440200000" +
-                    "0D000501000200F5" +
-                    "0E000401000101" +
-                    "9900140100110021010100040100010002000401000101" + // Trunk open
-                    "99000D01000A00270101000401000102" + // Remote Control Started
-                    "99004601004300200102000501000200000200050100020100030005010002000103000501000201010400050100020001040005010002010004000501000202000400050100020300" +
-                    // l8
-                    "0F000401000100" + // display unit km
-                    "10000401000100" + // driver seat left
-                    "11001201000F5061726B696E672073656E736F7273" + // Parking sensors
-                    "1100130100104175746F6D6174696320776970657273" + // Automatic wipers
-                    // l9
-                    "12000B0100084D65726365646573"
-            ), null);
-        }, 300);*/
-
     }
 
     public Intent willDestroy() {
-        return new Intent().putExtra(ConnectedVehicleActivity.EXTRA_VEHICLE_SERIAL, vehicleSerial
-                .getByteArray());
+        return new Intent().putExtra(ConnectedVehicleActivity.EXTRA_VEHICLE_SERIAL,
+                vehicleSerial.getByteArray());
     }
 
     public void onDestroy() {
