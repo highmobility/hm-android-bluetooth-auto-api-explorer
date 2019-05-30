@@ -1,6 +1,6 @@
 package com.highmobility.sandboxui.model;
 
-import android.util.Log;
+
 
 import com.highmobility.autoapi.Capabilities;
 import com.highmobility.autoapi.ChargeState;
@@ -16,6 +16,8 @@ import com.highmobility.autoapi.value.Lock;
 import com.highmobility.autoapi.value.Position;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.Link;
+
+import static timber.log.Timber.e;
 
 /**
  * This class will keep the state of the vehicle according to commands received.
@@ -64,7 +66,7 @@ public class VehicleStatus {
             name = status.getName().getValue();
             Property<Command>[] states = status.getStates();
             if (states == null) {
-                Log.e(TAG, "update: null featureStates");
+                e("update: null featureStates");
                 return;
             }
 

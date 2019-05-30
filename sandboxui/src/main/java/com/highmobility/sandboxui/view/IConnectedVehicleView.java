@@ -21,6 +21,7 @@ public interface IConnectedVehicleView {
     Activity getActivity();
 
     enum ViewState {
+        DOWNLOADING_CERT,
         BROADCASTING,
         CONNECTED,
         AUTHENTICATING,

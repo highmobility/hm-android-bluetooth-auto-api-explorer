@@ -1,8 +1,5 @@
 package com.highmobility.sandboxui.controller;
 
-import androidx.annotation.Nullable;
-import android.util.Log;
-
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.Type;
 import com.highmobility.hmkit.Telematics;
@@ -10,9 +7,12 @@ import com.highmobility.hmkit.error.TelematicsError;
 import com.highmobility.queue.CommandFailure;
 import com.highmobility.queue.ICommandQueue;
 import com.highmobility.queue.TelematicsCommandQueue;
-import com.highmobility.sandboxui.SandboxUi;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
 import com.highmobility.value.Bytes;
+
+import androidx.annotation.Nullable;
+
+import static timber.log.Timber.e;
 
 /**
  * Created by root on 24/05/2017.
@@ -43,16 +43,19 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
                         }
 
                         @Override public void onCommandFailed(TelematicsError telematicsError) {
-                            Log.e(SandboxUi.TAG, "send telematics command error: " + telematicsError
-                                    .getMessage());
+                            e("send telematics command error: %s", telematicsError.getMessage());
                             queue.onCommandFailedToSend(command, telematicsError);
                         }
                     });
         }
     };
 
-    @Override public void init() {
-        super.init();
+    @Override public void onViewInitialised() {
+        super.onViewInitialised();
+    }
+
+    @Override protected void onCertificateDownloaded() {
+        super.onCertificateDownloaded();
         readyToSendCommands();
     }
 
