@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="frontLightsTitle">FRONT LIGHTS</string>
+    <string name="looking_for_links">Looking for links: %s</string>
+    <string name="idle">Idle</string>
+    <string name="ble_na">Bluetooth N/A</string>
+</resources>

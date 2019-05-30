@@ -2,7 +2,6 @@ package com.highmobility.sandboxui.controller;
 
 import android.content.Intent;
 import android.os.CountDownTimer;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.highmobility.autoapi.Command;
@@ -25,6 +24,8 @@ import com.highmobility.utils.ByteUtils;
 import com.highmobility.value.Bytes;
 
 import java.util.List;
+
+import static timber.log.Timber.d;
 
 /**
  * Created by root on 02/06/2017.
@@ -96,7 +97,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
             onControlModeUpdate(controlMode);
         } else if (command instanceof Failure) {
             Failure failure = (Failure) command;
-            Log.d(TAG, "failure " + failure.getFailureReason().toString());
+            d("failure %s", failure.getFailureReason().toString());
             if (initializing) {
                 onInitializeFinished(1, ByteUtils.hexFromBytes(failure.getFailedType()
                         .getIdentifierAndType())
@@ -158,7 +159,8 @@ public class RemoteControlController implements IRemoteControlController, Connec
     }
 
     void onControlModeUpdate(ControlMode controlMode) {
-        Log.d(TAG, controlMode.getMode().toString());
+        d("onControlModeUpdate(): %s", controlMode.getMode().toString());
+
         ControlMode.Value controlModeValue = controlMode.getMode().getValue();
 
         if (initializing) {
@@ -249,6 +251,6 @@ public class RemoteControlController implements IRemoteControlController, Connec
 
     void showToast(String text) {
         Toast.makeText(view.getActivity(), text, Toast.LENGTH_LONG).show();
-        Log.d(TAG, text);
+        d(text);
     }
 }

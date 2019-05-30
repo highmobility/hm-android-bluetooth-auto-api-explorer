@@ -3,7 +3,7 @@ package com.highmobility.sandboxui.controller;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
+import android.content.res.Resources;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.Type;
@@ -20,7 +20,7 @@ import com.highmobility.hmkit.error.RevokeError;
 import com.highmobility.queue.BleCommandQueue;
 import com.highmobility.queue.CommandFailure;
 import com.highmobility.queue.IBleCommandQueue;
-import com.highmobility.sandboxui.SandboxUi;
+import com.highmobility.sandboxui.R;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
@@ -30,6 +30,8 @@ import com.highmobility.value.Bytes;
 import java.util.List;
 
 import static com.highmobility.hmkit.Broadcaster.State.BLUETOOTH_UNAVAILABLE;
+import static timber.log.Timber.d;
+import static timber.log.Timber.e;
 
 public class ConnectedVehicleBleController extends ConnectedVehicleController implements
         BroadcasterListener, ConnectedLinkListener {
@@ -42,12 +44,14 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     boolean isBroadcastingSerial;
     int alivePingInterval;
     SharedPreferences sharedPref;
+    Resources resources;
 
     ConnectedVehicleBleController(IConnectedVehicleView view, IConnectedVehicleBleView bleView,
                                   int alivePingInterval) {
         super(true, view);
         this.bleView = bleView;
         sharedPref = view.getActivity().getPreferences(Context.MODE_PRIVATE);
+        resources = view.getActivity().getResources();
         isBroadcastingSerial = sharedPref.getBoolean(IS_BROADCASTING_SERIAL_PREFS_KEY, false);
         this.alivePingInterval = alivePingInterval;
     }
@@ -87,9 +91,12 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     // MARK: ConnectedVehicleController
 
     // this is called after the constructor so the view has access to this controller and vice versa
-    @Override public void init() {
-        super.init();
+    @Override public void onViewInitialised() {
+        super.onViewInitialised();
+    }
 
+    @Override protected void onCertificateDownloaded() {
+        super.onCertificateDownloaded();
         broadcaster = hmKit.getInstance().getBroadcaster();
         broadcaster.setListener(this);
         queue = new BleCommandQueue(iQueue);
@@ -115,7 +122,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         // link could be lost at any time and for instance on initialize it could try to send
         // commands without checking
         if (link == null) {
-            Log.e(SandboxUi.TAG, "queueCommand: no connected link");
+            e("queueCommand: no connected link");
             return;
         }
 
@@ -165,20 +172,23 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     public void onStateChanged(State state) {
         switch (broadcaster.getState()) {
             case IDLE:
-                bleView.setBleInfo("Idle");
+                bleView.setBleInfo(resources.getString(R.string.idle));
 
                 if (state == BLUETOOTH_UNAVAILABLE) {
                     startBroadcasting();
                 }
+
                 break;
             case BLUETOOTH_UNAVAILABLE:
-                bleView.setBleInfo("Bluetooth N/A");
+                bleView.setBleInfo(resources.getString(R.string.ble_na));
+
                 break;
             case BROADCASTING:
                 if (link == null) {
-                    bleView.setBleInfo("Looking for links... " + hmKit
-                            .getBroadcaster().getName());
+                    bleView.setBleInfo(String.format(resources.getString(R.string.looking_for_links), hmKit
+                            .getBroadcaster().getName()));
                 }
+
                 break;
         }
     }
@@ -186,7 +196,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     @Override
     public void onLinkReceived(ConnectedLink connectedLink) {
         if (link != null) {
-            Log.d(SandboxUi.TAG, "received new link, ignore");
+            d("received new link, ignore");
             return;
         }
 
@@ -196,7 +206,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         vehicle.onLinkConnected(link);
         bleView.setViewState(IConnectedVehicleView.ViewState.CONNECTED);
 
-        Log.d(SandboxUi.TAG, "onLinkReceived: ");
+        d("onLinkReceived: ");
     }
 
     // Link listener
@@ -209,7 +219,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             onStateChanged(broadcaster.getState());
             bleView.setViewState(IConnectedVehicleView.ViewState.BROADCASTING);
             vehicle.vehicleConnectedWithBle = null;
-            Log.d(SandboxUi.TAG, "onLinkLost: ");
+            d("onLinkLost: ");
 
             if (initialising) {
                 queue.purge();
@@ -217,7 +227,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
                 initialising = false;
             }
         } else {
-            Log.d(SandboxUi.TAG, "unknown link lost");
+            d("unknown link lost");
         }
     }
 
@@ -235,7 +245,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
     @Override
     public void onStateChanged(Link link, Link.State state) {
-        Log.d(SandboxUi.TAG, "link state changed " + link.getState());
+        d("link state changed %s", link.getState());
         if (link == this.link) {
             String stateString = "link: " + link.getState().toString().toLowerCase();
 
@@ -299,6 +309,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         broadcaster.startBroadcasting(new Broadcaster.StartCallback() {
             @Override
             public void onBroadcastingStarted() {
+                bleView.setViewState(IConnectedVehicleView.ViewState.BROADCASTING);
                 if (alivePingInterval != -1) broadcaster.startAlivePinging(alivePingInterval);
                 onStateChanged(broadcaster.getState());
             }
@@ -306,7 +317,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             @Override
             public void onBroadcastingFailed(BroadcastError broadcastError) {
                 onStateChanged(broadcaster.getState());
-                Log.e(SandboxUi.TAG, "cant start broadcasting " + broadcastError.getType());
+                e("cant start broadcasting %s", broadcastError.getType());
             }
         }, conf);
     }

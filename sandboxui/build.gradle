@@ -1,14 +1,16 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 group "com.highmobility"
 version "1.7.1"
 
 android {
-    compileSdkVersion = rootProject.ext.compileSdkVersion
+    compileSdkVersion = ver.compileSdk
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion rootProject.ext.compileSdkVersion
+        targetSdkVersion ver.compileSdk
         versionCode 1
         versionName "${version}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -29,25 +31,27 @@ android {
 
 dependencies {
     if (project.hasProperty('releaseType') == false || project.releaseType > 0) {
-        implementation("com.highmobility:hmkit-android:${project.hmkitVersion}@aar") {
+        implementation(deps.hmkit) {
             transitive = true
         }
-        implementation("com.highmobility:hmkit-auto-api:${project.autoApiVersion}")
+        implementation deps.autoApi
+        implementation deps.timber
     } else {
         implementation project(path: ':hmkit-android')
         implementation project(path: ':hmkit-crypto')
         implementation project(path: ':hmkit-utils')
-        implementation("com.highmobility:hmkit-auto-api:${rootProject.ext.autoApiVersion}") {
+        implementation(deps.autoApi) {
             exclude group: 'com.highmobility', module: 'hmkit-utils'
         }
+        implementation deps.timber
     }
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'info.hoang8f:android-segmented:1.0.6'
-    implementation 'com.jakewharton.timber:timber:4.7.1'
-    implementation('com.google.code.findbugs:jsr305:3.0.2')
+    implementation deps.findBugs
 
     testImplementation 'junit:junit:4.12'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 task sourcesJar(type: Jar) {

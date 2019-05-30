@@ -44,7 +44,7 @@ public class VehicleExteriorFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_vehicle_exterior, container, false);
-        listView = v.findViewById(R.id.list_view);
+        listView = v.findViewById(R.id.vehicle_exterior_list_view);
         return v;
     }
 
