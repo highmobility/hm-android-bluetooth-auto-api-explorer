@@ -78,6 +78,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     }
 
     public void onBroadcastSerialSwitchChanged(boolean on) {
+        if (broadcaster == null) return; // in tests the cert is downloaded first
         broadcaster.stopBroadcasting();
 
         isBroadcastingSerial = on;
