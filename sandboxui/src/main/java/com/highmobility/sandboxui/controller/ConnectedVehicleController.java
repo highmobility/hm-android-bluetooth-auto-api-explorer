@@ -201,6 +201,11 @@ public class ConnectedVehicleController {
             view.setViewState(IConnectedVehicleView.ViewState.DOWNLOADING_CERT);
 
             if (initInfo.length != 4) throw new IllegalArgumentException("invalid init info");
+            try {
+                HMKit.getInstance().initialise(view.getActivity());
+            } catch (Exception e) {
+            }
+
             hmKit.setDeviceCertificate(initInfo[0], initInfo[1], initInfo[2]);
 
             if (vehicleSerial != null) certificate = hmKit.getCertificate(vehicleSerial);

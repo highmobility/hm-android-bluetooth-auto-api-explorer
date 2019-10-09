@@ -164,7 +164,7 @@ class InstrABluetooth : BaseConnectedVehicle() {
             var matched = false
 
             if (BluetoothAdapter.getDefaultAdapter().isEnabled == active) {
-                Thread.sleep(1000) // wait for the system callback to happen so SDK state is reflected
+                Thread.sleep(3000) // wait for the system callback to happen so SDK state is reflected
                 matched = true
             }
 

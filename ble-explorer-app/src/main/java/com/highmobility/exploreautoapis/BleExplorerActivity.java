@@ -28,8 +28,6 @@ public class BleExplorerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        // get logs from HMKit
-        Timber.plant(new Timber.DebugTree());
 
         /*
          * Before using HMKit, you'll have to initialise the HMKit singleton
