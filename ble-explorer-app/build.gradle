@@ -42,6 +42,7 @@ configurations.all {
 
 dependencies {
     implementation project(path: ':sandboxui')
+
     if (project.hasProperty('releaseType') == false || project.releaseType > 0) {
         implementation(deps.hmkit) {
             transitive = true
@@ -51,10 +52,17 @@ dependencies {
         implementation project(path: ':hmkit-crypto')
         implementation project(path: ':hmkit-utils')
     }
-    implementation 'com.jakewharton.timber:timber:4.7.1'
+
+    implementation(deps.autoApi) {
+        exclude group: 'com.highmobility', module: 'hmkit-utils'
+    }
+    implementation deps.timber
     implementation 'com.jakewharton:butterknife:10.0.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     // test
     testImplementation 'junit:junit:4.12'
