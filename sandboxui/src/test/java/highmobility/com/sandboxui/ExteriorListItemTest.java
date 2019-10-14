@@ -77,7 +77,7 @@ public class ExteriorListItemTest {
                 ExteriorListItem.getItem(ExteriorListItem.Type.FRONT_EXTERIOR_LIGHT_STATE, items);
         assertTrue(item.iconResId == R.drawable.ext_front_lights_off);
         vehicle.lightsState =
-                new LightsState.Builder().setFrontExteriorLightState(new Property(FrontExteriorLightState.ACTIVE_FULL_BEAM)).build();
+                new LightsState.Builder().setFrontExteriorLightState(new Property(FrontExteriorLightState.ACTIVE_WITH_FULL_BEAM)).build();
 
         items = ExteriorListItem.createExteriorListItems(resources, vehicle);
         item = ExteriorListItem.getItem(ExteriorListItem.Type.FRONT_EXTERIOR_LIGHT_STATE, items);
@@ -90,7 +90,7 @@ public class ExteriorListItemTest {
         // check that segment count is correct
         VehicleStatus vehicle = new VehicleStatus();
         vehicle.lightsState =
-                new LightsState.Builder().setFrontExteriorLightState(new Property(FrontExteriorLightState.ACTIVE_FULL_BEAM)).build();
+                new LightsState.Builder().setFrontExteriorLightState(new Property(FrontExteriorLightState.ACTIVE_WITH_FULL_BEAM)).build();
 
         vehicle.doorsLocked = false;
         ExteriorListItem[] items = ExteriorListItem.createExteriorListItems(resources, vehicle);
@@ -174,7 +174,7 @@ public class ExteriorListItemTest {
         vehicle.rooftopOpenPercentage = 1d;
 
         vehicle.lightsState =
-                new LightsState.Builder().setFrontExteriorLightState(new Property(FrontExteriorLightState.ACTIVE_FULL_BEAM)).build();
+                new LightsState.Builder().setFrontExteriorLightState(new Property(FrontExteriorLightState.ACTIVE_WITH_FULL_BEAM)).build();
         Capabilities capas = new Capabilities.Builder()
                 .addCapability(new Property(new Capability(Identifier.ROOFTOP,
                         new Type[]{ControlRooftop.TYPE})))

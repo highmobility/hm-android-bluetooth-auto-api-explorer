@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 
 import com.highmobility.autoapi.Command;
-import com.highmobility.autoapi.Type;
+import com.highmobility.autoapi.CommandResolver;
 import com.highmobility.hmkit.BroadcastConfiguration;
 import com.highmobility.hmkit.Broadcaster;
 import com.highmobility.hmkit.Broadcaster.State;
@@ -118,8 +118,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         if (linkExists == false) startBroadcasting();
     }
 
-    @Override
-    void queueCommand(Command command, Type response) {
+    @Override <T extends Command> void queueCommand(Command command, Class<T> response) {
         // link could be lost at any time and for instance on initialize it could try to send
         // commands without checking
         if (link == null) {
@@ -264,7 +263,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
     @Override
     public void onCommandReceived(Link link, Bytes bytes) {
-        queue.onCommandReceived(bytes);
+        queue.onCommandReceived(CommandResolver.resolve(bytes));
     }
 
     // private
@@ -274,7 +273,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             // we dont care about ack
         }
 
-        @Override public void onCommandReceived(Bytes command, Command sentCommand) {
+        @Override public void onCommandReceived(Command command, Command sentCommand) {
             ConnectedVehicleBleController.this.onCommandReceived(command, sentCommand);
         }
 

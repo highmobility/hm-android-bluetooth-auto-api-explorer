@@ -9,8 +9,7 @@ import com.highmobility.autoapi.ControlTrunk;
 import com.highmobility.autoapi.LightsState;
 import com.highmobility.autoapi.LockUnlockDoors;
 import com.highmobility.autoapi.StartStopDefrosting;
-import com.highmobility.autoapi.value.Lock;
-import com.highmobility.autoapi.value.lights.FrontExteriorLightState;
+import com.highmobility.autoapi.value.LockState;
 import com.highmobility.sandboxui.R;
 
 import java.util.ArrayList;
@@ -33,14 +32,17 @@ public class ExteriorListItem {
     /**
      * Create the items that are displayed in exterior list view from VehicleStatus.
      */
-    public static ExteriorListItem[] createExteriorListItems(Resources resources, VehicleStatus vehicle) {
+    public static ExteriorListItem[] createExteriorListItems(Resources resources,
+                                                             VehicleStatus vehicle) {
         ArrayList<ExteriorListItem> builder = new ArrayList<>();
 
         // create the items:
         if (vehicle.doorsLocked != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.DOORS_LOCKED;
-            item.actionSupported = vehicle.isSupported(LockUnlockDoors.TYPE);
+
+            item.actionSupported = vehicle.isSupported(LockUnlockDoors.IDENTIFIER,
+                    LockUnlockDoors.IDENTIFIER_INSIDE_LOCKS_STATE);
             item.title = "DOOR LOCKS";
 
             item.segmentCount = 2;
@@ -66,13 +68,14 @@ public class ExteriorListItem {
         if (vehicle.trunkLockState != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.TRUNK_LOCK_STATE;
-            item.actionSupported = vehicle.isSupported(ControlTrunk.TYPE);
+            item.actionSupported = vehicle.isSupported(ControlTrunk.IDENTIFIER,
+                    ControlTrunk.IDENTIFIER_LOCK);
             item.title = "TRUNK LOCK";
 
             item.segmentCount = 2;
             item.segmentTitles = new String[2];
 
-            if (vehicle.trunkLockState == Lock.LOCKED) {
+            if (vehicle.trunkLockState == LockState.LOCKED) {
                 item.stateTitle = "LOCKED";
                 item.segmentTitles[0] = "LOCKED";
                 item.segmentTitles[1] = "UNLOCK";
@@ -91,7 +94,8 @@ public class ExteriorListItem {
         if (vehicle.isWindshieldDefrostingActive != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.IS_WINDSHIELD_DEFROSTING_ACTIVE;
-            item.actionSupported = vehicle.isSupported(StartStopDefrosting.TYPE);
+            item.actionSupported = vehicle.isSupported(StartStopDefrosting.IDENTIFIER,
+                    StartStopDefrosting.IDENTIFIER_DEFROSTING_STATE);
             item.title = "WINDSHIELD HEATING";
 
             item.segmentCount = 2;
@@ -117,7 +121,8 @@ public class ExteriorListItem {
         if (vehicle.rooftopDimmingPercentage != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.ROOFTOP_DIMMING_PERCENTAGE;
-            item.actionSupported = vehicle.isSupported(ControlRooftop.TYPE);
+            item.actionSupported = vehicle.isSupported(ControlRooftop.IDENTIFIER,
+                    ControlRooftop.IDENTIFIER_DIMMING);
             item.title = "ROOFTOP DIMMING";
 
             item.segmentCount = 2;
@@ -141,7 +146,8 @@ public class ExteriorListItem {
         if (vehicle.rooftopOpenPercentage != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.ROOFTOP_OPEN_PERCENTAGE;
-            item.actionSupported = vehicle.isSupported(ControlRooftop.TYPE);
+            item.actionSupported = vehicle.isSupported(ControlRooftop.IDENTIFIER,
+                    ControlRooftop.IDENTIFIER_POSITION);
             item.title = "ROOFTOP OPENING";
 
             item.segmentCount = 2;
@@ -164,11 +170,13 @@ public class ExteriorListItem {
             builder.add(item);
         }
 
-        if (vehicle.lightsState != null && vehicle.lightsState.getFrontExteriorLightState().getValue() != null) {
-            FrontExteriorLightState lightsState = vehicle.lightsState.getFrontExteriorLightState().getValue();
+        if (vehicle.lightsState != null && vehicle.lightsState.getFrontExteriorLight().getValue() != null) {
+            LightsState.FrontExteriorLight lightsState =
+                    vehicle.lightsState.getFrontExteriorLight().getValue();
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.FRONT_EXTERIOR_LIGHT_STATE;
-            item.actionSupported = vehicle.isSupported(ControlLights.TYPE);
+            item.actionSupported = vehicle.isSupported(ControlLights.IDENTIFIER,
+                    ControlLights.IDENTIFIER_FRONT_EXTERIOR_LIGHT);
             item.title = resources.getString(R.string.frontLightsTitle);
 
             item.segmentCount = 3;
@@ -178,15 +186,15 @@ public class ExteriorListItem {
             item.segmentTitles[1] = "ACTIVE";
             item.segmentTitles[2] = "FULL BEAM";
 
-            if (lightsState == FrontExteriorLightState.INACTIVE) {
+            if (lightsState == LightsState.FrontExteriorLight.INACTIVE) {
                 item.stateTitle = item.segmentTitles[0];
                 item.iconResId = R.drawable.ext_front_lights_off;
                 item.selectedSegment = 0;
-            } else if (lightsState == FrontExteriorLightState.ACTIVE) {
+            } else if (lightsState == LightsState.FrontExteriorLight.ACTIVE) {
                 item.stateTitle = item.segmentTitles[1];
                 item.iconResId = R.drawable.ext_front_lights_on;
                 item.selectedSegment = 1;
-            } else if (lightsState == FrontExteriorLightState.ACTIVE_FULL_BEAM) {
+            } else if (lightsState == LightsState.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM) {
                 item.stateTitle = item.segmentTitles[2];
                 item.iconResId = R.drawable.ext_front_lights_full_beam;
                 item.selectedSegment = 2;
@@ -195,7 +203,7 @@ public class ExteriorListItem {
             builder.add(item);
         }
 
-        if (vehicle.isSupported(ControlCommand.TYPE)) {
+        if (vehicle.isRemoteControlSupported()) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.REMOTE_CONTROL;
             item.title = "REMOTE CONTROL";

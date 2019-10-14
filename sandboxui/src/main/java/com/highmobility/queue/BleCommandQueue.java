@@ -59,7 +59,7 @@ public class BleCommandQueue extends CommandQueue {
      * @param command The command and its response that will be queued.
      * @return false if cannot queue at this time - maybe this command type is already queued.
      */
-    public boolean queue(Command command, Type responseType) {
+    public <T extends Command> boolean queue(Command command, Class<T> responseType) {
         if (typeAlreadyQueued(command)) return false;
         QueueItem_ item = new QueueItem_(command, responseType);
         items.add(item);
@@ -80,7 +80,7 @@ public class BleCommandQueue extends CommandQueue {
         if (command.getType().equals(item.commandSent.getType())) {
             // if only waiting for an ack then finish the item
             ((IBleCommandQueue) listener).onCommandAck(item.commandSent);
-            if (item.responseType == null) {
+            if (item.responseClass == null) {
                 items.remove(0);
                 sendItem();
             }

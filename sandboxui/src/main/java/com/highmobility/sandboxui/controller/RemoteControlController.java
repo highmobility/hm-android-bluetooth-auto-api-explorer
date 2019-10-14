@@ -7,10 +7,11 @@ import android.widget.Toast;
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.CommandResolver;
 import com.highmobility.autoapi.ControlCommand;
-import com.highmobility.autoapi.ControlMode;
-import com.highmobility.autoapi.Failure;
-import com.highmobility.autoapi.GetControlMode;
-import com.highmobility.autoapi.StartControlMode;
+
+import com.highmobility.autoapi.FailureMessageState;
+import com.highmobility.autoapi.GetControlState;
+import com.highmobility.autoapi.RemoteControlState;
+import com.highmobility.autoapi.StartControl;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
 import com.highmobility.hmkit.HMKit;
@@ -92,15 +93,14 @@ public class RemoteControlController implements IRemoteControlController, Connec
     public void onCommandReceived(Link link, Bytes bytes) {
         Command command = CommandResolver.resolve(bytes);
 
-        if (command instanceof ControlMode) {
-            ControlMode controlMode = (ControlMode) command;
-            onControlModeUpdate(controlMode);
-        } else if (command instanceof Failure) {
-            Failure failure = (Failure) command;
+        if (command instanceof RemoteControlState) {
+            RemoteControlState controlMode = (RemoteControlState) command;
+            onRemoteControlStateUpdate(controlMode);
+        } else if (command instanceof FailureMessageState) {
+            FailureMessageState failure = (FailureMessageState) command;
             d("failure %s", failure.getFailureReason().toString());
             if (initializing) {
-                onInitializeFinished(1, ByteUtils.hexFromBytes(failure.getFailedType()
-                        .getIdentifierAndType())
+                onInitializeFinished(1, failure.getFailedMessageID() + " " + failure.getFailedMessageType()
                         + " failed: " + failure.getFailureReason().toString());
             } else {
                 onCommandFinished(failure.getFailureReason().toString());
@@ -145,7 +145,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
         view.showLoadingView(true);
         startInitializeTimer();
 
-        link.sendCommand(new GetControlMode(), new Link.CommandCallback() {
+        link.sendCommand(new GetControlState(), new Link.CommandCallback() {
             @Override
             public void onCommandSent() {
 
@@ -158,15 +158,15 @@ public class RemoteControlController implements IRemoteControlController, Connec
         });
     }
 
-    void onControlModeUpdate(ControlMode controlMode) {
-        d("onControlModeUpdate(): %s", controlMode.getMode().toString());
+    void onRemoteControlStateUpdate(RemoteControlState remoteControl) {
+        d("onRemoteControlStateUpdate(): %s", remoteControl.getControlMode().toString());
 
-        ControlMode.Value controlModeValue = controlMode.getMode().getValue();
+        RemoteControlState.ControlMode controlModeValue = remoteControl.getControlMode().getValue();
 
         if (initializing) {
             // we are initializing
-            if (controlModeValue == ControlMode.Value.AVAILABLE) {
-                link.sendCommand(new StartControlMode(true), new Link.CommandCallback() {
+            if (controlModeValue == RemoteControlState.ControlMode.AVAILABLE) {
+                link.sendCommand(new StartControl(), new Link.CommandCallback() {
                     @Override
                     public void onCommandSent() {
                         // wait for the control command
@@ -177,12 +177,12 @@ public class RemoteControlController implements IRemoteControlController, Connec
                         onInitializeFinished(1, linkError.getType() + ": Cant start control mode");
                     }
                 });
-            } else if (controlModeValue == ControlMode.Value.STARTED) {
+            } else if (controlModeValue == RemoteControlState.ControlMode.STARTED) {
                 onInitializeFinished(0, "");
             } else {
                 onInitializeFinished(1, "Bad control mode " + controlModeValue);
             }
-        } else if (controlModeValue != ControlMode.Value.STARTED) {
+        } else if (controlModeValue != RemoteControlState.ControlMode.STARTED) {
             onInitializeFinished(1, "Bad control mode " + controlModeValue);
         }
     }

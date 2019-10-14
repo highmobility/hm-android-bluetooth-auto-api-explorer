@@ -12,7 +12,7 @@ public interface ICommandQueue {
      * @param command     The response.
      * @param sentCommand The sent command. Null if an irrelevant command was received.
      */
-    void onCommandReceived(Bytes command, @Nullable Command sentCommand);
+    void onCommandReceived(Command command, @Nullable Command sentCommand);
 
     /**
      * Called when a command failed. If this happens, the queue is cleared as well.

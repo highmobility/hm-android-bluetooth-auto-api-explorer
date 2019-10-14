@@ -1,18 +1,18 @@
 package com.highmobility.sandboxui.model;
 
-
-
-import com.highmobility.autoapi.Capabilities;
-import com.highmobility.autoapi.ChargeState;
+import com.highmobility.autoapi.CapabilitiesState;
+import com.highmobility.autoapi.ChargingState;
 import com.highmobility.autoapi.ClimateState;
 import com.highmobility.autoapi.Command;
+import com.highmobility.autoapi.ControlCommand;
+import com.highmobility.autoapi.DoorsState;
+import com.highmobility.autoapi.Identifier;
 import com.highmobility.autoapi.LightsState;
-import com.highmobility.autoapi.LockState;
-import com.highmobility.autoapi.RooftopState;
+import com.highmobility.autoapi.RooftopControlState;
 import com.highmobility.autoapi.TrunkState;
-import com.highmobility.autoapi.Type;
 import com.highmobility.autoapi.property.Property;
-import com.highmobility.autoapi.value.Lock;
+import com.highmobility.autoapi.value.ActiveState;
+import com.highmobility.autoapi.value.LockState;
 import com.highmobility.autoapi.value.Position;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.Link;
@@ -23,7 +23,7 @@ import static timber.log.Timber.e;
  * This class will keep the state of the vehicle according to commands received.
  */
 public class VehicleStatus {
-    public static final String TAG = "VehicleStatus";
+    public static final String TAG = "VehicleStatusState";
     // means SDK cannot be terminated
     public static DeviceSerial vehicleConnectedWithBle;
 
@@ -41,7 +41,7 @@ public class VehicleStatus {
     public Double batteryPercentage;
 
     public Boolean doorsLocked;
-    public Lock trunkLockState;
+    public LockState trunkLockState;
     public Position trunkLockPosition;
     public Boolean isWindshieldDefrostingActive;
     public Double rooftopDimmingPercentage;
@@ -52,16 +52,16 @@ public class VehicleStatus {
 
     public int[] lightsAmbientColor;
 
-    private Capabilities capabilities;
+    private CapabilitiesState capabilities;
 
-    public Capabilities getCapabilities() {
+    public CapabilitiesState getCapabilitiesState() {
         return capabilities;
     }
 
     public void update(Command command) {
-        if (command instanceof com.highmobility.autoapi.VehicleStatus) {
-            com.highmobility.autoapi.VehicleStatus status = (com.highmobility.autoapi
-                    .VehicleStatus) command;
+        if (command instanceof com.highmobility.autoapi.VehicleStatusState) {
+            com.highmobility.autoapi.VehicleStatusState status = (com.highmobility.autoapi
+                    .VehicleStatusState) command;
 
             name = status.getName().getValue();
             Property<Command>[] states = status.getStates();
@@ -76,25 +76,25 @@ public class VehicleStatus {
         } else if (command instanceof ClimateState) {
             ClimateState state = (ClimateState) command;
             insideTemperature = state.getInsideTemperature().getValue();
-            isWindshieldDefrostingActive = state.isDefrostingActive().getValue();
-        } else if (command instanceof LockState) {
-            LockState state = (LockState) command;
-            doorsLocked = state.isLocked();
+            isWindshieldDefrostingActive = state.getDefrostingState().getValue() == ActiveState.ACTIVE;
+        } else if (command instanceof DoorsState) {
+            DoorsState state = (DoorsState) command;
+            doorsLocked = state.getLocksState().getValue() == LockState.LOCKED;
         } else if (command instanceof TrunkState) {
             TrunkState state = (TrunkState) command;
-            trunkLockState = state.getLockState().getValue();
+            trunkLockState = state.getLock().getValue();
             trunkLockPosition = state.getPosition().getValue();
-        } else if (command instanceof RooftopState) {
-            RooftopState state = (RooftopState) command;
-            rooftopDimmingPercentage = state.getDimmingPercentage().getValue();
-            rooftopOpenPercentage = state.getOpenPercentage().getValue();
-        } else if (command instanceof ChargeState) {
-            ChargeState state = (ChargeState) command;
+        } else if (command instanceof RooftopControlState) {
+            RooftopControlState state = (RooftopControlState) command;
+            rooftopDimmingPercentage = state.getDimming().getValue();
+            rooftopOpenPercentage = state.getPosition().getValue();
+        } else if (command instanceof ChargingState) {
+            ChargingState state = (ChargingState) command;
             batteryPercentage = state.getBatteryLevel().getValue();
         } else if (command instanceof LightsState) {
             lightsState = (LightsState) command;
-        } else if (command instanceof Capabilities) {
-            capabilities = (Capabilities) command;
+        } else if (command instanceof CapabilitiesState) {
+            capabilities = (CapabilitiesState) command;
         }
     }
 
@@ -114,7 +114,12 @@ public class VehicleStatus {
         vehicleConnectedWithBle = new DeviceSerial("000000000000000000");
     }
 
-    public boolean isSupported(Type type) {
-        return capabilities == null ? false : capabilities.isSupported(type);
+    public boolean isSupported(Identifier identifier, byte property) {
+        return capabilities == null ? false : capabilities.getSupported(identifier, property);
+    }
+
+    public boolean isRemoteControlSupported() {
+        return isSupported(ControlCommand.IDENTIFIER, ControlCommand.IDENTIFIER_SPEED) &&
+                isSupported(ControlCommand.IDENTIFIER, ControlCommand.IDENTIFIER_ANGLE);
     }
 }

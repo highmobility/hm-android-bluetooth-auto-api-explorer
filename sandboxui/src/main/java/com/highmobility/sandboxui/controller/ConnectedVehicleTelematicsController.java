@@ -1,6 +1,7 @@
 package com.highmobility.sandboxui.controller;
 
 import com.highmobility.autoapi.Command;
+import com.highmobility.autoapi.CommandResolver;
 import com.highmobility.autoapi.Type;
 import com.highmobility.hmkit.Telematics;
 import com.highmobility.hmkit.error.TelematicsError;
@@ -26,7 +27,7 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
     }
 
     ICommandQueue iQueue = new ICommandQueue() {
-        @Override public void onCommandReceived(Bytes command, @Nullable Command sentCommand) {
+        @Override public void onCommandReceived(Command command, @Nullable Command sentCommand) {
             ConnectedVehicleTelematicsController.this.onCommandReceived(command, sentCommand);
         }
 
@@ -39,7 +40,7 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
                     Telematics.CommandCallback() {
                         @Override
                         public void onCommandResponse(Bytes bytes) {
-                            queue.onCommandReceived(bytes);
+                            queue.onCommandReceived(CommandResolver.resolve(bytes));
                         }
 
                         @Override public void onCommandFailed(TelematicsError telematicsError) {
@@ -63,7 +64,7 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
         queue.purge();
     }
 
-    @Override void queueCommand(Command command, Type response) {
+    @Override <T extends Command> void queueCommand(Command command, Class<T> response) {
         // telematics queue does not need response type
         queue.queue(command);
     }
