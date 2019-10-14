@@ -1,7 +1,9 @@
 package com.highmobility.queue;
 
 import com.highmobility.autoapi.Command;
+import com.highmobility.autoapi.CommandResolver;
 import com.highmobility.autoapi.FailureMessageState;
+import com.highmobility.value.Bytes;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -53,7 +55,9 @@ public class CommandQueue {
         stopTimer();
     }
 
-    public void onCommandReceived(Command command) {
+    public void onCommandReceived(Bytes commandBytes) {
+        Command command = CommandResolver.resolve(commandBytes);
+
         // queue is empty
         if (items.size() == 0) {
             listener.onCommandReceived(command, null);

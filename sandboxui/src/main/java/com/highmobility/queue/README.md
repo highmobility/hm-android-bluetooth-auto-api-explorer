@@ -1,4 +1,6 @@
-Queue can be used to send multiple commands in a row. It is meant to be used as a layer between HMKit and the app, where all link communication is forwarded to the queue. It returns the response commands or failure indications if the commands fail.
+Queue can be used to send multiple commands in a row. It is meant to be used as a layer between 
+HMKit and the app, where all link communication is forwarded to the queue. It returns the response 
+commands or failure indications if the commands fail.
 
 See [BleCommandQueue](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/blob/master/sandboxui/src/main/java/com/highmobility/queue/BleCommandQueue.java) or [TelematicsCommandQueue](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/blob/master/sandboxui/src/main/java/com/highmobility/queue/TelematicsCommandQueue.java) for more info about using the queue.
 
@@ -9,7 +11,7 @@ BleCommandQueue queue;
 void sendCommands() {
   queue = new BleCommandQueue(iQueue);
   // get the VehicleStatus and wait for a response before sending OpenGasFlap.
-  queue.queue(new GetVehicleStatus(), VehicleStatus.TYPE); 
+  queue.queue(new GetVehicleStatus(), VehicleStatusState.class); 
   // send OpenGasFlap and only wait for the ack, not the GasFlapState response.
   queue.queue(new OpenGasFlap());
   // send HonkAndFlash straight after the OpenGasFlap ack.
@@ -37,7 +39,7 @@ IBleCommandQueue iQueue = new IBleCommandQueue() {
     // An ack was received for a queue command.
   }
 
-  @Override public void onCommandReceived(Bytes command, Command sentCommand) {
+  @Override public void onCommandReceived(Command command, Command sentCommand) {
     // One of the queue commands got a response.
   }
 

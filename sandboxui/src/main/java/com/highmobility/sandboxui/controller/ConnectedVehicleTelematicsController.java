@@ -40,7 +40,7 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
                     Telematics.CommandCallback() {
                         @Override
                         public void onCommandResponse(Bytes bytes) {
-                            queue.onCommandReceived(CommandResolver.resolve(bytes));
+                            queue.onCommandReceived(bytes);
                         }
 
                         @Override public void onCommandFailed(TelematicsError telematicsError) {

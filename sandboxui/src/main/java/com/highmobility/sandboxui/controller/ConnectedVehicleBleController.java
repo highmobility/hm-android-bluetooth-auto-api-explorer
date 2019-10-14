@@ -263,7 +263,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
 
     @Override
     public void onCommandReceived(Link link, Bytes bytes) {
-        queue.onCommandReceived(CommandResolver.resolve(bytes));
+        queue.onCommandReceived(bytes);
     }
 
     // private
