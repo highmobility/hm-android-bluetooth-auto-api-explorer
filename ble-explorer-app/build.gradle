@@ -57,6 +57,8 @@ dependencies {
         exclude group: 'com.highmobility', module: 'hmkit-utils'
     }
     implementation deps.timber
+    implementation 'at.favre.lib:slf4j-timber:1.0.0'
+
     implementation 'com.jakewharton:butterknife:10.0.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
 

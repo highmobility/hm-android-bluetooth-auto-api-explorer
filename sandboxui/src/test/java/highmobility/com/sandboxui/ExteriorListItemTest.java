@@ -2,27 +2,26 @@ package highmobility.com.sandboxui;
 
 import android.content.res.Resources;
 
-import com.highmobility.autoapi.Capabilities;
+import com.highmobility.autoapi.CapabilitiesState;
 import com.highmobility.autoapi.ControlLights;
 import com.highmobility.autoapi.ControlRooftop;
 import com.highmobility.autoapi.Identifier;
 import com.highmobility.autoapi.LightsState;
 import com.highmobility.autoapi.LockUnlockDoors;
 import com.highmobility.autoapi.StartStopDefrosting;
-import com.highmobility.autoapi.Type;
 import com.highmobility.autoapi.property.Property;
-import com.highmobility.autoapi.value.Capability;
-import com.highmobility.autoapi.value.lights.FrontExteriorLightState;
+import com.highmobility.autoapi.value.SupportedCapability;
 import com.highmobility.sandboxui.R;
 import com.highmobility.sandboxui.model.ExteriorListItem;
 import com.highmobility.sandboxui.model.VehicleStatus;
+import com.highmobility.value.Bytes;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import androidx.annotation.NonNull;
 
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * Created by ttiganik on 30/03/2017.
@@ -36,8 +35,8 @@ public class ExteriorListItemTest {
     }
 
     /**
-     * add all of the readable items that are not null. check if action capability is supported, then
-     * enable the buttons as well. only use single list item, with 2 or 3 segments
+     * add all of the readable items that are not null. check if action capability is supported,
+     * then enable the buttons as well. only use single list item, with 2 or 3 segments
      */
     @Test
     public void testNullItemNotAdded() {
@@ -51,8 +50,10 @@ public class ExteriorListItemTest {
     public void testActionEnabledIfCapabilitySupported() {
         VehicleStatus vehicle = new VehicleStatus();
         vehicle.doorsLocked = false;
-        Capabilities capas = new Capabilities.Builder().addCapability(new
-                Property(new Capability(Identifier.DOOR_LOCKS, new Type[]{LockUnlockDoors.TYPE}))).build();
+        CapabilitiesState capas = new CapabilitiesState.Builder().addCapability(new
+                Property(new SupportedCapability(LockUnlockDoors.IDENTIFIER.asInt(),
+                new Bytes(new byte[]{LockUnlockDoors.IDENTIFIER_INSIDE_LOCKS_STATE})))).build();
+
         vehicle.update(capas);
 
         ExteriorListItem[] items = ExteriorListItem.createExteriorListItems(resources, vehicle);
@@ -71,13 +72,13 @@ public class ExteriorListItemTest {
     public void testIcon() {
         VehicleStatus vehicle = new VehicleStatus();
         vehicle.lightsState =
-                new LightsState.Builder().setFrontExteriorLightState(new Property(FrontExteriorLightState.INACTIVE)).build();
+                new LightsState.Builder().setFrontExteriorLight(new Property(LightsState.FrontExteriorLight.INACTIVE)).build();
         ExteriorListItem[] items = ExteriorListItem.createExteriorListItems(resources, vehicle);
         ExteriorListItem item =
                 ExteriorListItem.getItem(ExteriorListItem.Type.FRONT_EXTERIOR_LIGHT_STATE, items);
         assertTrue(item.iconResId == R.drawable.ext_front_lights_off);
         vehicle.lightsState =
-                new LightsState.Builder().setFrontExteriorLightState(new Property(FrontExteriorLightState.ACTIVE_WITH_FULL_BEAM)).build();
+                new LightsState.Builder().setFrontExteriorLight(new Property(LightsState.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM)).build();
 
         items = ExteriorListItem.createExteriorListItems(resources, vehicle);
         item = ExteriorListItem.getItem(ExteriorListItem.Type.FRONT_EXTERIOR_LIGHT_STATE, items);
@@ -90,7 +91,7 @@ public class ExteriorListItemTest {
         // check that segment count is correct
         VehicleStatus vehicle = new VehicleStatus();
         vehicle.lightsState =
-                new LightsState.Builder().setFrontExteriorLightState(new Property(FrontExteriorLightState.ACTIVE_WITH_FULL_BEAM)).build();
+                new LightsState.Builder().setFrontExteriorLight(new Property(LightsState.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM)).build();
 
         vehicle.doorsLocked = false;
         ExteriorListItem[] items = ExteriorListItem.createExteriorListItems(resources, vehicle);
@@ -102,11 +103,16 @@ public class ExteriorListItemTest {
         assertTrue(lightsItem.actionSupported == false); // capa not supported
         assertTrue(doorsItem.actionSupported == false); // capa not supported
 
-        Capabilities capas = new Capabilities.Builder()
-                .addCapability(new Property(new Capability(Identifier.DOOR_LOCKS,
-                        new Type[]{LockUnlockDoors.TYPE})))
-                .addCapability(new Property(new Capability(Identifier.LIGHTS,
-                        new Type[]{ControlLights.TYPE}))).build();
+        SupportedCapability lightsCapability = new SupportedCapability(Identifier.LIGHTS.asInt(),
+                new Bytes(new byte[]{ControlLights.IDENTIFIER_FRONT_EXTERIOR_LIGHT}));
+
+        SupportedCapability lockCapability = new SupportedCapability(
+                LockUnlockDoors.IDENTIFIER.asInt(),
+                new Bytes(new byte[]{LockUnlockDoors.IDENTIFIER_INSIDE_LOCKS_STATE}));
+
+        CapabilitiesState capas = new CapabilitiesState.Builder()
+                .addCapability(new Property(lockCapability))
+                .addCapability(new Property(lightsCapability)).build();
         vehicle.update(capas);
 
         items = ExteriorListItem.createExteriorListItems(resources, vehicle);
@@ -123,9 +129,9 @@ public class ExteriorListItemTest {
         // check that segment count is correct
         VehicleStatus vehicle = new VehicleStatus();
         vehicle.isWindshieldDefrostingActive = true;
-        Capabilities capas = new Capabilities.Builder()
-                .addCapability(new Property(new Capability(Identifier.CLIMATE,
-                        new Type[]{StartStopDefrosting.TYPE})))
+        CapabilitiesState capas = new CapabilitiesState.Builder()
+                .addCapability(new Property(new SupportedCapability(StartStopDefrosting.IDENTIFIER.asInt(),
+                        new Bytes(new byte[]{StartStopDefrosting.IDENTIFIER_DEFROSTING_STATE}))))
                 .build();
         vehicle.update(capas);
 
@@ -154,16 +160,19 @@ public class ExteriorListItemTest {
 
         ExteriorListItem[] items = ExteriorListItem.createExteriorListItems(resources, vehicle);
         ExteriorListItem item =
-                ExteriorListItem.getItem(ExteriorListItem.Type.ROOFTOP_OPEN_PERCENTAGE, items);
+                ExteriorListItem.getItem(ExteriorListItem.Type.ROOFTOP_POSITION, items);
 
         assertTrue(item.actionSupported == false);
 
-        Capabilities capas = new Capabilities.Builder()
-                .addCapability(new Property(new Capability(Identifier.ROOFTOP,
-                        new Type[]{ControlRooftop.TYPE}))).build();
+        SupportedCapability capa = new SupportedCapability(ControlRooftop.IDENTIFIER.asInt(),
+                new Bytes(new byte[]{ControlRooftop.IDENTIFIER_POSITION}));
+
+        CapabilitiesState capas = new CapabilitiesState.Builder()
+                .addCapability(new Property(capa)).build();
+
         vehicle.update(capas);
         items = ExteriorListItem.createExteriorListItems(resources, vehicle);
-        item = ExteriorListItem.getItem(ExteriorListItem.Type.ROOFTOP_OPEN_PERCENTAGE, items);
+        item = ExteriorListItem.getItem(ExteriorListItem.Type.ROOFTOP_POSITION, items);
 
         assertTrue(item.actionSupported == true);
     }
@@ -174,17 +183,17 @@ public class ExteriorListItemTest {
         vehicle.rooftopOpenPercentage = 1d;
 
         vehicle.lightsState =
-                new LightsState.Builder().setFrontExteriorLightState(new Property(FrontExteriorLightState.ACTIVE_WITH_FULL_BEAM)).build();
-        Capabilities capas = new Capabilities.Builder()
-                .addCapability(new Property(new Capability(Identifier.ROOFTOP,
-                        new Type[]{ControlRooftop.TYPE})))
-                .addCapability(new Property(new Capability(Identifier.LIGHTS,
-                        new Type[]{ControlLights.TYPE}))).build();
+                new LightsState.Builder().setFrontExteriorLight(new Property(LightsState.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM)).build();
+        CapabilitiesState capas = new CapabilitiesState.Builder()
+                .addCapability(new Property(new SupportedCapability(ControlRooftop.IDENTIFIER.asInt(),
+                        new Bytes(new byte[]{ControlRooftop.IDENTIFIER_POSITION}))))
+                .addCapability(new Property(new SupportedCapability(ControlLights.IDENTIFIER.asInt(),
+                        new Bytes(new byte[]{ControlLights.IDENTIFIER_FRONT_EXTERIOR_LIGHT})))).build();
         vehicle.update(capas);
 
         ExteriorListItem[] items = ExteriorListItem.createExteriorListItems(resources, vehicle);
         ExteriorListItem item =
-                ExteriorListItem.getItem(ExteriorListItem.Type.ROOFTOP_OPEN_PERCENTAGE, items);
+                ExteriorListItem.getItem(ExteriorListItem.Type.ROOFTOP_POSITION, items);
         ExteriorListItem item2 =
                 ExteriorListItem.getItem(ExteriorListItem.Type.FRONT_EXTERIOR_LIGHT_STATE, items);
 

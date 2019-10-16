@@ -35,20 +35,19 @@ dependencies {
             transitive = true
         }
         implementation deps.autoApi
-        implementation deps.timber
+
     } else {
         implementation project(path: ':hmkit-android')
         implementation project(path: ':hmkit-crypto')
         implementation project(path: ':hmkit-utils')
-        implementation(deps.autoApi) {
-            exclude group: 'com.highmobility', module: 'hmkit-utils'
-        }
-        implementation deps.timber
+        implementation project(path: ':hm-java-auto-api')
     }
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'info.hoang8f:android-segmented:1.0.6'
     implementation deps.findBugs
+    implementation deps.timber
+    implementation 'at.favre.lib:slf4j-timber:1.0.0'
 
     testImplementation 'junit:junit:4.12'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"

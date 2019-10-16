@@ -2,7 +2,6 @@ package com.highmobility.sandboxui.model;
 
 import android.content.res.Resources;
 
-import com.highmobility.autoapi.ControlCommand;
 import com.highmobility.autoapi.ControlLights;
 import com.highmobility.autoapi.ControlRooftop;
 import com.highmobility.autoapi.ControlTrunk;
@@ -145,7 +144,7 @@ public class ExteriorListItem {
 
         if (vehicle.rooftopOpenPercentage != null) {
             ExteriorListItem item = new ExteriorListItem();
-            item.type = Type.ROOFTOP_OPEN_PERCENTAGE;
+            item.type = Type.ROOFTOP_POSITION;
             item.actionSupported = vehicle.isSupported(ControlRooftop.IDENTIFIER,
                     ControlRooftop.IDENTIFIER_POSITION);
             item.title = "ROOFTOP OPENING";
@@ -226,7 +225,7 @@ public class ExteriorListItem {
         TRUNK_LOCK_STATE,
         IS_WINDSHIELD_DEFROSTING_ACTIVE,
         ROOFTOP_DIMMING_PERCENTAGE,
-        ROOFTOP_OPEN_PERCENTAGE,
+        ROOFTOP_POSITION,
         FRONT_EXTERIOR_LIGHT_STATE,
         REMOTE_CONTROL
     }

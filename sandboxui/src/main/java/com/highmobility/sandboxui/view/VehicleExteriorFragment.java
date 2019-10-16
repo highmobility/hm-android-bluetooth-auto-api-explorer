@@ -204,7 +204,7 @@ public class VehicleExteriorFragment extends Fragment {
                     VehicleExteriorFragment.this.parent.controller
                             .onSunroofVisibilityClicked();
                     break;
-                case ROOFTOP_OPEN_PERCENTAGE:
+                case ROOFTOP_POSITION:
                     VehicleExteriorFragment.this.parent.controller
                             .onSunroofOpenClicked();
                     break;

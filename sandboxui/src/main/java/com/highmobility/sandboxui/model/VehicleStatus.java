@@ -10,6 +10,7 @@ import com.highmobility.autoapi.Identifier;
 import com.highmobility.autoapi.LightsState;
 import com.highmobility.autoapi.RooftopControlState;
 import com.highmobility.autoapi.TrunkState;
+import com.highmobility.autoapi.VehicleStatusState;
 import com.highmobility.autoapi.property.Property;
 import com.highmobility.autoapi.value.ActiveState;
 import com.highmobility.autoapi.value.LockState;
@@ -59,8 +60,8 @@ public class VehicleStatus {
     }
 
     public void update(Command command) {
-        if (command instanceof com.highmobility.autoapi.VehicleStatusState) {
-            com.highmobility.autoapi.VehicleStatusState status = (com.highmobility.autoapi
+        if (command instanceof VehicleStatusState) {
+            VehicleStatusState status = (com.highmobility.autoapi
                     .VehicleStatusState) command;
 
             name = status.getName().getValue();

@@ -31,6 +31,7 @@ public class CommandQueue {
         this.listener = listener;
         this.timeout = timeout;
         this.retryCount = retryCount;
+        CommandResolver.setRuntime(CommandResolver.RunTime.ANDROID);
     }
 
     /**
