@@ -115,7 +115,7 @@ public class VehicleStatus {
         vehicleConnectedWithBle = new DeviceSerial("000000000000000000");
     }
 
-    public boolean isSupported(Identifier identifier, byte property) {
+    public boolean isSupported(Integer identifier, byte property) {
         return capabilities == null ? false : capabilities.getSupported(identifier, property);
     }
 

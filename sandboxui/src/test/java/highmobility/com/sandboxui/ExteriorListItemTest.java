@@ -51,7 +51,7 @@ public class ExteriorListItemTest {
         VehicleStatus vehicle = new VehicleStatus();
         vehicle.doorsLocked = false;
         CapabilitiesState capas = new CapabilitiesState.Builder().addCapability(new
-                Property(new SupportedCapability(LockUnlockDoors.IDENTIFIER.asInt(),
+                Property(new SupportedCapability(LockUnlockDoors.IDENTIFIER,
                 new Bytes(new byte[]{LockUnlockDoors.IDENTIFIER_INSIDE_LOCKS_STATE})))).build();
 
         vehicle.update(capas);
@@ -103,11 +103,11 @@ public class ExteriorListItemTest {
         assertTrue(lightsItem.actionSupported == false); // capa not supported
         assertTrue(doorsItem.actionSupported == false); // capa not supported
 
-        SupportedCapability lightsCapability = new SupportedCapability(Identifier.LIGHTS.asInt(),
+        SupportedCapability lightsCapability = new SupportedCapability(Identifier.LIGHTS,
                 new Bytes(new byte[]{ControlLights.IDENTIFIER_FRONT_EXTERIOR_LIGHT}));
 
         SupportedCapability lockCapability = new SupportedCapability(
-                LockUnlockDoors.IDENTIFIER.asInt(),
+                LockUnlockDoors.IDENTIFIER,
                 new Bytes(new byte[]{LockUnlockDoors.IDENTIFIER_INSIDE_LOCKS_STATE}));
 
         CapabilitiesState capas = new CapabilitiesState.Builder()
@@ -130,7 +130,7 @@ public class ExteriorListItemTest {
         VehicleStatus vehicle = new VehicleStatus();
         vehicle.isWindshieldDefrostingActive = true;
         CapabilitiesState capas = new CapabilitiesState.Builder()
-                .addCapability(new Property(new SupportedCapability(StartStopDefrosting.IDENTIFIER.asInt(),
+                .addCapability(new Property(new SupportedCapability(StartStopDefrosting.IDENTIFIER,
                         new Bytes(new byte[]{StartStopDefrosting.IDENTIFIER_DEFROSTING_STATE}))))
                 .build();
         vehicle.update(capas);
@@ -164,7 +164,7 @@ public class ExteriorListItemTest {
 
         assertTrue(item.actionSupported == false);
 
-        SupportedCapability capa = new SupportedCapability(ControlRooftop.IDENTIFIER.asInt(),
+        SupportedCapability capa = new SupportedCapability(ControlRooftop.IDENTIFIER,
                 new Bytes(new byte[]{ControlRooftop.IDENTIFIER_POSITION}));
 
         CapabilitiesState capas = new CapabilitiesState.Builder()
@@ -185,9 +185,9 @@ public class ExteriorListItemTest {
         vehicle.lightsState =
                 new LightsState.Builder().setFrontExteriorLight(new Property(LightsState.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM)).build();
         CapabilitiesState capas = new CapabilitiesState.Builder()
-                .addCapability(new Property(new SupportedCapability(ControlRooftop.IDENTIFIER.asInt(),
+                .addCapability(new Property(new SupportedCapability(ControlRooftop.IDENTIFIER,
                         new Bytes(new byte[]{ControlRooftop.IDENTIFIER_POSITION}))))
-                .addCapability(new Property(new SupportedCapability(ControlLights.IDENTIFIER.asInt(),
+                .addCapability(new Property(new SupportedCapability(ControlLights.IDENTIFIER,
                         new Bytes(new byte[]{ControlLights.IDENTIFIER_FRONT_EXTERIOR_LIGHT})))).build();
         vehicle.update(capas);
 

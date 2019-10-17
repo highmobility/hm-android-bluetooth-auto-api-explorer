@@ -47,15 +47,16 @@ dependencies {
         implementation(deps.hmkit) {
             transitive = true
         }
+        implementation(deps.autoApi) {
+            exclude group: 'com.highmobility', module: 'hmkit-utils'
+        }
     } else {
         implementation project(path: ':hmkit-android')
         implementation project(path: ':hmkit-crypto')
         implementation project(path: ':hmkit-utils')
+        implementation project(path: ':hm-java-auto-api')
     }
 
-    implementation(deps.autoApi) {
-        exclude group: 'com.highmobility', module: 'hmkit-utils'
-    }
     implementation deps.timber
     implementation 'at.favre.lib:slf4j-timber:1.0.0'
 

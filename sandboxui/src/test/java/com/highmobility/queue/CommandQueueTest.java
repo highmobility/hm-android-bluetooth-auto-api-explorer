@@ -294,7 +294,7 @@ public class CommandQueueTest {
         Thread.sleep(10);
         queue.onCommandSent(secondCommand);
         assertEquals(4, commandsSent[0]); // sent OpenGasFlap(third command)
-        assertEquals(ackCommand[0].getIdentifier(), ControlTrunk.IDENTIFIER);
+        assertSame(ackCommand[0].getIdentifier(), ControlTrunk.IDENTIFIER);
         Thread.sleep(10);
         queue.onCommandSent(thirdCommand);
         assertEquals(ackCommand[0].getIdentifier(), ControlGasFlap.IDENTIFIER);
@@ -340,8 +340,8 @@ public class CommandQueueTest {
 
         FailureMessageState errorResponse =
                 new FailureMessageState.Builder()
-                        .setFailedMessageType(new Property(Type.SET.asInt()))
-                        .setFailedMessageID(new Property(LockUnlockDoors.IDENTIFIER.asInt()))
+                        .setFailedMessageType(new Property(Type.SET))
+                        .setFailedMessageID(new Property(LockUnlockDoors.IDENTIFIER))
                         .setFailedPropertyIDs(new Property(new Bytes(LockUnlockDoors.IDENTIFIER_INSIDE_LOCKS_STATE)))
                         .setFailureReason(new Property(FailureMessageState.FailureReason.UNSUPPORTED_CAPABILITY)).build();
 
@@ -358,7 +358,7 @@ public class CommandQueueTest {
         assertSame(failure[0].getReason(), CommandFailure.Reason.FAILURE_RESPONSE);
         assertNull(failure[0].getErrorObject());
         assertSame(failure[0].getFailureResponse().getFailedMessageID().getValue(),
-                LockUnlockDoors.IDENTIFIER.asInt());
+                LockUnlockDoors.IDENTIFIER);
 
         assertEquals(1, commandsSent[0]); // assert get gas flap state was not sent.
         Thread.sleep(10);
@@ -398,9 +398,8 @@ public class CommandQueueTest {
         return ByteUtils.startsWith(bytes.getByteArray(), type.getIdentifierAndType());
     }*/
 
-    boolean commandIs(@Nonnull Bytes command, Identifier identifier) {
-        Identifier commandIdentifier = Identifier.fromBytes(command.getByteArray());
-        Type commandType = Type.fromByte(command.get(2));
+    boolean commandIs(@Nonnull Bytes command, Integer identifier) {
+        Integer commandIdentifier = Identifier.fromBytes(command.getByteArray());
         return commandIdentifier == identifier;
     }
 }
