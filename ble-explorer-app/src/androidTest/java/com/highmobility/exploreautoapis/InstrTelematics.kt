@@ -36,7 +36,6 @@ class InstrTelematics : BaseConnectedVehicle() {
     @JvmField
     var activityRule = object : IntentsTestRule<ConnectedVehicleActivity>(ConnectedVehicleActivity::class.java) {
         override fun getActivityIntent(): Intent {
-            HMKit.getInstance().deleteCertificates()
 
             val res = InstrumentationRegistry.getInstrumentation().context.resources
             val intent = Intent()
