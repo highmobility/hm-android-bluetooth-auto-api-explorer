@@ -16,6 +16,7 @@ import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
 import com.highmobility.hmkit.HMKit;
 import com.highmobility.hmkit.Link;
+import com.highmobility.hmkit.error.AuthenticationError;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.util.ITapToControlCommandConverter;
@@ -68,14 +69,16 @@ public class RemoteControlController implements IRemoteControlController, Connec
     }
 
     @Override
-    public void onAuthorizationRequested(ConnectedLink link, ConnectedLinkListener
-            .AuthorizationCallback callback) {
-
+    public void onAuthenticationRequested(ConnectedLink link, ConnectedLinkListener
+            .AuthenticationRequestCallback callback) {
     }
 
     @Override
-    public void onAuthorizationTimeout(ConnectedLink link) {
+    public void onAuthenticationRequestTimeout(ConnectedLink link) {
+    }
 
+    @Override public void onAuthenticationFailed(Link link, AuthenticationError error) {
+        d("onAuthenticationFailed(): %s", error.getMessage());
     }
 
     @Override

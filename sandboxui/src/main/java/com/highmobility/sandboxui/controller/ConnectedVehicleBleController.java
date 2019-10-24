@@ -14,6 +14,7 @@ import com.highmobility.hmkit.BroadcasterListener;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
 import com.highmobility.hmkit.Link;
+import com.highmobility.hmkit.error.AuthenticationError;
 import com.highmobility.hmkit.error.BroadcastError;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.hmkit.error.RevokeError;
@@ -232,15 +233,19 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     }
 
     @Override
-    public void onAuthorizationRequested(ConnectedLink connectedLink, ConnectedLinkListener
-            .AuthorizationCallback callback) {
+    public void onAuthenticationRequested(ConnectedLink connectedLink, ConnectedLinkListener
+            .AuthenticationRequestCallback callback) {
         callback.approve();
     }
 
     @Override
-    public void onAuthorizationTimeout(ConnectedLink connectedLink) {
+    public void onAuthenticationRequestTimeout(ConnectedLink connectedLink) {
         view.onError(true, "authorization request timed out");
         view.getActivity().finish();
+    }
+
+    @Override public void onAuthenticationFailed(Link link, AuthenticationError error) {
+        d("onAuthenticationFailed(): %s", error.getMessage());
     }
 
     @Override
