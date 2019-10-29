@@ -22,7 +22,6 @@ import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.util.ITapToControlCommandConverter;
 import com.highmobility.sandboxui.util.TapToControlCommandConverter;
 import com.highmobility.sandboxui.view.IRemoteControlView;
-import com.highmobility.utils.ByteUtils;
 import com.highmobility.value.Bytes;
 
 import java.util.List;
