@@ -68,7 +68,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
     }
 
     @Override
-    public void onAuthenticationRequested(ConnectedLink link, ConnectedLinkListener
+    public void onAuthenticationRequest(ConnectedLink link, ConnectedLinkListener
             .AuthenticationRequestCallback callback) {
     }
 

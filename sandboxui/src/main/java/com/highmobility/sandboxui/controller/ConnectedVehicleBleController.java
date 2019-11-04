@@ -233,7 +233,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     }
 
     @Override
-    public void onAuthenticationRequested(ConnectedLink connectedLink, ConnectedLinkListener
+    public void onAuthenticationRequest(ConnectedLink connectedLink, ConnectedLinkListener
             .AuthenticationRequestCallback callback) {
         callback.approve();
     }
