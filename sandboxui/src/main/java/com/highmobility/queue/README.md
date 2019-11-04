@@ -46,7 +46,7 @@ IBleCommandQueue iQueue = new IBleCommandQueue() {
   }
 
   @Override public void sendCommand(Command command) {
-    // Send the queue command via link 
+    // Send a queue command via link 
     link.sendCommand(command, new Link.CommandCallback() {
         @Override public void onCommandSent() {
           queue.onCommandSent(command);
