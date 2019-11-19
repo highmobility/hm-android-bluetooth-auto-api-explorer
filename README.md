@@ -27,13 +27,15 @@ After initialisation, the [sandboxui](https://github.com/highmobility/hm-android
 ## Instrumented tests
 
 The bluetooth and telematics commands are covered by instrumented tests. For them to work one needs to 
-add androidTest/res/values/credentials.xml with keys:
+add his keys to androidTest/res/values/credentials.xml:
 
 ```
+<resources>
 <string name="accessToken">the vehicle access token</string>
 <string name="deviceCert">the device cert</string>
 <string name="privateKey">the private key</string>
 <string name="issuerPublicKey">the issuer public key</string>
+</resources>
 ```
 
 
