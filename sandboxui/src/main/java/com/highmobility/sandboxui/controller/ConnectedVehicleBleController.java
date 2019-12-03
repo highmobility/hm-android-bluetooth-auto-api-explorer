@@ -112,7 +112,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             if (certificate.getGainerSerial().equals(link.getSerial())) {
                 linkExists = true;
                 onLinkReceived(link);
-                onStateChanged(link, link.getState());
+                onStateChanged(link, link.getState(), link.getState());
             }
         }
 
@@ -249,7 +249,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     }
 
     @Override
-    public void onStateChanged(Link link, Link.State state) {
+    public void onStateChanged(Link link, Link.State newState, Link.State oldState) {
         d("link state changed %s", link.getState());
         if (link == this.link) {
             String stateString = "link: " + link.getState().toString().toLowerCase();

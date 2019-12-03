@@ -22,6 +22,7 @@ public interface IConnectedVehicleView {
 
     enum ViewState {
         DOWNLOADING_CERT,
+        FAILED_TO_DOWNLOAD_CERT,
         BROADCASTING,
         CONNECTED,
         AUTHENTICATING,

@@ -146,6 +146,9 @@ public class ConnectedVehicleActivity extends FragmentActivity implements IConne
                 showVehicleInfoView(false);
                 progressBar.setVisibility(View.INVISIBLE);
                 break;
+            case FAILED_TO_DOWNLOAD_CERT:
+                progressBar.setVisibility(View.INVISIBLE);
+                break;
             case CONNECTED:
                 if (broadcastFragment != null) {
                     broadcastFragment.getView().setVisibility(VISIBLE);

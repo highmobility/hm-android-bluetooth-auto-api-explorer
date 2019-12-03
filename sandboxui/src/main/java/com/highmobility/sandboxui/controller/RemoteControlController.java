@@ -81,8 +81,8 @@ public class RemoteControlController implements IRemoteControlController, Connec
     }
 
     @Override
-    public void onStateChanged(Link link, Link.State state) {
-        if (link.getState() != Link.State.AUTHENTICATED) {
+    public void onStateChanged(Link link, Link.State newState, Link.State oldState) {
+        if (newState != Link.State.AUTHENTICATED) {
             if (initializing) {
                 onInitializeFinished(1, "Not authenticated");
             } else {

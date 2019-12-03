@@ -80,7 +80,7 @@ public class VehicleStatus {
             isWindshieldDefrostingActive = state.getDefrostingState().getValue() == ActiveState.ACTIVE;
         } else if (command instanceof DoorsState) {
             DoorsState state = (DoorsState) command;
-            doorsLocked = state.getLocksState().getValue() == LockState.LOCKED;
+            doorsLocked = state.getInsideLocksState().getValue() == LockState.LOCKED;
         } else if (command instanceof TrunkState) {
             TrunkState state = (TrunkState) command;
             trunkLockState = state.getLock().getValue();

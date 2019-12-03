@@ -5,7 +5,6 @@ import android.content.Intent;
 import com.highmobility.autoapi.CapabilitiesState;
 import com.highmobility.autoapi.ClimateState;
 import com.highmobility.autoapi.Command;
-import com.highmobility.autoapi.CommandResolver;
 import com.highmobility.autoapi.ControlLights;
 import com.highmobility.autoapi.ControlRooftop;
 import com.highmobility.autoapi.ControlTrunk;
@@ -33,10 +32,10 @@ import com.highmobility.sandboxui.model.VehicleStatus;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
-import com.highmobility.value.Bytes;
 
 import static com.highmobility.autoapi.value.LockState.LOCKED;
 import static com.highmobility.autoapi.value.LockState.UNLOCKED;
+import static timber.log.Timber.d;
 import static timber.log.Timber.e;
 
 /**
@@ -219,6 +218,7 @@ public class ConnectedVehicleController {
                     @Override
                     public void onDownloadFailed(DownloadAccessCertificateError error) {
                         view.onError(true, "failed to download cert");
+                        view.setViewState(IConnectedVehicleView.ViewState.FAILED_TO_DOWNLOAD_CERT);
                     }
                 });
             } else {

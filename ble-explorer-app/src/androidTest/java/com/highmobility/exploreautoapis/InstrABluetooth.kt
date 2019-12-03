@@ -60,6 +60,7 @@ class InstrABluetooth : BaseConnectedVehicle() {
                     val intent = Intent()
                     intent.putExtra(EXTRA_USE_BLE, true)
                     intent.putExtra(EXTRA_SERVICE_NAME, "TEST")
+
                     intent.putExtra(EXTRA_INIT_INFO, String.format("%s:%s:%s:%s",
                             testResources.getString(com.highmobility.exploreautoapis.test.R.string.deviceCert),
                             testResources.getString(com.highmobility.exploreautoapis.test.R.string.privateKey),
