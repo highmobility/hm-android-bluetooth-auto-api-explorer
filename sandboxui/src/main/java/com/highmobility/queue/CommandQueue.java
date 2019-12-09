@@ -2,7 +2,6 @@ package com.highmobility.queue;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.CommandResolver;
-import com.highmobility.autoapi.FailureMessageState;
 import com.highmobility.value.Bytes;
 
 import java.util.ArrayList;

@@ -2,13 +2,7 @@ package highmobility.com.sandboxui;
 
 import android.content.res.Resources;
 
-import com.highmobility.autoapi.CapabilitiesState;
-import com.highmobility.autoapi.ControlLights;
-import com.highmobility.autoapi.ControlRooftop;
 import com.highmobility.autoapi.Identifier;
-import com.highmobility.autoapi.LightsState;
-import com.highmobility.autoapi.LockUnlockDoors;
-import com.highmobility.autoapi.StartStopDefrosting;
 import com.highmobility.autoapi.property.Property;
 import com.highmobility.autoapi.value.SupportedCapability;
 import com.highmobility.sandboxui.R;

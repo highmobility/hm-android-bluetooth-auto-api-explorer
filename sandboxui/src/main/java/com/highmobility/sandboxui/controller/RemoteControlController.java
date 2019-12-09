@@ -8,8 +8,6 @@ import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.CommandResolver;
 import com.highmobility.autoapi.ControlCommand;
 
-import com.highmobility.autoapi.FailureMessageState;
-import com.highmobility.autoapi.GetControlState;
 import com.highmobility.autoapi.RemoteControlState;
 import com.highmobility.autoapi.StartControl;
 import com.highmobility.hmkit.ConnectedLink;

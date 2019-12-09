@@ -1,16 +1,8 @@
 package com.highmobility.sandboxui.model;
 
-import com.highmobility.autoapi.CapabilitiesState;
-import com.highmobility.autoapi.ChargingState;
-import com.highmobility.autoapi.ClimateState;
+import com.highmobility.autoapi.Charging;
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.ControlCommand;
-import com.highmobility.autoapi.DoorsState;
-import com.highmobility.autoapi.Identifier;
-import com.highmobility.autoapi.LightsState;
-import com.highmobility.autoapi.RooftopControlState;
-import com.highmobility.autoapi.TrunkState;
-import com.highmobility.autoapi.VehicleStatusState;
 import com.highmobility.autoapi.property.Property;
 import com.highmobility.autoapi.value.ActiveState;
 import com.highmobility.autoapi.value.LockState;
@@ -89,8 +81,8 @@ public class VehicleStatus {
             RooftopControlState state = (RooftopControlState) command;
             rooftopDimmingPercentage = state.getDimming().getValue();
             rooftopOpenPercentage = state.getPosition().getValue();
-        } else if (command instanceof ChargingState) {
-            ChargingState state = (ChargingState) command;
+        } else if (command instanceof Charging.State) {
+            Charging.State state = (Charging.State) command;
             batteryPercentage = state.getBatteryLevel().getValue();
         } else if (command instanceof LightsState) {
             lightsState = (LightsState) command;

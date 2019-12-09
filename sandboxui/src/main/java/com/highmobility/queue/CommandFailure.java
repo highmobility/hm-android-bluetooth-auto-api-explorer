@@ -1,6 +1,5 @@
 package com.highmobility.queue;
 
-import com.highmobility.autoapi.FailureMessageState;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.hmkit.error.TelematicsError;
 

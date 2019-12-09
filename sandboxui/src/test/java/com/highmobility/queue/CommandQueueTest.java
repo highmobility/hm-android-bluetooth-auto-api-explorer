@@ -2,13 +2,9 @@ package com.highmobility.queue;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.ControlGasFlap;
-import com.highmobility.autoapi.ControlTrunk;
-import com.highmobility.autoapi.DoorsState;
-import com.highmobility.autoapi.FailureMessageState;
 import com.highmobility.autoapi.FuelingState;
 import com.highmobility.autoapi.GetGasFlapState;
 import com.highmobility.autoapi.Identifier;
-import com.highmobility.autoapi.LockUnlockDoors;
 import com.highmobility.autoapi.Type;
 import com.highmobility.autoapi.property.Property;
 import com.highmobility.autoapi.value.Location;

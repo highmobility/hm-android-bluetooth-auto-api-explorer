@@ -9,11 +9,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.highmobility.autoapi.ControlRooftop;
-import com.highmobility.autoapi.ControlTrunk;
-import com.highmobility.autoapi.LockUnlockDoors;
-import com.highmobility.autoapi.StartStopDefrosting;
-import com.highmobility.autoapi.VehicleLocationState;
 import com.highmobility.autoapi.value.LockState;
 import com.highmobility.sandboxui.R;
 import com.highmobility.sandboxui.model.VehicleStatus;

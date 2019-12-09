@@ -2,21 +2,7 @@ package com.highmobility.sandboxui.controller;
 
 import android.content.Intent;
 
-import com.highmobility.autoapi.CapabilitiesState;
-import com.highmobility.autoapi.ClimateState;
 import com.highmobility.autoapi.Command;
-import com.highmobility.autoapi.ControlLights;
-import com.highmobility.autoapi.ControlRooftop;
-import com.highmobility.autoapi.ControlTrunk;
-import com.highmobility.autoapi.DoorsState;
-import com.highmobility.autoapi.GetCapabilities;
-import com.highmobility.autoapi.GetVehicleStatus;
-import com.highmobility.autoapi.LightsState;
-import com.highmobility.autoapi.LockUnlockDoors;
-import com.highmobility.autoapi.RooftopControlState;
-import com.highmobility.autoapi.StartStopDefrosting;
-import com.highmobility.autoapi.TrunkState;
-import com.highmobility.autoapi.VehicleStatusState;
 import com.highmobility.autoapi.property.Property;
 import com.highmobility.autoapi.value.ActiveState;
 import com.highmobility.autoapi.value.Light;
