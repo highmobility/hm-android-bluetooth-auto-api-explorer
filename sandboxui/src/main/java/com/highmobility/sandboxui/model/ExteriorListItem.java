@@ -2,6 +2,11 @@ package com.highmobility.sandboxui.model;
 
 import android.content.res.Resources;
 
+import com.highmobility.autoapi.Climate;
+import com.highmobility.autoapi.Doors;
+import com.highmobility.autoapi.Lights;
+import com.highmobility.autoapi.RooftopControl;
+import com.highmobility.autoapi.Trunk;
 import com.highmobility.autoapi.value.LockState;
 import com.highmobility.sandboxui.R;
 
@@ -34,8 +39,8 @@ public class ExteriorListItem {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.DOORS_LOCKED;
 
-            item.actionSupported = vehicle.isSupported(LockUnlockDoors.IDENTIFIER,
-                    LockUnlockDoors.IDENTIFIER_INSIDE_LOCKS_STATE);
+            item.actionSupported = vehicle.isSupported(Doors.IDENTIFIER,
+                    Doors.PROPERTY_INSIDE_LOCKS_STATE);
             item.title = "DOOR LOCKS";
 
             item.segmentCount = 2;
@@ -61,8 +66,8 @@ public class ExteriorListItem {
         if (vehicle.trunkLockState != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.TRUNK_LOCK_STATE;
-            item.actionSupported = vehicle.isSupported(ControlTrunk.IDENTIFIER,
-                    ControlTrunk.IDENTIFIER_LOCK);
+            item.actionSupported = vehicle.isSupported(Trunk.IDENTIFIER,
+                    Trunk.PROPERTY_LOCK);
             item.title = "TRUNK LOCK";
 
             item.segmentCount = 2;
@@ -87,8 +92,8 @@ public class ExteriorListItem {
         if (vehicle.isWindshieldDefrostingActive != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.IS_WINDSHIELD_DEFROSTING_ACTIVE;
-            item.actionSupported = vehicle.isSupported(StartStopDefrosting.IDENTIFIER,
-                    StartStopDefrosting.IDENTIFIER_DEFROSTING_STATE);
+            item.actionSupported = vehicle.isSupported(Climate.IDENTIFIER,
+                    Climate.PROPERTY_DEFROSTING_STATE);
             item.title = "WINDSHIELD HEATING";
 
             item.segmentCount = 2;
@@ -114,8 +119,8 @@ public class ExteriorListItem {
         if (vehicle.rooftopDimmingPercentage != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.ROOFTOP_DIMMING_PERCENTAGE;
-            item.actionSupported = vehicle.isSupported(ControlRooftop.IDENTIFIER,
-                    ControlRooftop.IDENTIFIER_DIMMING);
+            item.actionSupported = vehicle.isSupported(RooftopControl.IDENTIFIER,
+                    RooftopControl.PROPERTY_DIMMING);
             item.title = "ROOFTOP DIMMING";
 
             item.segmentCount = 2;
@@ -139,8 +144,8 @@ public class ExteriorListItem {
         if (vehicle.rooftopOpenPercentage != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.ROOFTOP_POSITION;
-            item.actionSupported = vehicle.isSupported(ControlRooftop.IDENTIFIER,
-                    ControlRooftop.IDENTIFIER_POSITION);
+            item.actionSupported = vehicle.isSupported(RooftopControl.IDENTIFIER,
+                    RooftopControl.PROPERTY_POSITION);
             item.title = "ROOFTOP OPENING";
 
             item.segmentCount = 2;
@@ -164,12 +169,12 @@ public class ExteriorListItem {
         }
 
         if (vehicle.lightsState != null && vehicle.lightsState.getFrontExteriorLight().getValue() != null) {
-            LightsState.FrontExteriorLight lightsState =
+            Lights.FrontExteriorLight lightsState =
                     vehicle.lightsState.getFrontExteriorLight().getValue();
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.FRONT_EXTERIOR_LIGHT_STATE;
-            item.actionSupported = vehicle.isSupported(ControlLights.IDENTIFIER,
-                    ControlLights.IDENTIFIER_FRONT_EXTERIOR_LIGHT);
+            item.actionSupported = vehicle.isSupported(Lights.IDENTIFIER,
+                    Lights.PROPERTY_FRONT_EXTERIOR_LIGHT);
             item.title = resources.getString(R.string.frontLightsTitle);
 
             item.segmentCount = 3;
@@ -179,15 +184,15 @@ public class ExteriorListItem {
             item.segmentTitles[1] = "ACTIVE";
             item.segmentTitles[2] = "FULL BEAM";
 
-            if (lightsState == LightsState.FrontExteriorLight.INACTIVE) {
+            if (lightsState == Lights.FrontExteriorLight.INACTIVE) {
                 item.stateTitle = item.segmentTitles[0];
                 item.iconResId = R.drawable.ext_front_lights_off;
                 item.selectedSegment = 0;
-            } else if (lightsState == LightsState.FrontExteriorLight.ACTIVE) {
+            } else if (lightsState == Lights.FrontExteriorLight.ACTIVE) {
                 item.stateTitle = item.segmentTitles[1];
                 item.iconResId = R.drawable.ext_front_lights_on;
                 item.selectedSegment = 1;
-            } else if (lightsState == LightsState.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM) {
+            } else if (lightsState == Lights.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM) {
                 item.stateTitle = item.segmentTitles[2];
                 item.iconResId = R.drawable.ext_front_lights_full_beam;
                 item.selectedSegment = 2;

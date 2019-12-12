@@ -1,5 +1,6 @@
 package com.highmobility.queue;
 
+import com.highmobility.autoapi.FailureMessage;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.hmkit.error.TelematicsError;
 
@@ -22,14 +23,14 @@ public class CommandFailure {
     }
 
     Reason reason;
-    @Nullable FailureMessageState failureResponse; // a failure response
+    @Nullable FailureMessage.State failureResponse; // a failure response
     @Nullable Object errorObject; // Issue in SDK before sending out the ble command.
 
     public Reason getReason() {
         return reason;
     }
 
-    @Nullable public FailureMessageState getFailureResponse() {
+    @Nullable public FailureMessage.State getFailureResponse() {
         return failureResponse;
     }
 
@@ -55,7 +56,7 @@ public class CommandFailure {
         return errorObject;
     }
 
-    CommandFailure(Reason reason, @Nullable FailureMessageState failureResponse, @Nullable Object
+    CommandFailure(Reason reason, @Nullable FailureMessage.State failureResponse, @Nullable Object
             errorObject) {
         this.reason = reason;
         this.failureResponse = failureResponse;

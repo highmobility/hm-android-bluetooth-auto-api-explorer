@@ -9,6 +9,11 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.highmobility.autoapi.Climate;
+import com.highmobility.autoapi.Doors;
+import com.highmobility.autoapi.RooftopControl;
+import com.highmobility.autoapi.Trunk;
+import com.highmobility.autoapi.VehicleLocation;
 import com.highmobility.autoapi.value.LockState;
 import com.highmobility.sandboxui.R;
 import com.highmobility.sandboxui.model.VehicleState;
@@ -73,7 +78,7 @@ public class VehicleOverviewFragment extends Fragment {
                 sunroofButton.setImageResource(R.drawable.ovr_sunrooftransparenthdpi);
             }
 
-            if (vehicle.isSupported(ControlRooftop.IDENTIFIER, ControlRooftop.IDENTIFIER_SUNROOF_STATE)) {
+            if (vehicle.isSupported(RooftopControl.IDENTIFIER, RooftopControl.PROPERTY_SUNROOF_STATE)) {
                 // disable button
                 sunroofButton.setEnabled(true);
                 sunroofButton.setOnClickListener(v -> parent.controller.onSunroofVisibilityClicked());
@@ -98,7 +103,7 @@ public class VehicleOverviewFragment extends Fragment {
                 defrostButton.setImageResource(R.drawable.ovr_defrostinactivehdpi);
             }
 
-            if (vehicle.isSupported(StartStopDefrosting.IDENTIFIER, StartStopDefrosting.IDENTIFIER_DEFROSTING_STATE)) {
+            if (vehicle.isSupported(Climate.IDENTIFIER, Climate.PROPERTY_DEFROSTING_STATE)) {
                 defrostButton.setEnabled(true);
                 defrostButton.setOnClickListener(v -> parent.controller.onWindshieldDefrostingClicked());
             } else {
@@ -118,7 +123,7 @@ public class VehicleOverviewFragment extends Fragment {
                 lockButton.setImageResource(R.drawable.ovr_doorsunlockedhdpi);
             }
 
-            if (vehicle.isSupported(LockUnlockDoors.IDENTIFIER, LockUnlockDoors.IDENTIFIER_INSIDE_LOCKS_STATE)) {
+            if (vehicle.isSupported(Doors.IDENTIFIER, Doors.PROPERTY_INSIDE_LOCKS_STATE)) {
                 lockButton.setEnabled(true);
                 lockButton.setOnClickListener(v -> parent.controller.onLockDoorsClicked());
             } else {
@@ -139,7 +144,7 @@ public class VehicleOverviewFragment extends Fragment {
                 trunkButton.setImageResource(R.drawable.ovr_trunkunlockedhdpi);
             }
 
-            if (vehicle.isSupported(ControlTrunk.IDENTIFIER, ControlTrunk.IDENTIFIER_LOCK)) {
+            if (vehicle.isSupported(Trunk.IDENTIFIER, Trunk.PROPERTY_LOCK)) {
                 trunkButton.setEnabled(true);
 
                 trunkButton.setOnClickListener(v -> parent.controller.onLockTrunkClicked());
@@ -150,7 +155,7 @@ public class VehicleOverviewFragment extends Fragment {
             trunkButton.setVisibility(View.GONE);
         }
 
-        if (vehicle.isSupported(VehicleLocationState.IDENTIFIER, VehicleLocationState.IDENTIFIER_COORDINATES)) {
+        if (vehicle.isSupported(VehicleLocation.IDENTIFIER, VehicleLocation.PROPERTY_COORDINATES)) {
             gpsIndicatorContainer.setVisibility(View.VISIBLE);
         } else {
             gpsIndicatorContainer.setVisibility(View.GONE);

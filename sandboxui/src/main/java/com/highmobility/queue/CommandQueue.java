@@ -2,6 +2,7 @@ package com.highmobility.queue;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.CommandResolver;
+import com.highmobility.autoapi.FailureMessage;
 import com.highmobility.value.Bytes;
 
 import java.util.ArrayList;
@@ -67,8 +68,8 @@ public class CommandQueue {
         // we only care about first item in queue.
         QueueItem_ item = items.get(0);
 
-        if (command instanceof FailureMessageState) {
-            FailureMessageState failure = (FailureMessageState) command;
+        if (command instanceof FailureMessage.State) {
+            FailureMessage.State failure = (FailureMessage.State) command;
 
             if (failure.getCommandFailed(item.commandSent.getIdentifier(),
                     item.commandSent.getType())) {
@@ -189,7 +190,7 @@ public class CommandQueue {
 
         boolean timeout;
         Object sdkError;
-        FailureMessageState failure;
+        FailureMessage.State failure;
 
         Calendar timeSent;
         int retryCount;

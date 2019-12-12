@@ -6,10 +6,9 @@ import android.widget.Toast;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.CommandResolver;
-import com.highmobility.autoapi.ControlCommand;
 
-import com.highmobility.autoapi.RemoteControlState;
-import com.highmobility.autoapi.StartControl;
+import com.highmobility.autoapi.FailureMessage;
+import com.highmobility.autoapi.RemoteControl;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
 import com.highmobility.hmkit.HMKit;
@@ -93,11 +92,11 @@ public class RemoteControlController implements IRemoteControlController, Connec
     public void onCommandReceived(Link link, Bytes bytes) {
         Command command = CommandResolver.resolve(bytes);
 
-        if (command instanceof RemoteControlState) {
-            RemoteControlState controlMode = (RemoteControlState) command;
+        if (command instanceof RemoteControl.State) {
+            RemoteControl.State controlMode = (RemoteControl.State) command;
             onRemoteControlStateUpdate(controlMode);
-        } else if (command instanceof FailureMessageState) {
-            FailureMessageState failure = (FailureMessageState) command;
+        } else if (command instanceof FailureMessage.State) {
+            FailureMessage.State failure = (FailureMessage.State) command;
             d("failure %s", failure.getFailureReason().toString());
             if (initializing) {
                 onInitializeFinished(1, failure.getFailedMessageID() + " " + failure.getFailedMessageType()
@@ -145,7 +144,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
         view.showLoadingView(true);
         startInitializeTimer();
 
-        link.sendCommand(new GetControlState(), new Link.CommandCallback() {
+        link.sendCommand(new RemoteControl.GetControlState(), new Link.CommandCallback() {
             @Override
             public void onCommandSent() {
 
@@ -158,15 +157,15 @@ public class RemoteControlController implements IRemoteControlController, Connec
         });
     }
 
-    void onRemoteControlStateUpdate(RemoteControlState remoteControl) {
-        d("onRemoteControlStateUpdate(): %s", remoteControl.getControlMode().toString());
+    void onRemoteControlStateUpdate(RemoteControl.State remoteControl) {
+        d("onRemoteControl.StateUpdate(): %s", remoteControl.getControlMode().toString());
 
-        RemoteControlState.ControlMode controlModeValue = remoteControl.getControlMode().getValue();
+        RemoteControl.ControlMode controlModeValue = remoteControl.getControlMode().getValue();
 
         if (initializing) {
             // we are initializing
-            if (controlModeValue == RemoteControlState.ControlMode.AVAILABLE) {
-                link.sendCommand(new StartControl(), new Link.CommandCallback() {
+            if (controlModeValue == RemoteControl.ControlMode.AVAILABLE) {
+                link.sendCommand(new RemoteControl.StartControl(), new Link.CommandCallback() {
                     @Override
                     public void onCommandSent() {
                         // wait for the control command
@@ -177,12 +176,12 @@ public class RemoteControlController implements IRemoteControlController, Connec
                         onInitializeFinished(1, linkError.getType() + ": Cant start control mode");
                     }
                 });
-            } else if (controlModeValue == RemoteControlState.ControlMode.STARTED) {
+            } else if (controlModeValue == RemoteControl.ControlMode.STARTED) {
                 onInitializeFinished(0, "");
             } else {
                 onInitializeFinished(1, "Bad control mode " + controlModeValue);
             }
-        } else if (controlModeValue != RemoteControlState.ControlMode.STARTED) {
+        } else if (controlModeValue != RemoteControl.ControlMode.STARTED) {
             onInitializeFinished(1, "Bad control mode " + controlModeValue);
         }
     }
@@ -217,7 +216,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
         final int angle = converter.getAngle();
         final int speed = converter.getSpeed();
 
-        link.sendCommand(new ControlCommand(speed, angle), new Link.CommandCallback() {
+        link.sendCommand(new RemoteControl.ControlCommand(speed, angle), new Link.CommandCallback() {
             @Override
             public void onCommandSent() {
                 if (speed == 0 && converter.getSpeed() == 0 && converter.getAngle() == angle) {
