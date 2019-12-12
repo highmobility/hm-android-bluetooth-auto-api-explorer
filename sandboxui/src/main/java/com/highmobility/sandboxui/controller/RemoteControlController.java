@@ -16,7 +16,7 @@ import com.highmobility.hmkit.HMKit;
 import com.highmobility.hmkit.Link;
 import com.highmobility.hmkit.error.AuthenticationError;
 import com.highmobility.hmkit.error.LinkError;
-import com.highmobility.sandboxui.model.VehicleStatus;
+import com.highmobility.sandboxui.model.VehicleState;
 import com.highmobility.sandboxui.util.ITapToControlCommandConverter;
 import com.highmobility.sandboxui.util.TapToControlCommandConverter;
 import com.highmobility.sandboxui.view.IRemoteControlView;
@@ -38,7 +38,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
     IRemoteControlView view;
 
     ConnectedLink link;
-    VehicleStatus vehicle;
+    VehicleState vehicle;
     CountDownTimer timeoutTimer;
     boolean initializing = true;
     boolean controlling = false;

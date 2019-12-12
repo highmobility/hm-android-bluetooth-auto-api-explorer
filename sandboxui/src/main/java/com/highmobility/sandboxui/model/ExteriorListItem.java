@@ -26,7 +26,7 @@ public class ExteriorListItem {
      * Create the items that are displayed in exterior list view from VehicleStatus.
      */
     public static ExteriorListItem[] createExteriorListItems(Resources resources,
-                                                             VehicleStatus vehicle) {
+                                                             VehicleState vehicle) {
         ArrayList<ExteriorListItem> builder = new ArrayList<>();
 
         // create the items:

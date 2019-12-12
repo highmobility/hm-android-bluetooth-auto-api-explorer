@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.highmobility.autoapi.value.LockState;
 import com.highmobility.sandboxui.R;
-import com.highmobility.sandboxui.model.VehicleStatus;
+import com.highmobility.sandboxui.model.VehicleState;
 
 import androidx.fragment.app.Fragment;
 
@@ -34,7 +34,7 @@ public class VehicleOverviewFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    VehicleStatus vehicle;
+    VehicleState vehicle;
     ConnectedVehicleActivity parent;
     private OnFragmentInteractionListener mListener;
 
@@ -42,7 +42,7 @@ public class VehicleOverviewFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static VehicleOverviewFragment newInstance(VehicleStatus vehicle,
+    public static VehicleOverviewFragment newInstance(VehicleState vehicle,
                                                       ConnectedVehicleActivity connectedVehicleActivity) {
         VehicleOverviewFragment fragment = new VehicleOverviewFragment();
         fragment.vehicle = vehicle;
@@ -50,7 +50,7 @@ public class VehicleOverviewFragment extends Fragment {
         return fragment;
     }
 
-    public void setVehicle(VehicleStatus vehicle) {
+    public void setVehicle(VehicleState vehicle) {
         this.vehicle = vehicle;
     }
 

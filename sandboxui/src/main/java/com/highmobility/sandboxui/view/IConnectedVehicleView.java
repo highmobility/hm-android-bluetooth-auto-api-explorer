@@ -3,14 +3,14 @@ package com.highmobility.sandboxui.view;
 import android.app.Activity;
 import android.content.DialogInterface;
 
-import com.highmobility.sandboxui.model.VehicleStatus;
+import com.highmobility.sandboxui.model.VehicleState;
 
 public interface IConnectedVehicleView {
     void setViewState(ViewState viewState);
 
-    void onCapabilitiesUpdate(VehicleStatus vehicle);
+    void onCapabilitiesUpdate(VehicleState vehicle);
 
-    void onVehicleStatusUpdate(VehicleStatus vehicle);
+    void onVehicleStatusUpdate(VehicleState vehicle);
 
     void onError(boolean fatal, String message);
 

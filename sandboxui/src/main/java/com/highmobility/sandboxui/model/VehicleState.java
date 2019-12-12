@@ -1,8 +1,15 @@
 package com.highmobility.sandboxui.model;
 
+import com.highmobility.autoapi.Capabilities;
 import com.highmobility.autoapi.Charging;
+import com.highmobility.autoapi.Climate;
 import com.highmobility.autoapi.Command;
-import com.highmobility.autoapi.ControlCommand;
+import com.highmobility.autoapi.Doors;
+import com.highmobility.autoapi.Lights;
+import com.highmobility.autoapi.RemoteControl;
+import com.highmobility.autoapi.RooftopControl;
+import com.highmobility.autoapi.Trunk;
+import com.highmobility.autoapi.VehicleStatus;
 import com.highmobility.autoapi.property.Property;
 import com.highmobility.autoapi.value.ActiveState;
 import com.highmobility.autoapi.value.LockState;
@@ -15,8 +22,7 @@ import static timber.log.Timber.e;
 /**
  * This class will keep the state of the vehicle according to commands received.
  */
-public class VehicleStatus {
-    public static final String TAG = "VehicleStatusState";
+public class VehicleState {
     // means SDK cannot be terminated
     public static DeviceSerial vehicleConnectedWithBle;
 
@@ -41,20 +47,20 @@ public class VehicleStatus {
     public Double rooftopOpenPercentage;
 
     // retained for set commands
-    public LightsState lightsState;
+    public Lights.State lightsState;
 
     public int[] lightsAmbientColor;
 
-    private CapabilitiesState capabilities;
+    private Capabilities.State capabilities;
 
-    public CapabilitiesState getCapabilitiesState() {
+    public Capabilities.State getCapabilitiesState() {
         return capabilities;
     }
 
     public void update(Command command) {
-        if (command instanceof VehicleStatusState) {
-            VehicleStatusState status = (com.highmobility.autoapi
-                    .VehicleStatusState) command;
+        if (command instanceof VehicleStatus.State) {
+            VehicleStatus.State status = (com.highmobility.autoapi
+                    .VehicleStatus.State) command;
 
             name = status.getName().getValue();
             Property<Command>[] states = status.getStates();
@@ -66,28 +72,29 @@ public class VehicleStatus {
             for (int i = 0; i < states.length; i++) {
                 if (states[i].getValue() != null) update(states[i].getValue());
             }
-        } else if (command instanceof ClimateState) {
-            ClimateState state = (ClimateState) command;
+        } else if (command instanceof Climate.State) {
+            Climate.State state = (Climate.State) command;
             insideTemperature = state.getInsideTemperature().getValue();
-            isWindshieldDefrostingActive = state.getDefrostingState().getValue() == ActiveState.ACTIVE;
-        } else if (command instanceof DoorsState) {
-            DoorsState state = (DoorsState) command;
+            isWindshieldDefrostingActive =
+                    state.getDefrostingState().getValue() == ActiveState.ACTIVE;
+        } else if (command instanceof Doors.State) {
+            Doors.State state = (Doors.State) command;
             doorsLocked = state.getInsideLocksState().getValue() == LockState.LOCKED;
-        } else if (command instanceof TrunkState) {
-            TrunkState state = (TrunkState) command;
+        } else if (command instanceof Trunk.State) {
+            Trunk.State state = (Trunk.State) command;
             trunkLockState = state.getLock().getValue();
             trunkLockPosition = state.getPosition().getValue();
-        } else if (command instanceof RooftopControlState) {
-            RooftopControlState state = (RooftopControlState) command;
+        } else if (command instanceof RooftopControl.State) {
+            RooftopControl.State state = (RooftopControl.State) command;
             rooftopDimmingPercentage = state.getDimming().getValue();
             rooftopOpenPercentage = state.getPosition().getValue();
         } else if (command instanceof Charging.State) {
             Charging.State state = (Charging.State) command;
             batteryPercentage = state.getBatteryLevel().getValue();
-        } else if (command instanceof LightsState) {
-            lightsState = (LightsState) command;
-        } else if (command instanceof CapabilitiesState) {
-            capabilities = (CapabilitiesState) command;
+        } else if (command instanceof Lights.State) {
+            lightsState = (Lights.State) command;
+        } else if (command instanceof Capabilities.State) {
+            capabilities = (Capabilities.State) command;
         }
     }
 
@@ -112,7 +119,7 @@ public class VehicleStatus {
     }
 
     public boolean isRemoteControlSupported() {
-        return isSupported(ControlCommand.IDENTIFIER, ControlCommand.IDENTIFIER_SPEED) &&
-                isSupported(ControlCommand.IDENTIFIER, ControlCommand.IDENTIFIER_ANGLE);
+        return isSupported(RemoteControl.IDENTIFIER, RemoteControl.PROPERTY_SPEED) &&
+                isSupported(RemoteControl.IDENTIFIER, RemoteControl.PROPERTY_ANGLE);
     }
 }

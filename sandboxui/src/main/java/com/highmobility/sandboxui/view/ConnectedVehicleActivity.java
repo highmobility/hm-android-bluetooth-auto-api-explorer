@@ -17,7 +17,7 @@ import com.highmobility.sandboxui.controller.BroadcastFragment;
 import com.highmobility.sandboxui.controller.ConnectedVehicleBleController;
 import com.highmobility.sandboxui.controller.ConnectedVehicleController;
 import com.highmobility.sandboxui.model.ExteriorListItem;
-import com.highmobility.sandboxui.model.VehicleStatus;
+import com.highmobility.sandboxui.model.VehicleState;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -180,12 +180,12 @@ public class ConnectedVehicleActivity extends FragmentActivity implements IConne
     }
 
     @Override
-    public void onCapabilitiesUpdate(VehicleStatus vehicle) {
+    public void onCapabilitiesUpdate(VehicleState vehicle) {
 
     }
 
     @Override
-    public void onVehicleStatusUpdate(VehicleStatus vehicle) {
+    public void onVehicleStatusUpdate(VehicleState vehicle) {
         overviewFragment.onVehicleStatusUpdate();
         exteriorFragment.onVehicleStatusUpdate(ExteriorListItem.createExteriorListItems(
                 getApplicationContext().getResources(),
@@ -228,9 +228,9 @@ public class ConnectedVehicleActivity extends FragmentActivity implements IConne
     }
 
     public class PagerAdapter extends FragmentPagerAdapter {
-        VehicleStatus vehicle;
+        VehicleState vehicle;
 
-        public PagerAdapter(FragmentManager fragmentManager, VehicleStatus vehicle) {
+        public PagerAdapter(FragmentManager fragmentManager, VehicleState vehicle) {
             super(fragmentManager);
             this.vehicle = vehicle;
         }
