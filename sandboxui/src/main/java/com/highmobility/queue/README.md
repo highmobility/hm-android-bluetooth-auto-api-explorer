@@ -44,10 +44,11 @@ IBleCommandQueue iQueue = new IBleCommandQueue() {
   }
 
   @Override public void onCommandFailed(CommandFailure reason, Command sentCommand) {
-    // The command failed. All commands in queue are cancelled.
+    // A command failed. All commands in queue are cancelled.
   }
 
   @Override public void sendCommand(Command command) {
+    // Send a queue command via link 
     link.sendCommand(command, new Link.CommandCallback() {
         @Override public void onCommandSent() {
           queue.onCommandSent(command);
