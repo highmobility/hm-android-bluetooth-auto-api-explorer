@@ -95,10 +95,14 @@ public class CommandQueue {
     boolean typeAlreadyQueued(Command command) {
         for (int i = 0; i < items.size(); i++) {
             QueueItem_ item = items.get(i);
-            if (item.commandSent.getIdentifier() == command.getIdentifier() &&
-                    item.commandSent.getType() == command.getType()) return true;
+            if (isSameCommand(item.commandSent, command)) return true;
         }
         return false;
+    }
+
+    boolean isSameCommand(Command firstCommand, Command secondCommand) {
+        return (firstCommand.getIdentifier() == secondCommand.getIdentifier() &&
+                firstCommand.getType() == secondCommand.getType());
     }
 
     void sendItem() {
@@ -116,7 +120,7 @@ public class CommandQueue {
         // retry only if timeout, otherwise go straight to failure.
         if (items.size() == 0) return;
         QueueItem_ item = items.get(0);
-        if (item.commandSent.getType().equals(command.getType()) == false) return;
+        if (isSameCommand(item.commandSent, command) == false) return;
 
         item.sdkError = error;
         if (timeout && item.retryCount < retryCount) {

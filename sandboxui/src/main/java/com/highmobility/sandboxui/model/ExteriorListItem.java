@@ -39,8 +39,7 @@ public class ExteriorListItem {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.DOORS_LOCKED;
 
-            item.actionSupported = vehicle.isSupported(Doors.IDENTIFIER,
-                    Doors.PROPERTY_INSIDE_LOCKS_STATE);
+            item.actionSupported = vehicle.isSupported(Doors.IDENTIFIER, Doors.PROPERTY_LOCKS_STATE);
             item.title = "DOOR LOCKS";
 
             item.segmentCount = 2;

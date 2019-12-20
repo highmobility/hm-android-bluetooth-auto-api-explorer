@@ -44,7 +44,6 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
                         }
 
                         @Override public void onCommandFailed(TelematicsError telematicsError) {
-                            e("send telematics command error: %s", telematicsError.getMessage());
                             queue.onCommandFailedToSend(command, telematicsError);
                         }
                     });

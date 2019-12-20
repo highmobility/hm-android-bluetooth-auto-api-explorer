@@ -78,7 +78,7 @@ public class BleCommandQueue extends CommandQueue {
         if (items.size() == 0) return;
         QueueItem_ item = items.get(0);
 
-        if (command.getType().equals(item.commandSent.getType())) {
+        if (isSameCommand(item.commandSent, command)) {
             // if only waiting for an ack then finish the item
             ((IBleCommandQueue) listener).onCommandAck(item.commandSent);
             if (item.responseClass == null) {

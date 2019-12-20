@@ -242,8 +242,7 @@ public class ConnectedVehicleController {
     private void sendInitCommands() {
         // capabilities are required to know if action commands are available.
         queueCommand(new Capabilities.GetCapabilities(), Capabilities.State.class);
-        queueCommand(new VehicleStatus.GetVehicleStatus(),
-                VehicleStatus.State.class);
+        queueCommand(new VehicleStatus.GetVehicleStatus(), VehicleStatus.State.class);
     }
 
     public Intent willDestroy() {

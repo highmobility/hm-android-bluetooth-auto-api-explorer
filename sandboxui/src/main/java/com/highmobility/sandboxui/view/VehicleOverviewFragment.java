@@ -123,7 +123,7 @@ public class VehicleOverviewFragment extends Fragment {
                 lockButton.setImageResource(R.drawable.ovr_doorsunlockedhdpi);
             }
 
-            if (vehicle.isSupported(Doors.IDENTIFIER, Doors.PROPERTY_INSIDE_LOCKS_STATE)) {
+            if (vehicle.isSupported(Doors.IDENTIFIER, Doors.PROPERTY_LOCKS_STATE)) {
                 lockButton.setEnabled(true);
                 lockButton.setOnClickListener(v -> parent.controller.onLockDoorsClicked());
             } else {
