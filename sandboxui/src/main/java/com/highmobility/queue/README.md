@@ -11,11 +11,11 @@ BleCommandQueue queue;
 void sendCommands() {
   queue = new BleCommandQueue(iQueue);
   // get the VehicleStatus and wait for a response before sending OpenGasFlap.
-  queue.queue(new GetVehicleStatus(), VehicleStatusState.class); 
+  queue.queue(new VehicleStatus.GetVehicleStatus(), VehicleStatus.State.class);
   // send OpenGasFlap and only wait for the ack, not the GasFlapState response.
-  queue.queue(new OpenGasFlap());
+  queue.queue(new Fueling.ControlGasFlap(LockState.LOCKED, Position.CLOSED));
   // send HonkAndFlash straight after the OpenGasFlap ack.
-  queue.queue(new HonkAndFlash(3, 3));
+  queue.queue(new HonkHornFlashLights.HonkFlash(3, 3));
 }
 
 // forward all link communication to the queue.
