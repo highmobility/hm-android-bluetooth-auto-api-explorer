@@ -102,7 +102,7 @@ public class VehicleState {
                     state.getDefrostingState().getValue() == ActiveState.ACTIVE;
         } else if (command instanceof Doors.State) {
             Doors.State state = (Doors.State) command;
-            doorsLocked = state.getInsideLocksState().getValue() == LockState.LOCKED;
+            doorsLocked = state.getLocksState().getValue() == LockState.LOCKED;
         } else if (command instanceof Trunk.State) {
             Trunk.State state = (Trunk.State) command;
             trunkLockState = state.getLock().getValue();
