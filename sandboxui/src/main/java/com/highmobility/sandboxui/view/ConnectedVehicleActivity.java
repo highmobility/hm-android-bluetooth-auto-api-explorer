@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ *
+ * Copyright (c) 2014- High-Mobility GmbH (https://high-mobility.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.highmobility.sandboxui.view;
 
 import android.app.Activity;
@@ -17,7 +40,7 @@ import com.highmobility.sandboxui.controller.BroadcastFragment;
 import com.highmobility.sandboxui.controller.ConnectedVehicleBleController;
 import com.highmobility.sandboxui.controller.ConnectedVehicleController;
 import com.highmobility.sandboxui.model.ExteriorListItem;
-import com.highmobility.sandboxui.model.VehicleStatus;
+import com.highmobility.sandboxui.model.VehicleState;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -146,6 +169,9 @@ public class ConnectedVehicleActivity extends FragmentActivity implements IConne
                 showVehicleInfoView(false);
                 progressBar.setVisibility(View.INVISIBLE);
                 break;
+            case FAILED_TO_DOWNLOAD_CERT:
+                progressBar.setVisibility(View.INVISIBLE);
+                break;
             case CONNECTED:
                 if (broadcastFragment != null) {
                     broadcastFragment.getView().setVisibility(VISIBLE);
@@ -177,12 +203,12 @@ public class ConnectedVehicleActivity extends FragmentActivity implements IConne
     }
 
     @Override
-    public void onCapabilitiesUpdate(VehicleStatus vehicle) {
+    public void onCapabilitiesUpdate(VehicleState vehicle) {
 
     }
 
     @Override
-    public void onVehicleStatusUpdate(VehicleStatus vehicle) {
+    public void onVehicleStatusUpdate(VehicleState vehicle) {
         overviewFragment.onVehicleStatusUpdate();
         exteriorFragment.onVehicleStatusUpdate(ExteriorListItem.createExteriorListItems(
                 getApplicationContext().getResources(),
@@ -225,9 +251,9 @@ public class ConnectedVehicleActivity extends FragmentActivity implements IConne
     }
 
     public class PagerAdapter extends FragmentPagerAdapter {
-        VehicleStatus vehicle;
+        VehicleState vehicle;
 
-        public PagerAdapter(FragmentManager fragmentManager, VehicleStatus vehicle) {
+        public PagerAdapter(FragmentManager fragmentManager, VehicleState vehicle) {
             super(fragmentManager);
             this.vehicle = vehicle;
         }

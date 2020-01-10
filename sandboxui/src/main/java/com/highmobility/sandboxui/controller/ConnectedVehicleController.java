@@ -1,43 +1,56 @@
+/*
+ * The MIT License
+ *
+ * Copyright (c) 2014- High-Mobility GmbH (https://high-mobility.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.highmobility.sandboxui.controller;
 
 import android.content.Intent;
 
 import com.highmobility.autoapi.Capabilities;
-import com.highmobility.autoapi.ClimateState;
+import com.highmobility.autoapi.Climate;
 import com.highmobility.autoapi.Command;
-import com.highmobility.autoapi.CommandResolver;
-import com.highmobility.autoapi.ControlLights;
-import com.highmobility.autoapi.ControlRooftop;
-import com.highmobility.autoapi.ControlTrunk;
-import com.highmobility.autoapi.GetCapabilities;
-import com.highmobility.autoapi.GetVehicleStatus;
-import com.highmobility.autoapi.LightsState;
-import com.highmobility.autoapi.LockState;
-import com.highmobility.autoapi.LockUnlockDoors;
-import com.highmobility.autoapi.RooftopState;
-import com.highmobility.autoapi.StartStopDefrosting;
-import com.highmobility.autoapi.TrunkState;
-import com.highmobility.autoapi.Type;
+import com.highmobility.autoapi.Doors;
+import com.highmobility.autoapi.Lights;
+import com.highmobility.autoapi.RooftopControl;
+import com.highmobility.autoapi.Trunk;
+import com.highmobility.autoapi.VehicleStatus;
 import com.highmobility.autoapi.property.Property;
-import com.highmobility.autoapi.value.Lock;
+import com.highmobility.autoapi.value.ActiveState;
+import com.highmobility.autoapi.value.Light;
+import com.highmobility.autoapi.value.LockState;
 import com.highmobility.autoapi.value.Position;
-import com.highmobility.autoapi.value.lights.FogLight;
-import com.highmobility.autoapi.value.lights.FrontExteriorLightState;
-import com.highmobility.autoapi.value.lights.InteriorLamp;
-import com.highmobility.autoapi.value.lights.ReadingLamp;
+import com.highmobility.autoapi.value.ReadingLamp;
 import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.HMKit;
 import com.highmobility.hmkit.error.DownloadAccessCertificateError;
 import com.highmobility.queue.CommandFailure;
-import com.highmobility.sandboxui.model.VehicleStatus;
+import com.highmobility.sandboxui.model.VehicleState;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
-import com.highmobility.value.Bytes;
 
-import static com.highmobility.autoapi.value.Lock.LOCKED;
-import static com.highmobility.autoapi.value.Lock.UNLOCKED;
+import static com.highmobility.autoapi.value.LockState.LOCKED;
+import static com.highmobility.autoapi.value.LockState.UNLOCKED;
 import static timber.log.Timber.e;
 
 /**
@@ -55,7 +68,7 @@ public class ConnectedVehicleController {
     private String serviceName;
     private String[] initInfo;
 
-    public static VehicleStatus vehicle;
+    public static VehicleState vehicle;
     public AccessCertificate certificate;
     public DeviceSerial vehicleSerial;
 
@@ -70,13 +83,13 @@ public class ConnectedVehicleController {
 
     public void onLockDoorsClicked() {
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
-        Lock lockState = vehicle.doorsLocked == true ? UNLOCKED : LOCKED;
-        queueCommand(new LockUnlockDoors(lockState), LockState.TYPE);
+        LockState lockState = vehicle.doorsLocked == true ? UNLOCKED : LOCKED;
+        queueCommand(new Doors.LockUnlockDoors(lockState), Doors.State.class);
     }
 
     public void onLockTrunkClicked() {
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
-        Lock newLockState;
+        LockState newLockState;
         Position newPosition;
 
         if (vehicle.trunkLockState == LOCKED) {
@@ -87,15 +100,16 @@ public class ConnectedVehicleController {
             newPosition = Position.CLOSED;
         }
 
-        Command command = new ControlTrunk(newLockState, newPosition);
-        queueCommand(command, TrunkState.TYPE);
+        Command command = new Trunk.ControlTrunk(newLockState, newPosition);
+        queueCommand(command, Trunk.State.class);
     }
 
     public void onWindshieldDefrostingClicked() {
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
-        boolean startDefrosting = vehicle.isWindshieldDefrostingActive ? false : true;
-        Command command = new StartStopDefrosting(startDefrosting);
-        queueCommand(command, ClimateState.TYPE);
+        ActiveState startDefrosting = vehicle.isWindshieldDefrostingActive ?
+                ActiveState.INACTIVE : ActiveState.ACTIVE;
+        Command command = new Climate.StartStopDefrosting(startDefrosting);
+        queueCommand(command, Climate.State.class);
     }
 
     public void onSunroofVisibilityClicked() {
@@ -103,39 +117,38 @@ public class ConnectedVehicleController {
 
         double dimPercentage = vehicle.rooftopDimmingPercentage == 1d ? 0d : 1d;
 
-        Command command = new ControlRooftop(dimPercentage, vehicle.rooftopOpenPercentage, null,
+        Command command = new RooftopControl.ControlRooftop(dimPercentage, vehicle.rooftopOpenPercentage, null,
                 null, null);
-        queueCommand(command, RooftopState.TYPE);
+        queueCommand(command, RooftopControl.State.class);
     }
 
     public void onSunroofOpenClicked() {
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
         double openPercentage = vehicle.rooftopOpenPercentage == 0d ? 1d : 0d;
-        Command command = new ControlRooftop(vehicle.rooftopDimmingPercentage, openPercentage,
+        Command command = new RooftopControl.ControlRooftop(vehicle.rooftopDimmingPercentage, openPercentage,
                 null, null, null);
-        queueCommand(command, RooftopState.TYPE);
+        queueCommand(command, RooftopControl.State.class);
     }
 
     public void onFrontExteriorLightClicked(int segment) {
-        FrontExteriorLightState state;
-        if (segment == 0) state = FrontExteriorLightState.INACTIVE;
-        else if (segment == 1) state = FrontExteriorLightState.ACTIVE;
-        else state = FrontExteriorLightState.ACTIVE_FULL_BEAM;
+        Lights.FrontExteriorLight state;
+        if (segment == 0) state = Lights.FrontExteriorLight.INACTIVE;
+        else if (segment == 1) state = Lights.FrontExteriorLight.ACTIVE;
+        else state = Lights.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM;
 
-        if (state == vehicle.lightsState.getFrontExteriorLightState().getValue()) return;
+        if (state == vehicle.lightsState.getFrontExteriorLight().getValue()) return;
 
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
 
-        Command command = new ControlLights(state,
-                vehicle.lightsState.isRearExteriorLightActive().getValue(),
-                vehicle.lightsState.getAmbientColor().getValue(),
-                Property.propertiesToValues(vehicle.lightsState.getFogLights(), FogLight.class),
+        Command command = new Lights.ControlLights(state,
+                vehicle.lightsState.getRearExteriorLight().getValue(),
+                vehicle.lightsState.getAmbientLightColour().getValue(),
+                Property.propertiesToValues(vehicle.lightsState.getFogLights(), Light.class),
                 Property.propertiesToValues(vehicle.lightsState.getReadingLamps(),
                         ReadingLamp.class),
-                Property.propertiesToValues(vehicle.lightsState.getInteriorLamps(),
-                        InteriorLamp.class));
+                Property.propertiesToValues(vehicle.lightsState.getInteriorLights(), Light.class));
 
-        queueCommand(command, LightsState.TYPE);
+        queueCommand(command, Lights.State.class);
     }
 
     public void onRevokeClicked() {
@@ -144,7 +157,7 @@ public class ConnectedVehicleController {
 
     public void onRefreshClicked() {
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
-        queueCommand(new GetVehicleStatus(), com.highmobility.autoapi.VehicleStatus.TYPE);
+        queueCommand(new VehicleStatus.GetVehicleStatus(), VehicleStatus.State.class);
     }
 
     public static ConnectedVehicleController create(IConnectedVehicleView view,
@@ -184,7 +197,7 @@ public class ConnectedVehicleController {
         hmKit = hmKit.getInstance();
         this.view = view;
         this.useBle = useBle;
-        vehicle = new VehicleStatus();
+        vehicle = new VehicleState();
     }
 
     public void onViewInitialised() {
@@ -201,6 +214,11 @@ public class ConnectedVehicleController {
             view.setViewState(IConnectedVehicleView.ViewState.DOWNLOADING_CERT);
 
             if (initInfo.length != 4) throw new IllegalArgumentException("invalid init info");
+            try {
+                HMKit.getInstance().initialise(view.getActivity());
+            } catch (Exception e) {
+            }
+
             hmKit.setDeviceCertificate(initInfo[0], initInfo[1], initInfo[2]);
 
             if (vehicleSerial != null) certificate = hmKit.getCertificate(vehicleSerial);
@@ -215,6 +233,7 @@ public class ConnectedVehicleController {
                     @Override
                     public void onDownloadFailed(DownloadAccessCertificateError error) {
                         view.onError(true, "failed to download cert");
+                        view.setViewState(IConnectedVehicleView.ViewState.FAILED_TO_DOWNLOAD_CERT);
                     }
                 });
             } else {
@@ -245,8 +264,8 @@ public class ConnectedVehicleController {
 
     private void sendInitCommands() {
         // capabilities are required to know if action commands are available.
-        queueCommand(new GetCapabilities(), Capabilities.TYPE);
-        queueCommand(new GetVehicleStatus(), com.highmobility.autoapi.VehicleStatus.TYPE);
+        queueCommand(new Capabilities.GetCapabilities(), Capabilities.State.class);
+        queueCommand(new VehicleStatus.GetVehicleStatus(), VehicleStatus.State.class);
     }
 
     public Intent willDestroy() {
@@ -258,18 +277,17 @@ public class ConnectedVehicleController {
 
     }
 
-    void queueCommand(Command command, Type response) {
+    <T extends Command> void queueCommand(Command command, Class<T> response) {
         // telematics and ble have different queues and handle that in their classes
     }
 
-    void onCommandReceived(Bytes bytes, Command sentCommand) {
-        Command command = CommandResolver.resolve(bytes);
+    void onCommandReceived(Command command, Command sentCommand) {
         vehicle.update(command);
 
-        if (command instanceof Capabilities) {
+        if (command instanceof Capabilities.State) {
             view.onCapabilitiesUpdate(vehicle);
         } else {
-            if (initialising && command instanceof com.highmobility.autoapi.VehicleStatus) {
+            if (initialising && command instanceof VehicleStatus.State) {
                 initialising = false; // got vs, initialize is finished
             }
 

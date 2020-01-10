@@ -1,6 +1,30 @@
+/*
+ * The MIT License
+ *
+ * Copyright (c) 2014- High-Mobility GmbH (https://high-mobility.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.highmobility.sandboxui.controller;
 
 import com.highmobility.autoapi.Command;
+import com.highmobility.autoapi.CommandResolver;
 import com.highmobility.autoapi.Type;
 import com.highmobility.hmkit.Telematics;
 import com.highmobility.hmkit.error.TelematicsError;
@@ -26,7 +50,7 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
     }
 
     ICommandQueue iQueue = new ICommandQueue() {
-        @Override public void onCommandReceived(Bytes command, @Nullable Command sentCommand) {
+        @Override public void onCommandReceived(Command command, @Nullable Command sentCommand) {
             ConnectedVehicleTelematicsController.this.onCommandReceived(command, sentCommand);
         }
 
@@ -43,7 +67,6 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
                         }
 
                         @Override public void onCommandFailed(TelematicsError telematicsError) {
-                            e("send telematics command error: %s", telematicsError.getMessage());
                             queue.onCommandFailedToSend(command, telematicsError);
                         }
                     });
@@ -63,7 +86,7 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
         queue.purge();
     }
 
-    @Override void queueCommand(Command command, Type response) {
+    @Override <T extends Command> void queueCommand(Command command, Class<T> response) {
         // telematics queue does not need response type
         queue.queue(command);
     }

@@ -37,12 +37,11 @@ import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import timber.log.Timber;
 
 import static android.view.View.GONE;
 import static timber.log.Timber.d;
 
-public class BleExplorerActivity extends Activity {
+public class TelematicsExplorerActivity extends Activity {
     @BindView(R.id.progress_bar) ProgressBar progressBar;
     @BindView(R.id.status_text_view) TextView statusTextView;
 
@@ -76,7 +75,16 @@ public class BleExplorerActivity extends Activity {
         // PASTE SNIPPET HERE
 
         // PASTE ACCESS TOKEN HERE
-        String accessToken = "";
+        // xytt, serial EE4A67ED4B6A4BDA28
+        HMKit.webUrl = "https://sandbox.api.develop.high-mobility.net";
+        HMKit.getInstance().initialise(
+                "dGVzdKO0RDv7v7OkEoEdVMKtpAFXTBXLIVpwh+uteHP8UhWfRenOY1Qaphqh5t263riEdLxJ0gdlb3LoVY1Kg3+UkNh2OqQfXR9uu459DLS1RB/6jj3qsp9Uqs2ZFqYYlVwtOslErZNhZsKuPz2S+kWyuA3qImuQ0PBUZgfGV0nrG4pYaqyxoOM6QtaLhl8Bpo2ASGIXEaoG",
+                "4cgd48pTp7Qm4IyyWNPiwpOuSeJC+Bw7cWiVjEXk83s=",
+                "xmwpNk2LirIEQ2Qq3BtH0W+FfSmjEWZJ6Wd8wBvyHQH06t+EiqAjGLDaqCZCVzcMZrl4AxPBQVZYC9pruLqa5Q==",
+                getApplicationContext()
+        );
+
+        String accessToken ="d26a5335-d8ae-42ef-b26c-f90edc24fd16";
 
         HMKit.getInstance().downloadAccessCertificate(accessToken, new HMKit.DownloadCallback() {
             @Override
@@ -86,7 +94,7 @@ public class BleExplorerActivity extends Activity {
 
             @Override
             public void onDownloadFailed(DownloadAccessCertificateError error) {
-                BleExplorerActivity.this.onDownloadFailed(error.getMessage());
+                TelematicsExplorerActivity.this.onDownloadFailed(error.getMessage());
             }
         });
     }
@@ -100,12 +108,12 @@ public class BleExplorerActivity extends Activity {
     private void onCertificateDownloaded(DeviceSerial serial) {
         progressBar.setVisibility(GONE);
         d("Certificate downloaded for vehicle: %s", serial);
-        Intent i = new Intent(BleExplorerActivity.this, ConnectedVehicleActivity
+        Intent i = new Intent(TelematicsExplorerActivity.this, ConnectedVehicleActivity
                 .class);
         i.putExtra(ConnectedVehicleController.EXTRA_SERIAL, serial.getHex());
-        i.putExtra(ConnectedVehicleController.EXTRA_USE_BLE, true);
+        i.putExtra(ConnectedVehicleController.EXTRA_USE_BLE, false);
         i.putExtra(ConnectedVehicleActivity.EXTRA_FINISH_ON_BACK_PRESS, false);
         startActivity(i);
-        BleExplorerActivity.this.finish(); // this activity is irrelevant now. SDK is initialised.
+        TelematicsExplorerActivity.this.finish(); // this activity is irrelevant now. SDK is initialised.
     }
 }

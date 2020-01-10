@@ -1,0 +1,3 @@
+[submodule "hm-java-auto-api"]
+	path = hm-java-auto-api
+	url = git@github.com:highmobility/hm-java-auto-api.git

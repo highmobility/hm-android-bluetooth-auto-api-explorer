@@ -1,16 +1,36 @@
+/*
+ * The MIT License
+ *
+ * Copyright (c) 2014- High-Mobility GmbH (https://high-mobility.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.highmobility.sandboxui.model;
 
 import android.content.res.Resources;
 
-import com.highmobility.autoapi.ControlCommand;
-import com.highmobility.autoapi.ControlLights;
-import com.highmobility.autoapi.ControlRooftop;
-import com.highmobility.autoapi.ControlTrunk;
-import com.highmobility.autoapi.LightsState;
-import com.highmobility.autoapi.LockUnlockDoors;
-import com.highmobility.autoapi.StartStopDefrosting;
-import com.highmobility.autoapi.value.Lock;
-import com.highmobility.autoapi.value.lights.FrontExteriorLightState;
+import com.highmobility.autoapi.Climate;
+import com.highmobility.autoapi.Doors;
+import com.highmobility.autoapi.Lights;
+import com.highmobility.autoapi.RooftopControl;
+import com.highmobility.autoapi.Trunk;
+import com.highmobility.autoapi.value.LockState;
 import com.highmobility.sandboxui.R;
 
 import java.util.ArrayList;
@@ -33,14 +53,16 @@ public class ExteriorListItem {
     /**
      * Create the items that are displayed in exterior list view from VehicleStatus.
      */
-    public static ExteriorListItem[] createExteriorListItems(Resources resources, VehicleStatus vehicle) {
+    public static ExteriorListItem[] createExteriorListItems(Resources resources,
+                                                             VehicleState vehicle) {
         ArrayList<ExteriorListItem> builder = new ArrayList<>();
 
         // create the items:
         if (vehicle.doorsLocked != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.DOORS_LOCKED;
-            item.actionSupported = vehicle.isSupported(LockUnlockDoors.TYPE);
+
+            item.actionSupported = vehicle.isSupported(Doors.IDENTIFIER, Doors.PROPERTY_LOCKS_STATE);
             item.title = "DOOR LOCKS";
 
             item.segmentCount = 2;
@@ -66,13 +88,14 @@ public class ExteriorListItem {
         if (vehicle.trunkLockState != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.TRUNK_LOCK_STATE;
-            item.actionSupported = vehicle.isSupported(ControlTrunk.TYPE);
+            item.actionSupported = vehicle.isSupported(Trunk.IDENTIFIER,
+                    Trunk.PROPERTY_LOCK);
             item.title = "TRUNK LOCK";
 
             item.segmentCount = 2;
             item.segmentTitles = new String[2];
 
-            if (vehicle.trunkLockState == Lock.LOCKED) {
+            if (vehicle.trunkLockState == LockState.LOCKED) {
                 item.stateTitle = "LOCKED";
                 item.segmentTitles[0] = "LOCKED";
                 item.segmentTitles[1] = "UNLOCK";
@@ -91,7 +114,8 @@ public class ExteriorListItem {
         if (vehicle.isWindshieldDefrostingActive != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.IS_WINDSHIELD_DEFROSTING_ACTIVE;
-            item.actionSupported = vehicle.isSupported(StartStopDefrosting.TYPE);
+            item.actionSupported = vehicle.isSupported(Climate.IDENTIFIER,
+                    Climate.PROPERTY_DEFROSTING_STATE);
             item.title = "WINDSHIELD HEATING";
 
             item.segmentCount = 2;
@@ -117,7 +141,8 @@ public class ExteriorListItem {
         if (vehicle.rooftopDimmingPercentage != null) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.ROOFTOP_DIMMING_PERCENTAGE;
-            item.actionSupported = vehicle.isSupported(ControlRooftop.TYPE);
+            item.actionSupported = vehicle.isSupported(RooftopControl.IDENTIFIER,
+                    RooftopControl.PROPERTY_DIMMING);
             item.title = "ROOFTOP DIMMING";
 
             item.segmentCount = 2;
@@ -140,8 +165,9 @@ public class ExteriorListItem {
 
         if (vehicle.rooftopOpenPercentage != null) {
             ExteriorListItem item = new ExteriorListItem();
-            item.type = Type.ROOFTOP_OPEN_PERCENTAGE;
-            item.actionSupported = vehicle.isSupported(ControlRooftop.TYPE);
+            item.type = Type.ROOFTOP_POSITION;
+            item.actionSupported = vehicle.isSupported(RooftopControl.IDENTIFIER,
+                    RooftopControl.PROPERTY_POSITION);
             item.title = "ROOFTOP OPENING";
 
             item.segmentCount = 2;
@@ -164,11 +190,13 @@ public class ExteriorListItem {
             builder.add(item);
         }
 
-        if (vehicle.lightsState != null && vehicle.lightsState.getFrontExteriorLightState().getValue() != null) {
-            FrontExteriorLightState lightsState = vehicle.lightsState.getFrontExteriorLightState().getValue();
+        if (vehicle.lightsState != null && vehicle.lightsState.getFrontExteriorLight().getValue() != null) {
+            Lights.FrontExteriorLight lightsState =
+                    vehicle.lightsState.getFrontExteriorLight().getValue();
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.FRONT_EXTERIOR_LIGHT_STATE;
-            item.actionSupported = vehicle.isSupported(ControlLights.TYPE);
+            item.actionSupported = vehicle.isSupported(Lights.IDENTIFIER,
+                    Lights.PROPERTY_FRONT_EXTERIOR_LIGHT);
             item.title = resources.getString(R.string.frontLightsTitle);
 
             item.segmentCount = 3;
@@ -178,15 +206,15 @@ public class ExteriorListItem {
             item.segmentTitles[1] = "ACTIVE";
             item.segmentTitles[2] = "FULL BEAM";
 
-            if (lightsState == FrontExteriorLightState.INACTIVE) {
+            if (lightsState == Lights.FrontExteriorLight.INACTIVE) {
                 item.stateTitle = item.segmentTitles[0];
                 item.iconResId = R.drawable.ext_front_lights_off;
                 item.selectedSegment = 0;
-            } else if (lightsState == FrontExteriorLightState.ACTIVE) {
+            } else if (lightsState == Lights.FrontExteriorLight.ACTIVE) {
                 item.stateTitle = item.segmentTitles[1];
                 item.iconResId = R.drawable.ext_front_lights_on;
                 item.selectedSegment = 1;
-            } else if (lightsState == FrontExteriorLightState.ACTIVE_FULL_BEAM) {
+            } else if (lightsState == Lights.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM) {
                 item.stateTitle = item.segmentTitles[2];
                 item.iconResId = R.drawable.ext_front_lights_full_beam;
                 item.selectedSegment = 2;
@@ -195,7 +223,7 @@ public class ExteriorListItem {
             builder.add(item);
         }
 
-        if (vehicle.isSupported(ControlCommand.TYPE)) {
+        if (vehicle.isRemoteControlSupported()) {
             ExteriorListItem item = new ExteriorListItem();
             item.type = Type.REMOTE_CONTROL;
             item.title = "REMOTE CONTROL";
@@ -218,7 +246,7 @@ public class ExteriorListItem {
         TRUNK_LOCK_STATE,
         IS_WINDSHIELD_DEFROSTING_ACTIVE,
         ROOFTOP_DIMMING_PERCENTAGE,
-        ROOFTOP_OPEN_PERCENTAGE,
+        ROOFTOP_POSITION,
         FRONT_EXTERIOR_LIGHT_STATE,
         REMOTE_CONTROL
     }

@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ *
+ * Copyright (c) 2014- High-Mobility GmbH (https://high-mobility.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.highmobility.sandboxui.controller;
 
 import android.content.Intent;
@@ -6,21 +29,19 @@ import android.widget.Toast;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.autoapi.CommandResolver;
-import com.highmobility.autoapi.ControlCommand;
-import com.highmobility.autoapi.ControlMode;
-import com.highmobility.autoapi.Failure;
-import com.highmobility.autoapi.GetControlMode;
-import com.highmobility.autoapi.StartControlMode;
+
+import com.highmobility.autoapi.FailureMessage;
+import com.highmobility.autoapi.RemoteControl;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
 import com.highmobility.hmkit.HMKit;
 import com.highmobility.hmkit.Link;
+import com.highmobility.hmkit.error.AuthenticationError;
 import com.highmobility.hmkit.error.LinkError;
-import com.highmobility.sandboxui.model.VehicleStatus;
+import com.highmobility.sandboxui.model.VehicleState;
 import com.highmobility.sandboxui.util.ITapToControlCommandConverter;
 import com.highmobility.sandboxui.util.TapToControlCommandConverter;
 import com.highmobility.sandboxui.view.IRemoteControlView;
-import com.highmobility.utils.ByteUtils;
 import com.highmobility.value.Bytes;
 
 import java.util.List;
@@ -39,7 +60,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
     IRemoteControlView view;
 
     ConnectedLink link;
-    VehicleStatus vehicle;
+    VehicleState vehicle;
     CountDownTimer timeoutTimer;
     boolean initializing = true;
     boolean controlling = false;
@@ -67,19 +88,21 @@ public class RemoteControlController implements IRemoteControlController, Connec
     }
 
     @Override
-    public void onAuthorizationRequested(ConnectedLink link, ConnectedLinkListener
-            .AuthorizationCallback callback) {
-
+    public void onAuthenticationRequest(ConnectedLink link, ConnectedLinkListener
+            .AuthenticationRequestCallback callback) {
     }
 
     @Override
-    public void onAuthorizationTimeout(ConnectedLink link) {
+    public void onAuthenticationRequestTimeout(ConnectedLink link) {
+    }
 
+    @Override public void onAuthenticationFailed(Link link, AuthenticationError error) {
+        d("onAuthenticationFailed(): %s", error.getMessage());
     }
 
     @Override
-    public void onStateChanged(Link link, Link.State state) {
-        if (link.getState() != Link.State.AUTHENTICATED) {
+    public void onStateChanged(Link link, Link.State newState, Link.State oldState) {
+        if (newState != Link.State.AUTHENTICATED) {
             if (initializing) {
                 onInitializeFinished(1, "Not authenticated");
             } else {
@@ -92,15 +115,14 @@ public class RemoteControlController implements IRemoteControlController, Connec
     public void onCommandReceived(Link link, Bytes bytes) {
         Command command = CommandResolver.resolve(bytes);
 
-        if (command instanceof ControlMode) {
-            ControlMode controlMode = (ControlMode) command;
-            onControlModeUpdate(controlMode);
-        } else if (command instanceof Failure) {
-            Failure failure = (Failure) command;
+        if (command instanceof RemoteControl.State) {
+            RemoteControl.State controlMode = (RemoteControl.State) command;
+            onRemoteControlStateUpdate(controlMode);
+        } else if (command instanceof FailureMessage.State) {
+            FailureMessage.State failure = (FailureMessage.State) command;
             d("failure %s", failure.getFailureReason().toString());
             if (initializing) {
-                onInitializeFinished(1, ByteUtils.hexFromBytes(failure.getFailedType()
-                        .getIdentifierAndType())
+                onInitializeFinished(1, failure.getFailedMessageID() + " " + failure.getFailedMessageType()
                         + " failed: " + failure.getFailureReason().toString());
             } else {
                 onCommandFinished(failure.getFailureReason().toString());
@@ -145,7 +167,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
         view.showLoadingView(true);
         startInitializeTimer();
 
-        link.sendCommand(new GetControlMode(), new Link.CommandCallback() {
+        link.sendCommand(new RemoteControl.GetControlState(), new Link.CommandCallback() {
             @Override
             public void onCommandSent() {
 
@@ -158,15 +180,15 @@ public class RemoteControlController implements IRemoteControlController, Connec
         });
     }
 
-    void onControlModeUpdate(ControlMode controlMode) {
-        d("onControlModeUpdate(): %s", controlMode.getMode().toString());
+    void onRemoteControlStateUpdate(RemoteControl.State remoteControl) {
+        d("onRemoteControl.StateUpdate(): %s", remoteControl.getControlMode().toString());
 
-        ControlMode.Value controlModeValue = controlMode.getMode().getValue();
+        RemoteControl.ControlMode controlModeValue = remoteControl.getControlMode().getValue();
 
         if (initializing) {
             // we are initializing
-            if (controlModeValue == ControlMode.Value.AVAILABLE) {
-                link.sendCommand(new StartControlMode(true), new Link.CommandCallback() {
+            if (controlModeValue == RemoteControl.ControlMode.AVAILABLE) {
+                link.sendCommand(new RemoteControl.StartControl(), new Link.CommandCallback() {
                     @Override
                     public void onCommandSent() {
                         // wait for the control command
@@ -177,12 +199,12 @@ public class RemoteControlController implements IRemoteControlController, Connec
                         onInitializeFinished(1, linkError.getType() + ": Cant start control mode");
                     }
                 });
-            } else if (controlModeValue == ControlMode.Value.STARTED) {
+            } else if (controlModeValue == RemoteControl.ControlMode.STARTED) {
                 onInitializeFinished(0, "");
             } else {
                 onInitializeFinished(1, "Bad control mode " + controlModeValue);
             }
-        } else if (controlModeValue != ControlMode.Value.STARTED) {
+        } else if (controlModeValue != RemoteControl.ControlMode.STARTED) {
             onInitializeFinished(1, "Bad control mode " + controlModeValue);
         }
     }
@@ -217,7 +239,7 @@ public class RemoteControlController implements IRemoteControlController, Connec
         final int angle = converter.getAngle();
         final int speed = converter.getSpeed();
 
-        link.sendCommand(new ControlCommand(speed, angle), new Link.CommandCallback() {
+        link.sendCommand(new RemoteControl.ControlCommand(speed, angle), new Link.CommandCallback() {
             @Override
             public void onCommandSent() {
                 if (speed == 0 && converter.getSpeed() == 0 && converter.getAngle() == angle) {

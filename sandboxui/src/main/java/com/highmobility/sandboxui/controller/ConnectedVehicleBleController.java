@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ *
+ * Copyright (c) 2014- High-Mobility GmbH (https://high-mobility.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.highmobility.sandboxui.controller;
 
 import android.content.Context;
@@ -6,7 +29,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 
 import com.highmobility.autoapi.Command;
-import com.highmobility.autoapi.Type;
 import com.highmobility.hmkit.BroadcastConfiguration;
 import com.highmobility.hmkit.Broadcaster;
 import com.highmobility.hmkit.Broadcaster.State;
@@ -14,6 +36,7 @@ import com.highmobility.hmkit.BroadcasterListener;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
 import com.highmobility.hmkit.Link;
+import com.highmobility.hmkit.error.AuthenticationError;
 import com.highmobility.hmkit.error.BroadcastError;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.hmkit.error.RevokeError;
@@ -78,6 +101,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     }
 
     public void onBroadcastSerialSwitchChanged(boolean on) {
+        if (broadcaster == null) return; // in tests the cert is downloaded first
         broadcaster.stopBroadcasting();
 
         isBroadcastingSerial = on;
@@ -110,15 +134,14 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             if (certificate.getGainerSerial().equals(link.getSerial())) {
                 linkExists = true;
                 onLinkReceived(link);
-                onStateChanged(link, link.getState());
+                onStateChanged(link, link.getState(), link.getState());
             }
         }
 
         if (linkExists == false) startBroadcasting();
     }
 
-    @Override
-    void queueCommand(Command command, Type response) {
+    @Override <T extends Command> void queueCommand(Command command, Class<T> response) {
         // link could be lost at any time and for instance on initialize it could try to send
         // commands without checking
         if (link == null) {
@@ -232,19 +255,23 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
     }
 
     @Override
-    public void onAuthorizationRequested(ConnectedLink connectedLink, ConnectedLinkListener
-            .AuthorizationCallback callback) {
+    public void onAuthenticationRequest(ConnectedLink connectedLink, ConnectedLinkListener
+            .AuthenticationRequestCallback callback) {
         callback.approve();
     }
 
     @Override
-    public void onAuthorizationTimeout(ConnectedLink connectedLink) {
+    public void onAuthenticationRequestTimeout(ConnectedLink connectedLink) {
         view.onError(true, "authorization request timed out");
         view.getActivity().finish();
     }
 
+    @Override public void onAuthenticationFailed(Link link, AuthenticationError error) {
+        d("onAuthenticationFailed(): %s", error.getMessage());
+    }
+
     @Override
-    public void onStateChanged(Link link, Link.State state) {
+    public void onStateChanged(Link link, Link.State newState, Link.State oldState) {
         d("link state changed %s", link.getState());
         if (link == this.link) {
             String stateString = "link: " + link.getState().toString().toLowerCase();
@@ -273,7 +300,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             // we dont care about ack
         }
 
-        @Override public void onCommandReceived(Bytes command, Command sentCommand) {
+        @Override public void onCommandReceived(Command command, Command sentCommand) {
             ConnectedVehicleBleController.this.onCommandReceived(command, sentCommand);
         }
 

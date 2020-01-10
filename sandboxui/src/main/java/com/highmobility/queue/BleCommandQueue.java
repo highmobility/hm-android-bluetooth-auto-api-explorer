@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ *
+ * Copyright (c) 2014- High-Mobility GmbH (https://high-mobility.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.highmobility.queue;
 
 import com.highmobility.autoapi.Command;
@@ -56,10 +79,11 @@ public class BleCommandQueue extends CommandQueue {
     /**
      * Queue the command and wait for its response command.
      *
-     * @param command The command and its response that will be queued.
+     * @param command      The command that will be queued.
+     * @param responseType The command's response type
      * @return false if cannot queue at this time - maybe this command type is already queued.
      */
-    public boolean queue(Command command, Type responseType) {
+    public <T extends Command> boolean queue(Command command, Class<T> responseType) {
         if (typeAlreadyQueued(command)) return false;
         QueueItem_ item = new QueueItem_(command, responseType);
         items.add(item);
@@ -77,10 +101,10 @@ public class BleCommandQueue extends CommandQueue {
         if (items.size() == 0) return;
         QueueItem_ item = items.get(0);
 
-        if (command.getType().equals(item.commandSent.getType())) {
+        if (isSameCommand(item.commandSent, command)) {
             // if only waiting for an ack then finish the item
             ((IBleCommandQueue) listener).onCommandAck(item.commandSent);
-            if (item.responseType == null) {
+            if (item.responseClass == null) {
                 items.remove(0);
                 sendItem();
             }

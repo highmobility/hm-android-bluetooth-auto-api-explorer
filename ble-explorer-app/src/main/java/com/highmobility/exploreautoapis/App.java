@@ -21,9 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.highmobility.sandboxui.controller;
+package com.highmobility.exploreautoapis;
 
-public interface IRemoteControlController {
-    void onMoveButtonClicked(int index);
-    void onStopButtonClicked();
+import android.app.Application;
+
+import com.highmobility.hmkit.HMKit;
+
+import timber.log.Timber;
+
+public class App extends Application {
+    @Override public void onCreate() {
+        super.onCreate();
+        // get logs from HMKit
+        Timber.plant(new Timber.DebugTree());
+    }
 }

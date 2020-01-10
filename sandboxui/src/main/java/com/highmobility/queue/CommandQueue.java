@@ -1,9 +1,31 @@
+/*
+ * The MIT License
+ *
+ * Copyright (c) 2014- High-Mobility GmbH (https://high-mobility.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.highmobility.queue;
 
 import com.highmobility.autoapi.Command;
-import com.highmobility.autoapi.Failure;
-import com.highmobility.autoapi.Type;
-import com.highmobility.utils.ByteUtils;
+import com.highmobility.autoapi.CommandResolver;
+import com.highmobility.autoapi.FailureMessage;
 import com.highmobility.value.Bytes;
 
 import java.util.ArrayList;
@@ -24,8 +46,6 @@ public class CommandQueue {
     long timeout;
     int retryCount;
     ArrayList<QueueItem_> items = new ArrayList<>();
-    // for telematics, there can only be responses for commands. No other commands.
-    boolean allCommandsAreResponses;
 
     ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     ScheduledFuture<?> retryHandle;
@@ -34,6 +54,7 @@ public class CommandQueue {
         this.listener = listener;
         this.timeout = timeout;
         this.retryCount = retryCount;
+        CommandResolver.setRuntime(CommandResolver.RunTime.ANDROID);
     }
 
     /**
@@ -58,7 +79,9 @@ public class CommandQueue {
         stopTimer();
     }
 
-    public void onCommandReceived(Bytes command) {
+    public void onCommandReceived(Bytes commandBytes) {
+        Command command = CommandResolver.resolve(commandBytes);
+
         // queue is empty
         if (items.size() == 0) {
             listener.onCommandReceived(command, null);
@@ -68,18 +91,18 @@ public class CommandQueue {
         // we only care about first item in queue.
         QueueItem_ item = items.get(0);
 
-        if (command instanceof Failure) {
-            Failure failure = (Failure) command;
+        if (command instanceof FailureMessage.State) {
+            FailureMessage.State failure = (FailureMessage.State) command;
 
-            if (item.commandSent.getType().equals(failure.getFailedType())) {
+            if (failure.getCommandFailed(item.commandSent.getIdentifier(),
+                    item.commandSent.getType())) {
                 item.failure = failure;
                 failItem();
             }
         } else if (command.getLength() > 2) {
-            if (allCommandsAreResponses || (
-                    item.responseType != null &&
-                            ByteUtils.startsWith(command.getByteArray(), item.responseType
-                                    .getIdentifierAndType()))) {
+            // for telematics, there are only responses for sent commands. No random incoming
+            // commands.
+            if (this instanceof TelematicsCommandQueue || command.getClass() == item.responseClass) {
                 // received a command of expected type
                 listener.onCommandReceived(command, item.commandSent);
                 items.remove(0);
@@ -95,9 +118,14 @@ public class CommandQueue {
     boolean typeAlreadyQueued(Command command) {
         for (int i = 0; i < items.size(); i++) {
             QueueItem_ item = items.get(i);
-            if (item.commandSent.getType().equals(command.getType())) return true;
+            if (isSameCommand(item.commandSent, command)) return true;
         }
         return false;
+    }
+
+    boolean isSameCommand(Command firstCommand, Command secondCommand) {
+        return (firstCommand.getIdentifier() == secondCommand.getIdentifier() &&
+                firstCommand.getType() == secondCommand.getType());
     }
 
     void sendItem() {
@@ -115,7 +143,7 @@ public class CommandQueue {
         // retry only if timeout, otherwise go straight to failure.
         if (items.size() == 0) return;
         QueueItem_ item = items.get(0);
-        if (item.commandSent.getType().equals(command.getType()) == false) return;
+        if (isSameCommand(item.commandSent, command) == false) return;
 
         item.sdkError = error;
         if (timeout && item.retryCount < retryCount) {
@@ -184,20 +212,20 @@ public class CommandQueue {
         }
     }
 
-    protected class QueueItem_ {
+    protected class QueueItem_<T extends Command> {
         Command commandSent;
 
         boolean timeout;
         Object sdkError;
-        Failure failure;
+        FailureMessage.State failure;
 
         Calendar timeSent;
         int retryCount;
-        @Nullable Type responseType;
+        @Nullable Class<T> responseClass;
 
-        public QueueItem_(Command commandSent, @Nullable Type responseType) {
+        public QueueItem_(Command commandSent, @Nullable Class<T> responseClass) {
             this.commandSent = commandSent;
-            this.responseType = responseType;
+            this.responseClass = responseClass;
         }
     }
 }

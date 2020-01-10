@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ *
+ * Copyright (c) 2014- High-Mobility GmbH (https://high-mobility.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.highmobility.sandboxui.view;
 
 import android.net.Uri;
@@ -9,15 +32,14 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.highmobility.autoapi.ControlCommand;
-import com.highmobility.autoapi.ControlRooftop;
-import com.highmobility.autoapi.ControlTrunk;
-import com.highmobility.autoapi.LockUnlockDoors;
-import com.highmobility.autoapi.StartStopDefrosting;
+import com.highmobility.autoapi.Climate;
+import com.highmobility.autoapi.Doors;
+import com.highmobility.autoapi.RooftopControl;
+import com.highmobility.autoapi.Trunk;
 import com.highmobility.autoapi.VehicleLocation;
-import com.highmobility.autoapi.value.Lock;
+import com.highmobility.autoapi.value.LockState;
 import com.highmobility.sandboxui.R;
-import com.highmobility.sandboxui.model.VehicleStatus;
+import com.highmobility.sandboxui.model.VehicleState;
 
 import androidx.fragment.app.Fragment;
 
@@ -40,7 +62,7 @@ public class VehicleOverviewFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    VehicleStatus vehicle;
+    VehicleState vehicle;
     ConnectedVehicleActivity parent;
     private OnFragmentInteractionListener mListener;
 
@@ -48,7 +70,7 @@ public class VehicleOverviewFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static VehicleOverviewFragment newInstance(VehicleStatus vehicle,
+    public static VehicleOverviewFragment newInstance(VehicleState vehicle,
                                                       ConnectedVehicleActivity connectedVehicleActivity) {
         VehicleOverviewFragment fragment = new VehicleOverviewFragment();
         fragment.vehicle = vehicle;
@@ -56,7 +78,7 @@ public class VehicleOverviewFragment extends Fragment {
         return fragment;
     }
 
-    public void setVehicle(VehicleStatus vehicle) {
+    public void setVehicle(VehicleState vehicle) {
         this.vehicle = vehicle;
     }
 
@@ -65,7 +87,7 @@ public class VehicleOverviewFragment extends Fragment {
     }
 
     void updateViews() {
-        if (vehicle.isSupported(ControlCommand.TYPE)) {
+        if (vehicle.isRemoteControlSupported()) {
             remoteControlButton.setVisibility(View.VISIBLE);
         } else {
             remoteControlButton.setVisibility(View.GONE);
@@ -79,7 +101,7 @@ public class VehicleOverviewFragment extends Fragment {
                 sunroofButton.setImageResource(R.drawable.ovr_sunrooftransparenthdpi);
             }
 
-            if (vehicle.isSupported(ControlRooftop.TYPE)) {
+            if (vehicle.isSupported(RooftopControl.IDENTIFIER, RooftopControl.PROPERTY_SUNROOF_STATE)) {
                 // disable button
                 sunroofButton.setEnabled(true);
                 sunroofButton.setOnClickListener(v -> parent.controller.onSunroofVisibilityClicked());
@@ -104,7 +126,7 @@ public class VehicleOverviewFragment extends Fragment {
                 defrostButton.setImageResource(R.drawable.ovr_defrostinactivehdpi);
             }
 
-            if (vehicle.isSupported(StartStopDefrosting.TYPE)) {
+            if (vehicle.isSupported(Climate.IDENTIFIER, Climate.PROPERTY_DEFROSTING_STATE)) {
                 defrostButton.setEnabled(true);
                 defrostButton.setOnClickListener(v -> parent.controller.onWindshieldDefrostingClicked());
             } else {
@@ -124,7 +146,7 @@ public class VehicleOverviewFragment extends Fragment {
                 lockButton.setImageResource(R.drawable.ovr_doorsunlockedhdpi);
             }
 
-            if (vehicle.isSupported(LockUnlockDoors.TYPE)) {
+            if (vehicle.isSupported(Doors.IDENTIFIER, Doors.PROPERTY_LOCKS_STATE)) {
                 lockButton.setEnabled(true);
                 lockButton.setOnClickListener(v -> parent.controller.onLockDoorsClicked());
             } else {
@@ -135,17 +157,17 @@ public class VehicleOverviewFragment extends Fragment {
             lockButton.setVisibility(View.GONE);
         }
 
-        Lock state = vehicle.trunkLockState;
+        LockState state = vehicle.trunkLockState;
         if (state != null) {
             trunkButton.setVisibility(View.VISIBLE);
 
-            if (state == Lock.LOCKED) {
+            if (state == LockState.LOCKED) {
                 trunkButton.setImageResource(R.drawable.ovr_trunklockedhdpi);
             } else {
                 trunkButton.setImageResource(R.drawable.ovr_trunkunlockedhdpi);
             }
 
-            if (vehicle.isSupported(ControlTrunk.TYPE)) {
+            if (vehicle.isSupported(Trunk.IDENTIFIER, Trunk.PROPERTY_LOCK)) {
                 trunkButton.setEnabled(true);
 
                 trunkButton.setOnClickListener(v -> parent.controller.onLockTrunkClicked());
@@ -156,7 +178,7 @@ public class VehicleOverviewFragment extends Fragment {
             trunkButton.setVisibility(View.GONE);
         }
 
-        if (vehicle.isSupported(VehicleLocation.TYPE)) {
+        if (vehicle.isSupported(VehicleLocation.IDENTIFIER, VehicleLocation.PROPERTY_COORDINATES)) {
             gpsIndicatorContainer.setVisibility(View.VISIBLE);
         } else {
             gpsIndicatorContainer.setVisibility(View.GONE);
