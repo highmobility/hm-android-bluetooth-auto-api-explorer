@@ -75,16 +75,8 @@ public class TelematicsExplorerActivity extends Activity {
         // PASTE SNIPPET HERE
 
         // PASTE ACCESS TOKEN HERE
-        // xytt, serial EE4A67ED4B6A4BDA28
-        HMKit.webUrl = "https://sandbox.api.develop.high-mobility.net";
-        HMKit.getInstance().initialise(
-                "dGVzdKO0RDv7v7OkEoEdVMKtpAFXTBXLIVpwh+uteHP8UhWfRenOY1Qaphqh5t263riEdLxJ0gdlb3LoVY1Kg3+UkNh2OqQfXR9uu459DLS1RB/6jj3qsp9Uqs2ZFqYYlVwtOslErZNhZsKuPz2S+kWyuA3qImuQ0PBUZgfGV0nrG4pYaqyxoOM6QtaLhl8Bpo2ASGIXEaoG",
-                "4cgd48pTp7Qm4IyyWNPiwpOuSeJC+Bw7cWiVjEXk83s=",
-                "xmwpNk2LirIEQ2Qq3BtH0W+FfSmjEWZJ6Wd8wBvyHQH06t+EiqAjGLDaqCZCVzcMZrl4AxPBQVZYC9pruLqa5Q==",
-                getApplicationContext()
-        );
-
-        String accessToken ="d26a5335-d8ae-42ef-b26c-f90edc24fd16";
+        
+        String accessToken = "";
 
         HMKit.getInstance().downloadAccessCertificate(accessToken, new HMKit.DownloadCallback() {
             @Override
