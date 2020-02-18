@@ -78,17 +78,17 @@ class InstrABluetooth : BaseConnectedVehicle() {
                     IdlingPolicies.setIdlingResourceTimeout(1, TimeUnit.MINUTES)
 
                     var testResources =
-                            InstrumentationRegistry.getInstrumentation().context.resources
+                            InstrumentationRegistry.getInstrumentation().targetContext.resources
 
                     val intent = Intent()
                     intent.putExtra(EXTRA_USE_BLE, true)
                     intent.putExtra(EXTRA_SERVICE_NAME, "TEST")
 
                     intent.putExtra(EXTRA_INIT_INFO, String.format("%s:%s:%s:%s",
-                            testResources.getString(com.highmobility.exploreautoapis.test.R.string.deviceCert),
-                            testResources.getString(com.highmobility.exploreautoapis.test.R.string.privateKey),
-                            testResources.getString(com.highmobility.exploreautoapis.test.R.string.issuerPublicKey),
-                            testResources.getString(com.highmobility.exploreautoapis.test.R.string.accessToken)))
+                            testResources.getString(R.string.prodDeviceCert),
+                            testResources.getString(R.string.prodPrivateKey),
+                            testResources.getString(R.string.prodIssuerPublicKey),
+                            testResources.getString(R.string.prodAccessToken)))
 
                     return intent
                 }
