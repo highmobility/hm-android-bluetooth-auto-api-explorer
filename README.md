@@ -14,6 +14,7 @@ Bluetooth and send some commands like lock doors and turn on lights.
 Dependencies are managed via gradle repositories.
 
 ## Install
+* run `git submodule update --init --recursive`
 
 * Import the Gradle project with Android Studio 3+.
 
