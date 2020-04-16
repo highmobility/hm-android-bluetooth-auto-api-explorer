@@ -36,7 +36,7 @@ task clean(type: Delete) {
 }
 
 ext {
-    releaseType = 1
+    releaseType = 0
 
     // override deploy.settings repos
     if (releaseType == 1) {
