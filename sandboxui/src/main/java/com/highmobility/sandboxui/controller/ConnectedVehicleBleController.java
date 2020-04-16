@@ -29,6 +29,10 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 
 import com.highmobility.autoapi.Command;
+import com.highmobility.commandqueue.BleCommandQueue;
+import com.highmobility.commandqueue.CommandFailure;
+import com.highmobility.commandqueue.CommandQueue;
+import com.highmobility.commandqueue.IBleCommandQueue;
 import com.highmobility.hmkit.BroadcastConfiguration;
 import com.highmobility.hmkit.Broadcaster;
 import com.highmobility.hmkit.Broadcaster.State;
@@ -40,9 +44,6 @@ import com.highmobility.hmkit.error.AuthenticationError;
 import com.highmobility.hmkit.error.BroadcastError;
 import com.highmobility.hmkit.error.LinkError;
 import com.highmobility.hmkit.error.RevokeError;
-import com.highmobility.queue.BleCommandQueue;
-import com.highmobility.queue.CommandFailure;
-import com.highmobility.queue.IBleCommandQueue;
 import com.highmobility.sandboxui.R;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;
@@ -51,6 +52,8 @@ import com.highmobility.sandboxui.view.RemoteControlActivity;
 import com.highmobility.value.Bytes;
 
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import static com.highmobility.hmkit.Broadcaster.State.BLUETOOTH_UNAVAILABLE;
 import static timber.log.Timber.d;
@@ -300,12 +303,13 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             // we dont care about ack
         }
 
-        @Override public void onCommandReceived(Command command, Command sentCommand) {
-            ConnectedVehicleBleController.this.onCommandReceived(command, sentCommand);
+        @Override
+        public void onCommandReceived(Command command, @Nullable CommandQueue.QueueItem queueItem) {
+            ConnectedVehicleBleController.this.onCommandReceived(command, queueItem.commandSent);
         }
 
-        @Override public void onCommandFailed(CommandFailure reason, Command sentCommand) {
-            ConnectedVehicleBleController.this.onCommandFailed(sentCommand, reason);
+        @Override public void onCommandFailed(CommandFailure commandFailure, Command command) {
+            ConnectedVehicleBleController.this.onCommandFailed(command, commandFailure);
         }
 
         @Override public void sendCommand(Command command) {

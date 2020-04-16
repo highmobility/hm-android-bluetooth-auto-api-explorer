@@ -39,11 +39,12 @@ import com.highmobility.autoapi.value.Light;
 import com.highmobility.autoapi.value.LockState;
 import com.highmobility.autoapi.value.Position;
 import com.highmobility.autoapi.value.ReadingLamp;
+import com.highmobility.commandqueue.CommandFailure;
 import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.HMKit;
 import com.highmobility.hmkit.error.DownloadAccessCertificateError;
-import com.highmobility.queue.CommandFailure;
+
 import com.highmobility.sandboxui.model.VehicleState;
 import com.highmobility.sandboxui.view.ConnectedVehicleActivity;
 import com.highmobility.sandboxui.view.IConnectedVehicleBleView;

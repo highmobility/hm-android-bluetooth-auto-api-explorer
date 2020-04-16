@@ -9,8 +9,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.13.0"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -35,21 +35,34 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
+ext {
+    releaseType = 1
+
+    // override deploy.settings repos
+    if (releaseType == 1) {
+        repo = "gradle-dev-local"
+    } else if (releaseType == 2) {
+        repo = "gradle-release-local"
+    }
+}
+
 // these are not release numbers. release numbers are in deploy.settings files.
 ext.ver = [
-        crypto    : "1.4.5",
-        utils     : "1.4.4",
-        hmkit     : "2.0.2",
-        autoApi   : "3.11.1",
-        compileSdk: 28
+        crypto          : "1.4.5",
+        utils           : "1.4.4",
+        hmkit           : "2.0.2",
+        autoApi         : "3.11.1",
+        commandQueue    : "1.0",
+        compileSdk      : 29
 ]
 
 ext.deps = [
-        "hmkit"   : "com.highmobility:hmkit-android:${ver.hmkit}@aar",
-        "crypto"  : "com.highmobility:hmkit-crypto:${ver.crypto}",
-        "utils"   : "com.highmobility:hmkit-utils:${ver.utils}",
-        "autoApi" : "com.highmobility:hmkit-auto-api:${ver.autoApi}",
-        "timber"  : "com.jakewharton.timber:timber:4.7.1",
-        "volley"  : "com.android.volley:volley:1.1.1",
-        "findBugs": 'com.google.code.findbugs:jsr305:3.0.2'
+        "hmkit"         : "com.highmobility:hmkit-android:${ver.hmkit}@aar",
+        "crypto"        : "com.highmobility:hmkit-crypto:${ver.crypto}",
+        "utils"         : "com.highmobility:hmkit-utils:${ver.utils}",
+        "autoApi"       : "com.highmobility:hmkit-auto-api:${ver.autoApi}",
+        "commandQueue"  : "com.highmobility:command-queue-android:${ver.commandQueue}",
+        "timber"        : "com.jakewharton.timber:timber:4.7.1",
+        "volley"        : "com.android.volley:volley:1.1.1",
+        "findBugs"      : 'com.google.code.findbugs:jsr305:3.0.2'
 ]

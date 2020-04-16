@@ -24,19 +24,17 @@
 package com.highmobility.sandboxui.controller;
 
 import com.highmobility.autoapi.Command;
-import com.highmobility.autoapi.CommandResolver;
-import com.highmobility.autoapi.Type;
+import com.highmobility.commandqueue.CommandFailure;
+import com.highmobility.commandqueue.CommandQueue;
+import com.highmobility.commandqueue.ICommandQueue;
+import com.highmobility.commandqueue.QueueItem;
+import com.highmobility.commandqueue.TelematicsCommandQueue;
 import com.highmobility.hmkit.Telematics;
 import com.highmobility.hmkit.error.TelematicsError;
-import com.highmobility.queue.CommandFailure;
-import com.highmobility.queue.ICommandQueue;
-import com.highmobility.queue.TelematicsCommandQueue;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
 import com.highmobility.value.Bytes;
 
-import androidx.annotation.Nullable;
-
-import static timber.log.Timber.e;
+import javax.annotation.Nullable;
 
 /**
  * Created by root on 24/05/2017.
@@ -50,12 +48,14 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
     }
 
     ICommandQueue iQueue = new ICommandQueue() {
-        @Override public void onCommandReceived(Command command, @Nullable Command sentCommand) {
-            ConnectedVehicleTelematicsController.this.onCommandReceived(command, sentCommand);
+
+        @Override public void onCommandFailed(CommandFailure commandFailure, QueueItem queueItem) {
+            ConnectedVehicleTelematicsController.this.onCommandFailed(command, commandFailure);
         }
 
-        @Override public void onCommandFailed(CommandFailure reason, Command sentCommand) {
-            ConnectedVehicleTelematicsController.this.onCommandFailed(sentCommand, reason);
+        @Override public void onCommandReceived(Command command, @Nullable QueueItem queueItem) {
+            ConnectedVehicleTelematicsController.this.onCommandReceived(command,
+                    queueItem.commandSent);
         }
 
         @Override public void sendCommand(Command command) {

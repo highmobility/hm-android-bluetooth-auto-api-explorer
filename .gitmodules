@@ -1,3 +1,6 @@
 [submodule "auto-api-java"]
 	path = auto-api-java
 	url = git@github.com:highmobility/auto-api-java.git
+[submodule "command-queue-android"]
+	path = command-queue-android
+	url = git@github.com:highmobility/command-queue-android.git
