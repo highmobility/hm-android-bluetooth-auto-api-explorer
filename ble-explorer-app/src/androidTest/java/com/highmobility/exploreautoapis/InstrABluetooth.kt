@@ -77,18 +77,17 @@ class InstrABluetooth : BaseConnectedVehicle() {
                     IdlingPolicies.setMasterPolicyTimeout(1, TimeUnit.MINUTES)
                     IdlingPolicies.setIdlingResourceTimeout(1, TimeUnit.MINUTES)
 
-                    var testResources =
+                    var resources =
                             InstrumentationRegistry.getInstrumentation().targetContext.resources
 
                     val intent = Intent()
                     intent.putExtra(EXTRA_USE_BLE, true)
                     intent.putExtra(EXTRA_SERVICE_NAME, "TEST")
-
                     intent.putExtra(EXTRA_INIT_INFO, String.format("%s:%s:%s:%s",
-                            testResources.getString(R.string.prodDeviceCert),
-                            testResources.getString(R.string.prodPrivateKey),
-                            testResources.getString(R.string.prodIssuerPublicKey),
-                            testResources.getString(R.string.prodAccessToken)))
+                            resources.getString(R.string.devDeviceCert),
+                            resources.getString(R.string.devPrivateKey),
+                            resources.getString(R.string.devIssuerPublicKey),
+                            resources.getString(R.string.devAccessToken)))
 
                     return intent
                 }
@@ -134,8 +133,8 @@ class InstrABluetooth : BaseConnectedVehicle() {
     @Test
     fun x_testCommands() {
         // give some time to connect in emulator + the commands
-        IdlingPolicies.setMasterPolicyTimeout(5, TimeUnit.MINUTES)
-        IdlingPolicies.setIdlingResourceTimeout(5, TimeUnit.MINUTES)
+        IdlingPolicies.setMasterPolicyTimeout(10, TimeUnit.MINUTES)
+        IdlingPolicies.setIdlingResourceTimeout(10, TimeUnit.MINUTES)
 
         // notify that its time to connect in emulator
         val effect = VibrationEffect.createOneShot(2000,

@@ -58,16 +58,17 @@ class InstrTelematics : BaseConnectedVehicle() {
     @JvmField
     var activityRule = object : IntentsTestRule<ConnectedVehicleActivity>(ConnectedVehicleActivity::class.java) {
         override fun getActivityIntent(): Intent {
-            val testResources = InstrumentationRegistry.getInstrumentation().targetContext.resources
+            val resources = InstrumentationRegistry.getInstrumentation().targetContext.resources
+
             val intent = Intent()
             intent.putExtra(EXTRA_USE_BLE, false)
             intent.putExtra(EXTRA_SERVICE_NAME, "TEST")
             intent.putExtra(EXTRA_ALIVE_PING_AMOUNT_NAME, -1)
             intent.putExtra(EXTRA_INIT_INFO, String.format("%s:%s:%s:%s",
-                    testResources.getString(R.string.prodDeviceCert),
-                    testResources.getString(R.string.prodPrivateKey),
-                    testResources.getString(R.string.prodIssuerPublicKey),
-                    testResources.getString(R.string.prodAccessToken)))
+                    resources.getString(R.string.devDeviceCert),
+                    resources.getString(R.string.devPrivateKey),
+                    resources.getString(R.string.devIssuerPublicKey),
+                    resources.getString(R.string.devAccessToken)))
             return intent
         }
     }

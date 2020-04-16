@@ -47,8 +47,6 @@ import org.junit.Assert
  * reflected in the views.
  */
 abstract class BaseConnectedVehicle {
-    companion object;
-
     val waitUntilNoProgressBar by lazy {
         WaitUntilViewVisible(getActivity(), R.id.progress_bar_connected, false)
     }
