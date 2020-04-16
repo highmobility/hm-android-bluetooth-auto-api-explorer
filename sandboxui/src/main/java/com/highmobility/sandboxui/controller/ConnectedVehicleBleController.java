@@ -33,6 +33,7 @@ import com.highmobility.commandqueue.BleCommandQueue;
 import com.highmobility.commandqueue.CommandFailure;
 import com.highmobility.commandqueue.CommandQueue;
 import com.highmobility.commandqueue.IBleCommandQueue;
+import com.highmobility.commandqueue.QueueItem;
 import com.highmobility.hmkit.BroadcastConfiguration;
 import com.highmobility.hmkit.Broadcaster;
 import com.highmobility.hmkit.Broadcaster.State;
@@ -303,13 +304,12 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             // we dont care about ack
         }
 
-        @Override
-        public void onCommandReceived(Command command, @Nullable CommandQueue.QueueItem queueItem) {
-            ConnectedVehicleBleController.this.onCommandReceived(command, queueItem.commandSent);
+        @Override public void onCommandFailed(CommandFailure reason, QueueItem sentCommand) {
+            ConnectedVehicleBleController.this.onCommandFailed(sentCommand.getCommandSent(), reason);
         }
 
-        @Override public void onCommandFailed(CommandFailure commandFailure, Command command) {
-            ConnectedVehicleBleController.this.onCommandFailed(command, commandFailure);
+        @Override public void onCommandReceived(Command command, @Nullable QueueItem sentCommand) {
+            ConnectedVehicleBleController.this.onCommandReceived(command, sentCommand.getCommandSent());
         }
 
         @Override public void sendCommand(Command command) {
