@@ -37,6 +37,7 @@ dependencies {
         implementation deps.autoApi
         implementation deps.utils
         implementation deps.crypto
+
         implementation(deps.commandQueue) {
             transitive = true
         }
@@ -45,7 +46,7 @@ dependencies {
         implementation project(path: ':hmkit-crypto')
         implementation project(path: ':hmkit-utils')
         implementation project(path: ':hmkit-auto-api')
-        implementation project(path: ':command-queue-android')
+        implementation project(path: ':command-queue')
     }
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -56,5 +57,5 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation project(path: ':command-queue-android')
+    implementation project(path: ':command-queue')
 }

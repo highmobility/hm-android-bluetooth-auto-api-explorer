@@ -24,7 +24,7 @@
 package com.highmobility.sandboxui.controller;
 
 import com.highmobility.autoapi.Command;
-import com.highmobility.commandqueue.CommandFailure;
+import com.highmobility.commandqueue.QueueItemFailure;
 import com.highmobility.commandqueue.ICommandQueue;
 import com.highmobility.commandqueue.QueueItem;
 import com.highmobility.commandqueue.TelematicsCommandQueue;
@@ -48,8 +48,8 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
 
     ICommandQueue iQueue = new ICommandQueue() {
 
-        @Override public void onCommandFailed(CommandFailure commandFailure, QueueItem queueItem) {
-            ConnectedVehicleTelematicsController.this.onCommandFailed(queueItem.getCommandSent(), commandFailure);
+        @Override public void onCommandFailed(QueueItemFailure queueItemFailure, QueueItem queueItem) {
+            ConnectedVehicleTelematicsController.this.onCommandFailed(queueItem.getCommandSent(), queueItemFailure);
         }
 
         @Override public void onCommandReceived(Command command, @Nullable QueueItem queueItem) {

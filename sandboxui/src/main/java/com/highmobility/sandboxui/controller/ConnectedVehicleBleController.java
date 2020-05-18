@@ -30,8 +30,7 @@ import android.content.res.Resources;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.commandqueue.BleCommandQueue;
-import com.highmobility.commandqueue.CommandFailure;
-import com.highmobility.commandqueue.CommandQueue;
+import com.highmobility.commandqueue.QueueItemFailure;
 import com.highmobility.commandqueue.IBleCommandQueue;
 import com.highmobility.commandqueue.QueueItem;
 import com.highmobility.hmkit.BroadcastConfiguration;
@@ -304,7 +303,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             // we dont care about ack
         }
 
-        @Override public void onCommandFailed(CommandFailure reason, QueueItem sentCommand) {
+        @Override public void onCommandFailed(QueueItemFailure reason, QueueItem sentCommand) {
             ConnectedVehicleBleController.this.onCommandFailed(sentCommand.getCommandSent(), reason);
         }
 
