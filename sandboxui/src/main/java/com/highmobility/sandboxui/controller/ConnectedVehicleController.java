@@ -298,7 +298,7 @@ public class ConnectedVehicleController {
     }
 
     // timeout or other reason
-    void onCommandFailed(Command sentCommand, QueueItemFailure failure) {
+    void onCommandFailed(QueueItemFailure failure) {
         String reason = String.format("Command failed: %s", failure.getErrorMessage());
         e("onCommandFailed: %s", reason);
 

@@ -303,12 +303,13 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
             // we dont care about ack
         }
 
-        @Override public void onCommandFailed(QueueItemFailure reason, QueueItem sentCommand) {
-            ConnectedVehicleBleController.this.onCommandFailed(sentCommand.getCommandSent(), reason);
+        @Override public void onCommandReceived(Command command, @Nullable QueueItem sentCommand) {
+            ConnectedVehicleBleController.this.onCommandReceived(command,
+                    sentCommand.getCommandSent());
         }
 
-        @Override public void onCommandReceived(Command command, @Nullable QueueItem sentCommand) {
-            ConnectedVehicleBleController.this.onCommandReceived(command, sentCommand.getCommandSent());
+        @Override public void onCommandFailed(QueueItemFailure queueItemFailure) {
+            ConnectedVehicleBleController.this.onCommandFailed(queueItemFailure);
         }
 
         @Override public void sendCommand(Command command) {

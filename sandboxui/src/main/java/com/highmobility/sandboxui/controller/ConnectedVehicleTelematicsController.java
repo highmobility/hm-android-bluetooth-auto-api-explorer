@@ -48,13 +48,13 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
 
     ICommandQueue iQueue = new ICommandQueue() {
 
-        @Override public void onCommandFailed(QueueItemFailure queueItemFailure, QueueItem queueItem) {
-            ConnectedVehicleTelematicsController.this.onCommandFailed(queueItem.getCommandSent(), queueItemFailure);
-        }
-
         @Override public void onCommandReceived(Command command, @Nullable QueueItem queueItem) {
             ConnectedVehicleTelematicsController.this.onCommandReceived(command,
                     queueItem.getCommandSent());
+        }
+
+        @Override public void onCommandFailed(QueueItemFailure queueItemFailure) {
+            ConnectedVehicleTelematicsController.this.onCommandFailed(queueItemFailure);
         }
 
         @Override public void sendCommand(Command command) {
