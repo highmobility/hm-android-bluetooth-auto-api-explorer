@@ -43,7 +43,7 @@ configurations.all {
 dependencies {
     implementation project(path: ':sandboxui')
 
-    if (project.hasProperty('releaseType') == false || project.releaseType > 0) {
+    if (project.hasProperty('depLocation') == false || project.depLocation > 0) {
         implementation(deps.hmkit) {
             transitive = true
         }
