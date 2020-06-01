@@ -81,10 +81,10 @@ public class RemoteControlActivity extends Activity implements IRemoteControlVie
     public void onMoveButtonClicked(View view) {
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            v.vibrate(VibrationEffect.createOneShot(50, 1));
+            v.vibrate(VibrationEffect.createOneShot(25, 1));
         }
         else {
-            v.vibrate(50);
+            v.vibrate(25);
         }
 
         int tag = Integer.valueOf((String) view.getTag());

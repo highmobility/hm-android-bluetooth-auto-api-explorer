@@ -57,7 +57,7 @@ abstract class BaseConnectedVehicle {
     fun testCommands() {
         waitInitCommandsFinished()
 
-        testOverviewSwitchButton(R.id.lock_button)
+//        testOverviewSwitchButton(R.id.lock_button) // currently lock behaviour is ambiguous
         testOverviewSwitchButton(R.id.trunk_button)
         testOverviewSwitchButton(R.id.sunroof_button)
         testOverviewSwitchButton(R.id.defrost_button)

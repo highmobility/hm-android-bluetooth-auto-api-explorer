@@ -84,10 +84,10 @@ class InstrABluetooth : BaseConnectedVehicle() {
                     intent.putExtra(EXTRA_USE_BLE, true)
                     intent.putExtra(EXTRA_SERVICE_NAME, "TEST")
                     intent.putExtra(EXTRA_INIT_INFO, String.format("%s:%s:%s:%s",
-                            resources.getString(R.string.devDeviceCert),
-                            resources.getString(R.string.devPrivateKey),
-                            resources.getString(R.string.devIssuerPublicKey),
-                            resources.getString(R.string.devAccessToken)))
+                            resources.getString(R.string.prodDeviceCert),
+                            resources.getString(R.string.prodPrivateKey),
+                            resources.getString(R.string.prodIssuerPublicKey),
+                            resources.getString(R.string.prodAccessToken)))
 
                     return intent
                 }
