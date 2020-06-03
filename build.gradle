@@ -20,14 +20,6 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven { url "http://jfrog.high-mobility.com/artifactory/gradle-release-local/" }
-        maven {
-            url "http://jfrog.high-mobility.com/artifactory/gradle-dev-local/"
-            credentials {
-                username devReadUser
-                password devReadPassword
-            }
-        }
     }
 }
 
@@ -39,7 +31,7 @@ task clean(type: Delete) {
 ext.ver = [
         crypto          : "1.4.5",
         utils           : "1.4.4",
-        hmkit           : "2.0.2",
+        hmkit           : "2.0.3",
         autoApi         : "3.11.1",
         commandQueue    : "1.0",
         compileSdk      : 29
