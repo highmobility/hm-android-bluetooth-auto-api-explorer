@@ -35,17 +35,6 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
-ext {
-    releaseType = 0
-
-    // override deploy.settings repos
-    if (releaseType == 1) {
-        repo = "gradle-dev-local"
-    } else if (releaseType == 2) {
-        repo = "gradle-release-local"
-    }
-}
-
 // these are not release numbers. release numbers are in deploy.settings files.
 ext.ver = [
         crypto          : "1.4.5",
@@ -61,7 +50,7 @@ ext.deps = [
         "crypto"        : "com.highmobility:hmkit-crypto:${ver.crypto}",
         "utils"         : "com.highmobility:hmkit-utils:${ver.utils}",
         "autoApi"       : "com.highmobility:hmkit-auto-api:${ver.autoApi}",
-        "commandQueue"  : "com.highmobility:command-queue-android:${ver.commandQueue}",
+        "commandQueue"  : "com.highmobility:command-queue:${ver.commandQueue}",
         "timber"        : "com.jakewharton.timber:timber:4.7.1",
         "volley"        : "com.android.volley:volley:1.1.1",
         "findBugs"      : 'com.google.code.findbugs:jsr305:3.0.2'

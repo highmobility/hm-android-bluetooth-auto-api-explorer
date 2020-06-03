@@ -39,7 +39,7 @@ import com.highmobility.autoapi.value.Light;
 import com.highmobility.autoapi.value.LockState;
 import com.highmobility.autoapi.value.Position;
 import com.highmobility.autoapi.value.ReadingLamp;
-import com.highmobility.commandqueue.CommandFailure;
+import com.highmobility.commandqueue.QueueItemFailure;
 import com.highmobility.crypto.AccessCertificate;
 import com.highmobility.crypto.value.DeviceSerial;
 import com.highmobility.hmkit.HMKit;
@@ -298,7 +298,7 @@ public class ConnectedVehicleController {
     }
 
     // timeout or other reason
-    void onCommandFailed(Command sentCommand, CommandFailure failure) {
+    void onCommandFailed(QueueItemFailure failure) {
         String reason = String.format("Command failed: %s", failure.getErrorMessage());
         e("onCommandFailed: %s", reason);
 

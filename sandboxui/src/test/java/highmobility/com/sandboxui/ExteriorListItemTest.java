@@ -41,15 +41,14 @@ import com.highmobility.value.Bytes;
 import org.junit.Before;
 import org.junit.Test;
 
-import androidx.annotation.NonNull;
-
 import static junit.framework.TestCase.assertTrue;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by ttiganik on 30/03/2017.
  */
 public class ExteriorListItemTest {
-    Resources resources = new TestResources();
+    final Resources resources = mock(Resources.class);
 
     @Before
     public void setUp() {
@@ -73,13 +72,13 @@ public class ExteriorListItemTest {
         VehicleState vehicle = new VehicleState();
         vehicle.doorsLocked = false;
         Capabilities.State capas = new Capabilities.State.Builder().addCapability(new
-                Property(new SupportedCapability(Doors.IDENTIFIER,
+                Property<>(new SupportedCapability(Doors.IDENTIFIER,
                 new Bytes(new byte[]{Doors.PROPERTY_LOCKS_STATE})))).build();
 
         vehicle.update(capas);
 
         ExteriorListItem[] items = ExteriorListItem.createExteriorListItems(resources, vehicle);
-        assertTrue(items[0].actionSupported == true);
+        assertTrue(items[0].actionSupported);
     }
 
     @Test
@@ -87,20 +86,20 @@ public class ExteriorListItemTest {
         VehicleState vehicle = new VehicleState();
         vehicle.doorsLocked = false;
         ExteriorListItem[] items = ExteriorListItem.createExteriorListItems(resources, vehicle);
-        assertTrue(items[0].actionSupported == false);
+        assertTrue(!items[0].actionSupported);
     }
 
     @Test
     public void testIcon() {
         VehicleState vehicle = new VehicleState();
         vehicle.lightsState =
-                new Lights.State.Builder().setFrontExteriorLight(new Property(Lights.FrontExteriorLight.INACTIVE)).build();
+                new Lights.State.Builder().setFrontExteriorLight(new Property<>(Lights.FrontExteriorLight.INACTIVE)).build();
         ExteriorListItem[] items = ExteriorListItem.createExteriorListItems(resources, vehicle);
         ExteriorListItem item =
                 ExteriorListItem.getItem(ExteriorListItem.Type.FRONT_EXTERIOR_LIGHT_STATE, items);
         assertTrue(item.iconResId == R.drawable.ext_front_lights_off);
         vehicle.lightsState =
-                new Lights.State.Builder().setFrontExteriorLight(new Property(Lights.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM)).build();
+                new Lights.State.Builder().setFrontExteriorLight(new Property<>(Lights.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM)).build();
 
         items = ExteriorListItem.createExteriorListItems(resources, vehicle);
         item = ExteriorListItem.getItem(ExteriorListItem.Type.FRONT_EXTERIOR_LIGHT_STATE, items);
@@ -113,7 +112,7 @@ public class ExteriorListItemTest {
         // check that segment count is correct
         VehicleState vehicle = new VehicleState();
         vehicle.lightsState =
-                new Lights.State.Builder().setFrontExteriorLight(new Property(Lights.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM)).build();
+                new Lights.State.Builder().setFrontExteriorLight(new Property<>(Lights.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM)).build();
 
         vehicle.doorsLocked = false;
         ExteriorListItem[] items = ExteriorListItem.createExteriorListItems(resources, vehicle);
@@ -122,8 +121,8 @@ public class ExteriorListItemTest {
         ExteriorListItem doorsItem = ExteriorListItem.getItem(ExteriorListItem.Type.DOORS_LOCKED,
                 items);
 
-        assertTrue(lightsItem.actionSupported == false); // capa not supported
-        assertTrue(doorsItem.actionSupported == false); // capa not supported
+        assertTrue(!lightsItem.actionSupported); // capa not supported
+        assertTrue(!doorsItem.actionSupported); // capa not supported
 
         SupportedCapability lightsCapability = new SupportedCapability(Identifier.LIGHTS,
                 new Bytes(new byte[]{Lights.PROPERTY_FRONT_EXTERIOR_LIGHT}));
@@ -133,8 +132,8 @@ public class ExteriorListItemTest {
                 new Bytes(new byte[]{Doors.PROPERTY_LOCKS_STATE}));
 
         Capabilities.State capas = new Capabilities.State.Builder()
-                .addCapability(new Property(lockCapability))
-                .addCapability(new Property(lightsCapability)).build();
+                .addCapability(new Property<>(lockCapability))
+                .addCapability(new Property<>(lightsCapability)).build();
         vehicle.update(capas);
 
         items = ExteriorListItem.createExteriorListItems(resources, vehicle);
@@ -142,8 +141,8 @@ public class ExteriorListItemTest {
                 items);
         doorsItem = ExteriorListItem.getItem(ExteriorListItem.Type.DOORS_LOCKED, items);
 
-        assertTrue(lightsItem.actionSupported == true); // capa not supported
-        assertTrue(doorsItem.actionSupported == true); // capa not supported
+        assertTrue(lightsItem.actionSupported); // capa not supported
+        assertTrue(doorsItem.actionSupported); // capa not supported
     }
 
     @Test
@@ -152,7 +151,7 @@ public class ExteriorListItemTest {
         VehicleState vehicle = new VehicleState();
         vehicle.isWindshieldDefrostingActive = true;
         Capabilities.State capas = new Capabilities.State.Builder()
-                .addCapability(new Property(new SupportedCapability(Climate.IDENTIFIER,
+                .addCapability(new Property<>(new SupportedCapability(Climate.IDENTIFIER,
                         new Bytes(new byte[]{Climate.PROPERTY_DEFROSTING_STATE}))))
                 .build();
         vehicle.update(capas);
@@ -171,7 +170,7 @@ public class ExteriorListItemTest {
                         items);
 
         String textAfter = doorsItem.segmentTitles[0];
-        assertTrue(textFirst.equals(textAfter) == false);
+        assertTrue(!textFirst.equals(textAfter));
     }
 
     @Test
@@ -184,19 +183,19 @@ public class ExteriorListItemTest {
         ExteriorListItem item =
                 ExteriorListItem.getItem(ExteriorListItem.Type.ROOFTOP_POSITION, items);
 
-        assertTrue(item.actionSupported == false);
+        assertTrue(!item.actionSupported);
 
         SupportedCapability capa = new SupportedCapability(RooftopControl.IDENTIFIER,
                 new Bytes(new byte[]{RooftopControl.PROPERTY_POSITION}));
 
         Capabilities.State capas = new Capabilities.State.Builder()
-                .addCapability(new Property(capa)).build();
+                .addCapability(new Property<>(capa)).build();
 
         vehicle.update(capas);
         items = ExteriorListItem.createExteriorListItems(resources, vehicle);
         item = ExteriorListItem.getItem(ExteriorListItem.Type.ROOFTOP_POSITION, items);
 
-        assertTrue(item.actionSupported == true);
+        assertTrue(item.actionSupported);
     }
 
     @Test
@@ -205,11 +204,11 @@ public class ExteriorListItemTest {
         vehicle.rooftopOpenPercentage = 1d;
 
         vehicle.lightsState =
-                new Lights.State.Builder().setFrontExteriorLight(new Property(Lights.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM)).build();
+                new Lights.State.Builder().setFrontExteriorLight(new Property<>(Lights.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM)).build();
         Capabilities.State capas = new Capabilities.State.Builder()
-                .addCapability(new Property(new SupportedCapability(RooftopControl.IDENTIFIER,
+                .addCapability(new Property<>(new SupportedCapability(RooftopControl.IDENTIFIER,
                         new Bytes(new byte[]{RooftopControl.PROPERTY_POSITION}))))
-                .addCapability(new Property(new SupportedCapability(Lights.IDENTIFIER,
+                .addCapability(new Property<>(new SupportedCapability(Lights.IDENTIFIER,
                         new Bytes(new byte[]{Lights.PROPERTY_FRONT_EXTERIOR_LIGHT})))).build();
         vehicle.update(capas);
 
@@ -221,15 +220,5 @@ public class ExteriorListItemTest {
 
         assertTrue(item.segmentCount == 2);
         assertTrue(item2.segmentCount == 3);
-    }
-
-    private class TestResources extends Resources {
-        public TestResources() {
-            super(null, null, null);
-        }
-
-        @NonNull @Override public String getString(int id) throws NotFoundException {
-            return "test env";
-        }
     }
 }

@@ -30,13 +30,14 @@ android {
 }
 
 dependencies {
-    if (project.hasProperty('releaseType') == false || project.releaseType > 0) {
+    if (project.hasProperty('depLocation') == false || project.depLocation > 0) {
         implementation(deps.hmkit) {
             transitive = true
         }
         implementation deps.autoApi
         implementation deps.utils
         implementation deps.crypto
+
         implementation(deps.commandQueue) {
             transitive = true
         }
@@ -45,7 +46,7 @@ dependencies {
         implementation project(path: ':hmkit-crypto')
         implementation project(path: ':hmkit-utils')
         implementation project(path: ':hmkit-auto-api')
-        implementation project(path: ':command-queue-android')
+        implementation project(path: ':command-queue')
     }
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -53,8 +54,9 @@ dependencies {
     implementation deps.findBugs
     implementation deps.timber
     implementation 'at.favre.lib:slf4j-timber:1.0.0'
-
-    testImplementation 'junit:junit:4.12'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation project(path: ':command-queue-android')
+
+    // tests
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.mockito:mockito-core:2.+"
 }
