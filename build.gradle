@@ -35,10 +35,6 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
-ext {
-    depLocation = 0
-}
-
 // these are not release numbers. release numbers are in deploy.settings files.
 ext.ver = [
         crypto          : "1.4.5",
