@@ -32,6 +32,7 @@ import com.highmobility.autoapi.Doors;
 import com.highmobility.autoapi.Lights;
 import com.highmobility.autoapi.RooftopControl;
 import com.highmobility.autoapi.Trunk;
+import com.highmobility.autoapi.VehicleInformation;
 import com.highmobility.autoapi.VehicleStatus;
 import com.highmobility.autoapi.property.Property;
 import com.highmobility.autoapi.value.ActiveState;
@@ -52,6 +53,8 @@ import com.highmobility.sandboxui.view.IConnectedVehicleView;
 
 import static com.highmobility.autoapi.value.LockState.LOCKED;
 import static com.highmobility.autoapi.value.LockState.UNLOCKED;
+import static com.highmobility.sandboxui.model.VehicleState.propertiesToValues;
+import static timber.log.Timber.d;
 import static timber.log.Timber.e;
 
 /**
@@ -79,21 +82,22 @@ public class ConnectedVehicleController {
     boolean initialising;
 
     public String getVehicleName() {
-        return vehicle.name;
+        return vehicle.getName();
     }
 
     public void onLockDoorsClicked() {
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
-        LockState lockState = vehicle.doorsLocked == true ? UNLOCKED : LOCKED;
+        LockState lockState = vehicle.getDoorsLocked() == true ? UNLOCKED : LOCKED;
         queueCommand(new Doors.LockUnlockDoors(lockState), Doors.State.class);
     }
 
     public void onLockTrunkClicked() {
+        d("controller trunk click(): thread:%d object:%s", Thread.currentThread().getId(), this);
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
         LockState newLockState;
         Position newPosition;
 
-        if (vehicle.trunkLockState == LOCKED) {
+        if (vehicle.getTrunkLockState() == LOCKED) {
             newLockState = UNLOCKED;
             newPosition = Position.OPEN;
         } else {
@@ -107,7 +111,7 @@ public class ConnectedVehicleController {
 
     public void onWindshieldDefrostingClicked() {
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
-        ActiveState startDefrosting = vehicle.isWindshieldDefrostingActive ?
+        ActiveState startDefrosting = vehicle.isWindshieldDefrostingActive() ?
                 ActiveState.INACTIVE : ActiveState.ACTIVE;
         Command command = new Climate.StartStopDefrosting(startDefrosting);
         queueCommand(command, Climate.State.class);
@@ -116,17 +120,17 @@ public class ConnectedVehicleController {
     public void onSunroofVisibilityClicked() {
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
 
-        double dimPercentage = vehicle.rooftopDimmingPercentage == 1d ? 0d : 1d;
+        double dimPercentage = vehicle.getRooftopDimmingPercentage() == 1d ? 0d : 1d;
 
-        Command command = new RooftopControl.ControlRooftop(dimPercentage, vehicle.rooftopOpenPercentage, null,
+        Command command = new RooftopControl.ControlRooftop(dimPercentage, vehicle.getRooftopOpenPercentage(), null,
                 null, null);
         queueCommand(command, RooftopControl.State.class);
     }
 
     public void onSunroofOpenClicked() {
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
-        double openPercentage = vehicle.rooftopOpenPercentage == 0d ? 1d : 0d;
-        Command command = new RooftopControl.ControlRooftop(vehicle.rooftopDimmingPercentage, openPercentage,
+        double openPercentage = vehicle.getRooftopOpenPercentage() == 0d ? 1d : 0d;
+        Command command = new RooftopControl.ControlRooftop(vehicle.getRooftopDimmingPercentage(), openPercentage,
                 null, null, null);
         queueCommand(command, RooftopControl.State.class);
     }
@@ -137,17 +141,16 @@ public class ConnectedVehicleController {
         else if (segment == 1) state = Lights.FrontExteriorLight.ACTIVE;
         else state = Lights.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM;
 
-        if (state == vehicle.lightsState.getFrontExteriorLight().getValue()) return;
+        if (state == vehicle.getLightsState().getFrontExteriorLight().getValue()) return;
 
         view.setViewState(IConnectedVehicleView.ViewState.AUTHENTICATED_LOADING);
 
         Command command = new Lights.ControlLights(state,
-                vehicle.lightsState.getRearExteriorLight().getValue(),
-                vehicle.lightsState.getAmbientLightColour().getValue(),
-                Property.propertiesToValues(vehicle.lightsState.getFogLights(), Light.class),
-                Property.propertiesToValues(vehicle.lightsState.getReadingLamps(),
-                        ReadingLamp.class),
-                Property.propertiesToValues(vehicle.lightsState.getInteriorLights(), Light.class));
+                vehicle.getLightsState().getRearExteriorLight().getValue(),
+                vehicle.getLightsState().getAmbientLightColour().getValue(),
+                propertiesToValues(vehicle.getLightsState().getFogLights()),
+                propertiesToValues(vehicle.getLightsState().getReadingLamps()),
+                propertiesToValues(vehicle.getLightsState().getInteriorLights()));
 
         queueCommand(command, Lights.State.class);
     }

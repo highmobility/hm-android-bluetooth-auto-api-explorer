@@ -28,6 +28,7 @@ import com.highmobility.commandqueue.QueueItemFailure;
 import com.highmobility.commandqueue.ICommandQueue;
 import com.highmobility.commandqueue.QueueItem;
 import com.highmobility.commandqueue.TelematicsCommandQueue;
+import com.highmobility.commandqueue.TelematicsQueueConfiguration;
 import com.highmobility.hmkit.Telematics;
 import com.highmobility.hmkit.error.TelematicsError;
 import com.highmobility.sandboxui.view.IConnectedVehicleView;
@@ -43,11 +44,10 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
 
     ConnectedVehicleTelematicsController(IConnectedVehicleView view) {
         super(false, view);
-        queue = new TelematicsCommandQueue(iQueue);
+        queue = new TelematicsCommandQueue(iQueue, new TelematicsQueueConfiguration(1, 800));
     }
 
     ICommandQueue iQueue = new ICommandQueue() {
-
         @Override public void onCommandReceived(Command command, @Nullable QueueItem queueItem) {
             ConnectedVehicleTelematicsController.this.onCommandReceived(command,
                     queueItem.getCommandSent());
@@ -71,10 +71,6 @@ public class ConnectedVehicleTelematicsController extends ConnectedVehicleContro
                     });
         }
     };
-
-    @Override public void onViewInitialised() {
-        super.onViewInitialised();
-    }
 
     @Override protected void onCertificateDownloaded() {
         super.onCertificateDownloaded();

@@ -93,9 +93,9 @@ public class VehicleOverviewFragment extends Fragment {
             remoteControlButton.setVisibility(View.GONE);
         }
 
-        if (vehicle.rooftopDimmingPercentage != null) {
+        if (vehicle.getRooftopDimmingPercentage() != null) {
             sunroofButton.setVisibility(View.VISIBLE);
-            if (vehicle.rooftopDimmingPercentage == 1f) {
+            if (vehicle.getRooftopDimmingPercentage() == 1f) {
                 sunroofButton.setImageResource(R.drawable.ovr_sunroofopaquehdpi);
             } else {
                 sunroofButton.setImageResource(R.drawable.ovr_sunrooftransparenthdpi);
@@ -104,7 +104,7 @@ public class VehicleOverviewFragment extends Fragment {
             if (vehicle.isSupported(RooftopControl.IDENTIFIER, RooftopControl.PROPERTY_SUNROOF_STATE)) {
                 // disable button
                 sunroofButton.setEnabled(true);
-                sunroofButton.setOnClickListener(v -> parent.controller.onSunroofVisibilityClicked());
+
             } else {
                 sunroofButton.setEnabled(false);
             }
@@ -112,13 +112,13 @@ public class VehicleOverviewFragment extends Fragment {
             sunroofButton.setVisibility(View.GONE);
         }
 
-        Boolean defrostingActive = vehicle.isWindshieldDefrostingActive;
+        Boolean defrostingActive = vehicle.isWindshieldDefrostingActive();
 
-        if (defrostingActive != null && vehicle.insideTemperature != null) {
+        if (defrostingActive != null && vehicle.getInsideTemperature() != null) {
             defrostButton.setVisibility(View.VISIBLE);
             temperatureIndicatorContainer.setVisibility(View.VISIBLE);
             temperatureIndicatorTextView.setText(String.format("%.2f", vehicle
-                    .insideTemperature));
+                    .getInsideTemperature()));
 
             if (defrostingActive) {
                 defrostButton.setImageResource(R.drawable.ovr_defrostactivehdpi);
@@ -128,7 +128,6 @@ public class VehicleOverviewFragment extends Fragment {
 
             if (vehicle.isSupported(Climate.IDENTIFIER, Climate.PROPERTY_DEFROSTING_STATE)) {
                 defrostButton.setEnabled(true);
-                defrostButton.setOnClickListener(v -> parent.controller.onWindshieldDefrostingClicked());
             } else {
                 // get state only available
                 defrostButton.setEnabled(false);
@@ -138,9 +137,9 @@ public class VehicleOverviewFragment extends Fragment {
             temperatureIndicatorContainer.setVisibility(View.GONE);
         }
 
-        if (vehicle.doorsLocked != null) {
+        if (vehicle.getDoorsLocked() != null) {
             lockButton.setVisibility(View.VISIBLE);
-            if (vehicle.doorsLocked == true) {
+            if (vehicle.getDoorsLocked() == true) {
                 lockButton.setImageResource(R.drawable.ovr_doorslockedhdpi);
             } else {
                 lockButton.setImageResource(R.drawable.ovr_doorsunlockedhdpi);
@@ -148,7 +147,6 @@ public class VehicleOverviewFragment extends Fragment {
 
             if (vehicle.isSupported(Doors.IDENTIFIER, Doors.PROPERTY_LOCKS_STATE)) {
                 lockButton.setEnabled(true);
-                lockButton.setOnClickListener(v -> parent.controller.onLockDoorsClicked());
             } else {
                 // get state only available
                 lockButton.setEnabled(false);
@@ -157,7 +155,7 @@ public class VehicleOverviewFragment extends Fragment {
             lockButton.setVisibility(View.GONE);
         }
 
-        LockState state = vehicle.trunkLockState;
+        LockState state = vehicle.getTrunkLockState();
         if (state != null) {
             trunkButton.setVisibility(View.VISIBLE);
 
@@ -169,8 +167,6 @@ public class VehicleOverviewFragment extends Fragment {
 
             if (vehicle.isSupported(Trunk.IDENTIFIER, Trunk.PROPERTY_LOCK)) {
                 trunkButton.setEnabled(true);
-
-                trunkButton.setOnClickListener(v -> parent.controller.onLockTrunkClicked());
             } else {
                 trunkButton.setEnabled(false);
             }
@@ -184,7 +180,7 @@ public class VehicleOverviewFragment extends Fragment {
             gpsIndicatorContainer.setVisibility(View.GONE);
         }
 
-        Double batteryPercentage = vehicle.batteryPercentage;
+        Double batteryPercentage = vehicle.getBatteryPercentage();
 
         if (batteryPercentage != null) {
             batteryIndicatorContainer.setVisibility(View.VISIBLE);
@@ -214,6 +210,11 @@ public class VehicleOverviewFragment extends Fragment {
         lockButton = view.findViewById(R.id.lock_button);
 
         remoteControlButton.setOnClickListener(v -> parent.onRemoteControlClicked());
+        trunkButton.setOnClickListener(v -> parent.controller.onLockTrunkClicked());
+        lockButton.setOnClickListener(v -> parent.controller.onLockDoorsClicked());
+        sunroofButton.setOnClickListener(v -> parent.controller.onSunroofVisibilityClicked());
+        defrostButton.setOnClickListener(v -> parent.controller.onWindshieldDefrostingClicked());
+
         return view;
     }
 }

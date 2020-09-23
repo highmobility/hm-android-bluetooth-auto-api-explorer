@@ -25,7 +25,9 @@ package com.highmobility.sandboxui.view;
 
 import android.content.Context;
 import android.os.Bundle;
+
 import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +39,7 @@ import android.widget.TextView;
 
 import com.highmobility.sandboxui.R;
 import com.highmobility.sandboxui.model.ExteriorListItem;
+
 import info.hoang8f.android.segmented.SegmentedGroup;
 
 public class VehicleExteriorFragment extends Fragment {
@@ -77,7 +80,7 @@ public class VehicleExteriorFragment extends Fragment {
         listView.setAdapter(listViewAdapter);
 
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            if (((ExteriorListItem) listViewAdapter.getItem(position)).type ==
+            if (((ExteriorListItem) listViewAdapter.getItem(position)).getType() ==
                     ExteriorListItem.Type.REMOTE_CONTROL) {
                 VehicleExteriorFragment.this.parent.onRemoteControlClicked();
             }
@@ -115,10 +118,10 @@ public class VehicleExteriorFragment extends Fragment {
         public View getView(int position, View convertView, final ViewGroup parent) {
             ExteriorListItem item = items[position];
 
-            if (item.type == ExteriorListItem.Type.REMOTE_CONTROL) {
+            if (item.getType() == ExteriorListItem.Type.REMOTE_CONTROL) {
                 convertView = inflater.inflate(R.layout.list_item_exterior_remote_control, null,
                         false);
-            } else if (item.type == ExteriorListItem.Type.FRONT_EXTERIOR_LIGHT_STATE) {
+            } else if (item.getType() == ExteriorListItem.Type.FRONT_EXTERIOR_LIGHT_STATE) {
                 convertView = inflater.inflate(R.layout.list_item_exterior_item_three_segments,
                         null, false);
                 ImageView image = convertView.findViewById(R.id.icon);
@@ -127,10 +130,10 @@ public class VehicleExteriorFragment extends Fragment {
                 SegmentedGroup segmentedGroup = convertView.findViewById(R.id
                         .segment_group);
 
-                image.setImageResource(item.iconResId);
-                title.setText(item.title);
+                image.setImageResource(item.getIconResId());
+                title.setText(item.getTitle());
 
-                if (item.actionSupported) {
+                if (item.getActionSupported()) {
                     RadioButton firstButton = convertView.findViewById(R.id
                             .first_button);
                     RadioButton secondButton = convertView.findViewById(R.id
@@ -142,7 +145,7 @@ public class VehicleExteriorFragment extends Fragment {
                     secondButton.setText(item.segmentTitles[1]);
                     thirdButton.setText(item.segmentTitles[2]);
 
-                    if (item.selectedSegment == 0) {
+                    if (item.getSelectedSegment() == 0) {
                         firstButton.toggle();
                         secondButton.setOnClickListener(view -> {
                             VehicleExteriorFragment.this.parent.controller
@@ -152,7 +155,7 @@ public class VehicleExteriorFragment extends Fragment {
                             VehicleExteriorFragment.this.parent.controller
                                     .onFrontExteriorLightClicked(2);
                         });
-                    } else if (item.selectedSegment == 1) {
+                    } else if (item.getSelectedSegment() == 1) {
                         secondButton.toggle();
                         firstButton.setOnClickListener(view -> {
                             VehicleExteriorFragment.this.parent.controller
@@ -176,7 +179,7 @@ public class VehicleExteriorFragment extends Fragment {
                 } else {
                     segmentedGroup.setVisibility(View.GONE);
                     stateTitle.setVisibility(View.VISIBLE);
-                    stateTitle.setText(item.stateTitle);
+                    stateTitle.setText(item.getStateTitle());
                 }
             } else {
                 convertView = inflater.inflate(R.layout.list_item_exterior_item, null, false);
@@ -186,17 +189,17 @@ public class VehicleExteriorFragment extends Fragment {
                 SegmentedGroup segmentedGroup = convertView.findViewById(R.id
                         .segment_group);
 
-                image.setImageResource(item.iconResId);
-                title.setText(item.title);
+                image.setImageResource(item.getIconResId());
+                title.setText(item.getTitle());
 
-                if (item.actionSupported) {
+                if (item.getActionSupported()) {
                     RadioButton firstButton = convertView.findViewById(R.id
                             .first_button);
                     RadioButton secondButton = convertView.findViewById(R.id
                             .second_button);
                     firstButton.setText(item.segmentTitles[0]);
                     secondButton.setText(item.segmentTitles[1]);
-                    if (item.selectedSegment == 0) {
+                    if (item.getSelectedSegment() == 0) {
                         firstButton.toggle();
                         secondButton.setOnClickListener(view -> onTwoButtonSegmentClick(item));
                     } else {
@@ -206,7 +209,7 @@ public class VehicleExteriorFragment extends Fragment {
                 } else {
                     segmentedGroup.setVisibility(View.GONE);
                     stateTitle.setVisibility(View.VISIBLE);
-                    stateTitle.setText(item.stateTitle);
+                    stateTitle.setText(item.getStateTitle());
                 }
             }
 
@@ -214,7 +217,7 @@ public class VehicleExteriorFragment extends Fragment {
         }
 
         private void onTwoButtonSegmentClick(ExteriorListItem item) {
-            switch (item.type) {
+            switch (item.getType()) {
                 case DOORS_LOCKED:
                     VehicleExteriorFragment.this.parent.controller
                             .onLockDoorsClicked();

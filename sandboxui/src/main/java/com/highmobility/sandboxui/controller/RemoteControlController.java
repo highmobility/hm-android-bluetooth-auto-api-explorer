@@ -32,6 +32,8 @@ import com.highmobility.autoapi.CommandResolver;
 
 import com.highmobility.autoapi.FailureMessage;
 import com.highmobility.autoapi.RemoteControl;
+import com.highmobility.autoapi.value.measurement.Angle;
+import com.highmobility.autoapi.value.measurement.Speed;
 import com.highmobility.hmkit.ConnectedLink;
 import com.highmobility.hmkit.ConnectedLinkListener;
 import com.highmobility.hmkit.HMKit;
@@ -239,7 +241,9 @@ public class RemoteControlController implements IRemoteControlController, Connec
         final int angle = converter.getAngle();
         final int speed = converter.getSpeed();
 
-        link.sendCommand(new RemoteControl.ControlCommand(speed, angle), new Link.CommandCallback() {
+        link.sendCommand(new RemoteControl.ControlCommand(
+                new Angle(angle, Angle.Unit.DEGREES),
+                new Speed(speed, Speed.Unit.KILOMETERS_PER_HOUR)), new Link.CommandCallback() {
             @Override
             public void onCommandSent() {
                 if (speed == 0 && converter.getSpeed() == 0 && converter.getAngle() == angle) {
