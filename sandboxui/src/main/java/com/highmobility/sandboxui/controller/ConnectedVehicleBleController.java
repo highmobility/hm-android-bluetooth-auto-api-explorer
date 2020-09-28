@@ -30,6 +30,7 @@ import android.content.res.Resources;
 
 import com.highmobility.autoapi.Command;
 import com.highmobility.commandqueue.BleCommandQueue;
+import com.highmobility.commandqueue.BleQueueConfiguration;
 import com.highmobility.commandqueue.QueueItemFailure;
 import com.highmobility.commandqueue.IBleCommandQueue;
 import com.highmobility.commandqueue.QueueItem;
@@ -126,7 +127,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         super.onCertificateDownloaded();
         broadcaster = hmKit.getInstance().getBroadcaster();
         broadcaster.setListener(this);
-        queue = new BleCommandQueue(iQueue);
+        queue = new BleCommandQueue(iQueue, new BleQueueConfiguration(5000, 3, 700));
 
         // check for connected links for this vehicle and if is authenticated and show the
         // appropriate ui

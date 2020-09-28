@@ -25,18 +25,17 @@ package com.highmobility.exploreautoapis
 
 import android.app.Activity
 import android.widget.ImageButton
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onData
-import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.swipeLeft
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
+
 import com.highmobility.sandboxui.model.ExteriorListItem
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
-import org.junit.Assert
+import org.junit.Assert.assertTrue
 
 /**
  * Preconditions:
@@ -47,44 +46,48 @@ import org.junit.Assert
  * reflected in the views.
  */
 abstract class BaseConnectedVehicle {
-    val waitUntilNoProgressBar by lazy {
-        WaitUntilViewVisible(getActivity(), R.id.progress_bar_connected, false)
-    }
-
-    // override
+    // needs to be a method because there are 2 activities shown
     abstract fun getActivity(): Activity
 
     fun testCommands() {
-        waitInitCommandsFinished()
+        waitViewShown(withId(R.id.lock_button))
 
-//        testOverviewSwitchButton(R.id.lock_button) // currently lock behaviour is ambiguous
+        testOverviewSwitchButton(R.id.lock_button)
         testOverviewSwitchButton(R.id.trunk_button)
         testOverviewSwitchButton(R.id.sunroof_button)
         testOverviewSwitchButton(R.id.defrost_button)
 
-        waitInitCommandsFinished()
+        testExteriorListItem()
+    }
+
+    // first button(inactive) should not be checked
+    private fun testExteriorListItem() {
         val frontLightsTitle = getActivity().resources.getString(R.string.frontLightsTitle)
 
         // swipe to exterior
         //
-        Espresso.onView(withId(R.id.connected_vehicle_view_pager)).perform(swipeLeft())
+        onView(withId(R.id.connected_vehicle_view_pager)).perform(swipeLeft())
 
-        // scroll to lights, click on 3rd option, check third selected, click on first, check first
-        // selected
+        val lightsContainer = onData(exteriorItemWithTitle(frontLightsTitle))
+        val child = lightsContainer.onChildView(withId(R.id.third_button))
+        child.perform(scrollTo())
+
+        val lightsButtons = Pair(R.id.first_button, R.id.second_button)
+
+        // scroll to lights, click inactive button, check selected and vice versa
         //
-        onData(exteriorItemWithTitle(frontLightsTitle)).onChildView(withId(R.id.third_button)).perform(click())
+        lightsContainer.onChildView(withId(lightsButtons.first)).perform(click())
+        waitViewNotShown(withId(R.id.progress_bar_connected))
 
-        IdlingRegistry.getInstance().register(waitUntilNoProgressBar)
-        onData(exteriorItemWithTitle(frontLightsTitle)).onChildView(withId(R.id.third_button)).check(matches(isChecked()))
-        onData(exteriorItemWithTitle(frontLightsTitle)).onChildView(withId(R.id.first_button)).check(matches(isNotChecked()))
-        IdlingRegistry.getInstance().unregister(waitUntilNoProgressBar)
+        lightsContainer.onChildView(withId(lightsButtons.first)).check(matches(isChecked()))
+        lightsContainer.onChildView(withId(lightsButtons.second)).check(matches(isNotChecked()))
+        lightsContainer.onChildView(withId(lightsButtons.second)).perform(click())
 
-        onData(exteriorItemWithTitle(frontLightsTitle)).onChildView(withId(R.id.first_button)).perform(click())
+        // it makes 2 clicks, and progress bar is show for both, then second checked
+        waitViewNotShown(withId(R.id.progress_bar_connected))
 
-        IdlingRegistry.getInstance().register(waitUntilNoProgressBar)
-        onData(exteriorItemWithTitle(frontLightsTitle)).onChildView(withId(R.id.first_button)).check(matches(isChecked()))
-        onData(exteriorItemWithTitle(frontLightsTitle)).onChildView(withId(R.id.third_button)).check(matches(isNotChecked()))
-        IdlingRegistry.getInstance().unregister(waitUntilNoProgressBar)
+        lightsContainer.onChildView(withId(lightsButtons.second)).check(matches(isChecked()))
+        lightsContainer.onChildView(withId(lightsButtons.first)).check(matches(isNotChecked()))
     }
 
     private fun exteriorItemWithTitle(title: String): Matcher<ExteriorListItem> {
@@ -99,28 +102,23 @@ abstract class BaseConnectedVehicle {
         }
     }
 
-    private fun waitInitCommandsFinished() {
-        // wait until lock button visible (telematics connected or ble authorised)
-        //
-        val waitUntilNoProgressBar3 = WaitUntilViewVisible(getTopMostActivity(), R.id.lock_button, true)
-        IdlingRegistry.getInstance().register(waitUntilNoProgressBar3)
-        Espresso.onView(withId(R.id.lock_button)).check(matches(isDisplayed()))
-        IdlingRegistry.getInstance().unregister(waitUntilNoProgressBar3)
-    }
-
     private fun testOverviewSwitchButton(buttonId: Int) {
         // Press the switch button and check the state is changed after.
         //
-        val drawableBefore = getTopMostActivity().findViewById<ImageButton>(buttonId).drawable.constantState
-        Espresso.onView(withId(buttonId)).perform(click())
+        waitViewNotShown(withId(R.id.progress_bar_connected))
 
-        val waitUntilNoProgressBar4 = WaitUntilViewVisible(getTopMostActivity(), R.id.progress_bar_connected, false)
-        IdlingRegistry.getInstance().register(waitUntilNoProgressBar4)
+        val drawableBefore =
+            getTopMostActivity().findViewById<ImageButton>(buttonId).drawable.constantState
 
-        Espresso.onView(withId(buttonId)).check(matches(isDisplayed()))
+        onView(withId(buttonId)).check(matches(isDisplayed()))
+        onView(withId(buttonId)).perform(click())
+
+        waitViewNotShown(withId(R.id.progress_bar_connected))
+
         // check that lock image changed
-        val drawableAfter = getTopMostActivity().findViewById<ImageButton>(buttonId).drawable.constantState
-        Assert.assertTrue(drawableBefore != drawableAfter)
-        IdlingRegistry.getInstance().unregister(waitUntilNoProgressBar4)
+        val drawableAfter =
+            getTopMostActivity().findViewById<ImageButton>(buttonId).drawable.constantState
+
+        assertTrue(drawableBefore != drawableAfter)
     }
 }

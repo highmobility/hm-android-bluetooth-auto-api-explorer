@@ -57,14 +57,6 @@ fun withViewCount(viewMatcher: Matcher<View>, expectedCount: Int): Matcher<View>
     }
 }
 
-fun isNotDisplayed(): ViewAssertion {
-    return ViewAssertion { view, noView ->
-        if (view != null && isDisplayed().matches(view)) {
-            throw AssertionError("View is present in the hierarchy and Displayed: " + HumanReadables.describe(view))
-        }
-    }
-}
-
 private fun withMatcherPredicate(matcher: Matcher<View>): Predicate<View> {
     return Predicate { view -> matcher.matches(view) }
 }

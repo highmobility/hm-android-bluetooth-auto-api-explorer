@@ -25,6 +25,7 @@ package com.highmobility.exploreautoapis
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Bundle
 import android.view.View
 
@@ -111,8 +112,10 @@ open class BaseActivity : Activity() {
         finish() // this activity is irrelevant now. SDK is initialised.
     }
 
+    private val credentials: Credentials by lazy { Credentials(applicationContext) }
+
     private fun useCertificateFromStorage(): Boolean {
-        val serialRes = getEnvironmentResource("vehicleSerial")
+        val serialRes = credentials.getEnvironmentResource("vehicleSerial")
         if (serialRes != null) {
             val serial = DeviceSerial(serialRes)
             val cert = HMKit.getInstance().getCertificate(serial)
@@ -127,41 +130,26 @@ open class BaseActivity : Activity() {
 
     private fun initialiseFromResources(): Boolean {
         // initialise from string resources if keys exist
-        // TODO: 16/9/20 run the instr tests
 
-        HMKit.webUrl = getEnvironmentResource("webUrl")
+        if (HMKit.webUrl != null) {
+            val accessToken = credentials.getEnvironmentResource("accessToken")
+            downloadAccessCertificate(accessToken!!)
+            return true
+        }
+
+        HMKit.webUrl = credentials.getEnvironmentResource("webUrl")
         if (HMKit.webUrl != null) {
             HMKit.getInstance().initialise(
-                getEnvironmentResource("deviceCert"),
-                getEnvironmentResource("privateKey"),
-                getEnvironmentResource("issuerPublicKey"),
+                credentials.getEnvironmentResource("deviceCert"),
+                credentials.getEnvironmentResource("privateKey"),
+                credentials.getEnvironmentResource("issuerPublicKey"),
                 applicationContext
             )
-            val accessToken = getEnvironmentResource("accessToken")
+            val accessToken = credentials.getEnvironmentResource("accessToken")
             downloadAccessCertificate(accessToken!!)
             return true
         }
 
         return false
-    }
-
-    private val environment: String? by lazy { getResource("environment") }
-
-    private fun getResource(key: String): String? {
-        return try {
-            val resId = resources.getIdentifier(key, "string", packageName)
-            getString(resId)
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    private fun getEnvironmentResource(key: String): String? {
-        // keys use format: {dev/prod}Key, eg devDeviceSerial
-        if (environment != null) {
-            return getResource("${environment}${key.capitalize()}")
-        }
-
-        return null
     }
 }

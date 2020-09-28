@@ -23,15 +23,15 @@
  */
 package com.highmobility.exploreautoapis
 
-import android.content.Intent
-import androidx.test.espresso.intent.rule.IntentsTestRule
+import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.launchActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
-import com.highmobility.sandboxui.controller.ConnectedVehicleController.*
-import com.highmobility.sandboxui.view.ConnectedVehicleActivity
+import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
+import androidx.test.internal.statement.UiThreadStatement
+import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -46,34 +46,18 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class InstrTelematics : BaseConnectedVehicle() {
-
-    companion object;
+    private lateinit var scenario: ActivityScenario<TelematicsExplorerActivity>
+    override fun getActivity() = getTopMostActivity()
 
     @Before
     fun setup() {
-
+        scenario = launchActivity()
     }
 
-    @Rule
-    @JvmField
-    var activityRule = object : IntentsTestRule<ConnectedVehicleActivity>(ConnectedVehicleActivity::class.java) {
-        override fun getActivityIntent(): Intent {
-            val resources = InstrumentationRegistry.getInstrumentation().targetContext.resources
-
-            val intent = Intent()
-            intent.putExtra(EXTRA_USE_BLE, false)
-            intent.putExtra(EXTRA_SERVICE_NAME, "TEST")
-            intent.putExtra(EXTRA_ALIVE_PING_AMOUNT_NAME, -1)
-            intent.putExtra(EXTRA_INIT_INFO, String.format("%s:%s:%s:%s",
-                    resources.getString(R.string.prodDeviceCert),
-                    resources.getString(R.string.prodPrivateKey),
-                    resources.getString(R.string.prodIssuerPublicKey),
-                    resources.getString(R.string.prodAccessToken)))
-            return intent
-        }
+    @After
+    fun after() {
+        scenario.close()
     }
-
-    override fun getActivity() = activityRule.activity!!
 
     @Test
     fun test() {

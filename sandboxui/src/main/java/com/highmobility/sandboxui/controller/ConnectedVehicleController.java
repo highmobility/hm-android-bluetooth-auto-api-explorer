@@ -63,13 +63,11 @@ import static timber.log.Timber.e;
 public class ConnectedVehicleController {
     public static final String EXTRA_SERIAL = "EXTRA_SERIAL";
     public static final String EXTRA_USE_BLE = "EXTRA_USE_BLE";
-    public static final String EXTRA_SERVICE_NAME = "EXTRA_SERVICE_NAME";
     public static final String EXTRA_ALIVE_PING_AMOUNT_NAME = "EXTRA_ALIVE";
     // expects hmkit init values + accessToken separated by : (4 values)
     public static final String EXTRA_INIT_INFO = "EXTRA_INIT_INFO";
 
     public boolean useBle;
-    private String serviceName;
     private String[] initInfo;
 
     public static VehicleState vehicle;
@@ -169,7 +167,7 @@ public class ConnectedVehicleController {
                                                     Intent intent) {
         String vehicleSerialBytes = intent.getStringExtra(EXTRA_SERIAL);
         boolean useBle = intent.getBooleanExtra(EXTRA_USE_BLE, true);
-        String serviceName = intent.getStringExtra(EXTRA_SERVICE_NAME);
+
         String initInfo = intent.getStringExtra(EXTRA_INIT_INFO);
 
         ConnectedVehicleController controller;
@@ -192,7 +190,6 @@ public class ConnectedVehicleController {
 
         controller.useBle = useBle;
         controller.vehicleSerial = vehicleSerial;
-        controller.serviceName = serviceName;
 
         return controller;
     }
