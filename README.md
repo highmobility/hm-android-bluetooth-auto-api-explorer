@@ -10,6 +10,9 @@ Bluetooth or Telematics and send some commands like lock doors and turn on light
 ## Dependencies
 
 * hmkit-android
+* auto-api-java
+* command-queue-android
+* sandbox-ui
 
 Dependencies are managed via gradle repositories.
 
@@ -27,14 +30,20 @@ After initialisation, the [sandboxui](https://github.com/highmobility/hm-android
 
 ## Instrumented tests
 
-Instrumented tests cover the bluetooth and telematics commands. For them to work androidTest/res/values/credentials.xml needs to have the following keys:
+Instrumented tests cover the bluetooth and telematics commands. For them to work, 
+ble-explorer-app/src/main/java/res/values/credentials.xml needs to have the following keys:
 
 ```
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string name="accessToken">the vehicle access token</string>
-<string name="deviceCert">the device cert</string>
-<string name="privateKey">the private key</string>
-<string name="issuerPublicKey">the issuer public key</string>
+    <string name="environment">prod</string> <!-- dev or prod -->
+    <!-- name prefix is either dev or prod, according to the environment  -->
+    <string name="prodAccessToken"></string>
+    <string name="prodDeviceCert"></string>
+    <string name="prodPrivateKey"></string>
+    <string name="prodIssuerPublicKey"></string>
+    <string name="prodWebUrl"></string>
+    <string name="prodVehicleSerial"></string>
 </resources>
 ```
 
