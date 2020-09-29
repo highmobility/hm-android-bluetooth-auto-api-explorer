@@ -64,11 +64,8 @@ public class ConnectedVehicleController {
     public static final String EXTRA_SERIAL = "EXTRA_SERIAL";
     public static final String EXTRA_USE_BLE = "EXTRA_USE_BLE";
     public static final String EXTRA_ALIVE_PING_AMOUNT_NAME = "EXTRA_ALIVE";
-    // expects hmkit init values + accessToken separated by : (4 values)
-    public static final String EXTRA_INIT_INFO = "EXTRA_INIT_INFO";
 
     public boolean useBle;
-    private String[] initInfo;
 
     public static VehicleState vehicle;
     public AccessCertificate certificate;
@@ -168,10 +165,7 @@ public class ConnectedVehicleController {
         String vehicleSerialBytes = intent.getStringExtra(EXTRA_SERIAL);
         boolean useBle = intent.getBooleanExtra(EXTRA_USE_BLE, true);
 
-        String initInfo = intent.getStringExtra(EXTRA_INIT_INFO);
-
         ConnectedVehicleController controller;
-
         DeviceSerial vehicleSerial = null;
 
         if (useBle) {
@@ -182,11 +176,6 @@ public class ConnectedVehicleController {
         }
 
         if (vehicleSerialBytes != null) vehicleSerial = new DeviceSerial(vehicleSerialBytes);
-
-        if (initInfo != null) {
-            // we are expected to be initialised in this class
-            controller.initInfo = initInfo.split(":");
-        }
 
         controller.useBle = useBle;
         controller.vehicleSerial = vehicleSerial;
@@ -210,51 +199,19 @@ public class ConnectedVehicleController {
     }
 
     protected void downloadCertOrUseFromStorage() {
-        // initInfo is used in instrumented tests
-        if (initInfo != null) {
-            view.setViewState(IConnectedVehicleView.ViewState.DOWNLOADING_CERT);
-
-            if (initInfo.length != 4) throw new IllegalArgumentException("invalid init info");
-            try {
-                HMKit.getInstance().initialise(view.getActivity());
-            } catch (Exception e) {
-            }
-
-            hmKit.setDeviceCertificate(initInfo[0], initInfo[1], initInfo[2]);
-
-            if (vehicleSerial != null) certificate = hmKit.getCertificate(vehicleSerial);
-            if (certificate == null) {
-                hmKit.downloadAccessCertificate(initInfo[3], new HMKit.DownloadCallback() {
-                    @Override public void onDownloaded(DeviceSerial serial) {
-                        vehicleSerial = serial;
-                        certificate = hmKit.getCertificate(serial);
-                        onCertificateDownloaded();
-                    }
-
-                    @Override
-                    public void onDownloadFailed(DownloadAccessCertificateError error) {
-                        view.onError(true, "failed to download cert");
-                        view.setViewState(IConnectedVehicleView.ViewState.FAILED_TO_DOWNLOAD_CERT);
-                    }
-                });
-            } else {
-                onCertificateDownloaded();
-            }
+        // we are expected to be initialised before
+        if (vehicleSerial != null) {
+            certificate = HMKit.getInstance().getCertificate(vehicleSerial);
         } else {
-            // we are expected to be initialised before
-            if (vehicleSerial != null) {
-                certificate = HMKit.getInstance().getCertificate(vehicleSerial);
-            } else {
-                AccessCertificate[] certificates = HMKit.getInstance().getCertificates();
-                if (certificates == null || certificates.length < 1)
-                    view.onError(true, "No certificates in HMKit");
-                certificate = HMKit.getInstance().getCertificates()[0];
-                vehicleSerial = certificate.getGainerSerial();
-            }
-
-            if (certificate != null) onCertificateDownloaded();
-            else view.onError(true, "No certificate to send commands");
+            AccessCertificate[] certificates = HMKit.getInstance().getCertificates();
+            if (certificates == null || certificates.length < 1)
+                view.onError(true, "No certificates in HMKit");
+            certificate = HMKit.getInstance().getCertificates()[0];
+            vehicleSerial = certificate.getGainerSerial();
         }
+
+        if (certificate != null) onCertificateDownloaded();
+        else view.onError(true, "No certificate to send commands");
     }
 
     protected void readyToSendCommands() {
