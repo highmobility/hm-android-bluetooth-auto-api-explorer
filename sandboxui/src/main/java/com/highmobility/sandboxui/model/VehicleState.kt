@@ -91,7 +91,7 @@ class VehicleState {
         vehicleConnectedWithBle = link.serial
     }
 
-    fun onLinkConnected(link: Link?) {
+    fun onLinkConnected() {
         // we do not have a serial yet.
 
         // Could be that previously link connected but did not authenticate and its serial

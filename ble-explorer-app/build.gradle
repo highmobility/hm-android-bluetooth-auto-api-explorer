@@ -78,3 +78,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.3.0'
 }
+
+apply from: "https://raw.githubusercontent.com/tonisives/tools/master/scripts/test-shell-logging.gradle"

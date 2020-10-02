@@ -230,7 +230,7 @@ public class ConnectedVehicleBleController extends ConnectedVehicleController im
         link = connectedLink;
         link.setListener(this);
         bleView.setBleInfo("link: " + connectedLink.getState());
-        vehicle.onLinkConnected(link);
+        vehicle.onLinkConnected();
         bleView.setViewState(IConnectedVehicleView.ViewState.CONNECTED);
 
         d("onLinkReceived: ");
