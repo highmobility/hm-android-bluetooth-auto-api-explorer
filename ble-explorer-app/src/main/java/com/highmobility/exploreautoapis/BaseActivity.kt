@@ -25,10 +25,8 @@ package com.highmobility.exploreautoapis
 
 import android.app.Activity
 import android.content.Intent
-import android.content.res.Resources
 import android.os.Bundle
 import android.view.View
-
 import com.highmobility.crypto.value.DeviceSerial
 import com.highmobility.hmkit.HMKit
 import com.highmobility.hmkit.HMKit.DownloadCallback
