@@ -54,7 +54,7 @@ dependencies {
     implementation deps.findBugs
     implementation deps.timber
     implementation 'at.favre.lib:slf4j-timber:1.0.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 
     // tests
     testImplementation "junit:junit:4.12"
