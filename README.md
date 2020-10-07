@@ -28,10 +28,10 @@ comments of the [BaseActivity.java](https://github.com/highmobility/hm-android-b
 
 After initialisation, the [sandboxui](https://github.com/highmobility/hm-android-bluetooth-auto-api-explorer/tree/master/sandboxui/src/main/java/com/highmobility/sandboxui) module is loaded. All of the app logic is in that package.
 
-## Instrumented tests
+## Instrumentation tests
 
-Instrumented tests cover the bluetooth and telematics commands. For them to work, 
-ble-explorer-app/src/main/java/res/values/credentials.xml needs to have the following keys:
+Instrumentation tests cover bluetooth and telematics commands. For them to work, 
+ble-explorer-app/src/main/java/res/values/credentials.xml should have the following keys:
 
 ```
 <?xml version="1.0" encoding="utf-8"?>
@@ -46,7 +46,8 @@ ble-explorer-app/src/main/java/res/values/credentials.xml needs to have the foll
     <string name="prodVehicleSerial"></string>
 </resources>
 ```
-
+An emulator should be opened with these credentials. If the phone vibrates, bluetooth should
+be connected in the emulator.
 
 ## Questions or Comments ?
 
