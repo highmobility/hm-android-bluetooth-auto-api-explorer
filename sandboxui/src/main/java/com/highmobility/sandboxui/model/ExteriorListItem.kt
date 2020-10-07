@@ -188,15 +188,17 @@ class ExteriorListItem {
                         item.iconResId = R.drawable.ext_front_lights_off
                         item.selectedSegment = 0
                     }
-                    Lights.FrontExteriorLight.ACTIVE -> {
-                        item.stateTitle = item.segmentTitles[1]
-                        item.iconResId = R.drawable.ext_front_lights_on
-                        item.selectedSegment = 1
-                    }
                     Lights.FrontExteriorLight.ACTIVE_WITH_FULL_BEAM -> {
                         item.stateTitle = item.segmentTitles[2]
                         item.iconResId = R.drawable.ext_front_lights_full_beam
                         item.selectedSegment = 2
+                    }
+                    Lights.FrontExteriorLight.ACTIVE,
+                    Lights.FrontExteriorLight.AUTOMATIC,
+                    Lights.FrontExteriorLight.DRL-> {
+                        item.stateTitle = item.segmentTitles[1]
+                        item.iconResId = R.drawable.ext_front_lights_on
+                        item.selectedSegment = 1
                     }
                 }
                 builder.add(item)

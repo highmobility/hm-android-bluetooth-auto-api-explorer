@@ -27,7 +27,6 @@ import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context.ACTIVITY_SERVICE
 import android.content.res.Resources
-import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
 import androidx.test.espresso.Espresso.onView
@@ -42,7 +41,6 @@ import androidx.test.runner.lifecycle.Stage
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matcher
 import timber.log.Timber.d
-import timber.log.Timber.e
 
 fun printViewHierarchy(v: Activity) {
     d(getViewHierarchy(v.findViewById(android.R.id.content)))
@@ -55,13 +53,12 @@ fun getViewHierarchy(v: View): String {
 }
 
 private fun getViewHierarchy(v: View, desc: StringBuilder, margin: Int) {
-    var margin = margin
-    desc.append(getViewMessage(v, margin))
+    var childMargin = margin
+    desc.append(getViewMessage(v, childMargin))
     if (v is ViewGroup) {
-        margin++
-        val vg = v as ViewGroup
-        for (i in 0 until vg.childCount) {
-            getViewHierarchy(vg.getChildAt(i), desc, margin)
+        childMargin++
+        for (i in 0 until v.childCount) {
+            getViewHierarchy(v.getChildAt(i), desc, childMargin)
         }
     }
 }

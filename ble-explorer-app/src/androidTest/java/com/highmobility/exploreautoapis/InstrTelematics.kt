@@ -23,13 +23,10 @@
  */
 package com.highmobility.exploreautoapis
 
-import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.launchActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
-import androidx.test.internal.statement.UiThreadStatement
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
