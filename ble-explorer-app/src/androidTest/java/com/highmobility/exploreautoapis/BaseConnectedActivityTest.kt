@@ -27,15 +27,19 @@ import android.app.Activity
 import android.widget.ImageButton
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 
 import com.highmobility.sandboxui.model.ExteriorListItem
+import com.highmobility.sandboxui.view.ConnectedVehicleActivity
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
 import org.junit.Assert.assertTrue
+import java.util.concurrent.TimeUnit
 
 /**
  * Preconditions:
@@ -45,9 +49,18 @@ import org.junit.Assert.assertTrue
  * Start the Telematics activity and send all of the commands. Checks that expected results are
  * reflected in the views.
  */
-abstract class BaseConnectedVehicle {
+abstract class BaseConnectedActivityTest {
     // needs to be a method because there are 2 activities shown
     abstract fun getActivity(): Activity
+
+    fun waitForActivity() {
+        IdlingPolicies.setMasterPolicyTimeout(1, TimeUnit.MINUTES)
+        IdlingPolicies.setIdlingResourceTimeout(1, TimeUnit.MINUTES)
+
+        // the app has 1 activity before connected activity. wait for it to disappear
+        waitUntilActivityVisible<ConnectedVehicleActivity>()
+        waitViewNotShown(withId(R.id.progress_bar_connected))
+    }
 
     fun testCommands() {
         waitViewShown(withId(R.id.lock_button))

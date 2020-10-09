@@ -23,7 +23,6 @@
  */
 package com.highmobility.exploreautoapis
 
-import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.res.Resources
@@ -40,7 +39,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.highmobility.hmkit.HMKit
-import com.highmobility.sandboxui.view.ConnectedVehicleActivity
 import org.junit.After
 import org.junit.Before
 import org.junit.FixMethodOrder
@@ -66,7 +64,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-class InstrABluetooth : BaseConnectedVehicle() {
+class InstrABluetooth : BaseConnectedActivityTest() {
     private lateinit var scenario: ActivityScenario<BleExplorerActivity>
     override fun getActivity() = getTopMostActivity()
 
@@ -78,11 +76,7 @@ class InstrABluetooth : BaseConnectedVehicle() {
     fun setup() {
         scenario = launchActivity()
 
-        IdlingPolicies.setMasterPolicyTimeout(1, TimeUnit.MINUTES)
-        IdlingPolicies.setIdlingResourceTimeout(1, TimeUnit.MINUTES)
-
-        waitUntilActivityVisible<ConnectedVehicleActivity>()
-        waitViewNotShown(withId(R.id.progress_bar_connected))
+        waitForActivity()
 
         turnBleOn(true)
 

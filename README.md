@@ -46,10 +46,9 @@ ble-explorer-app/src/main/java/res/values/credentials.xml should have the follow
     <string name="prodVehicleSerial"></string>
 </resources>
 ```
-An emulator should be opened with these credentials. If the phone vibrates, bluetooth should
-be connected in the emulator.
 
-Emulator lights state should be other than inactive.
+An emulator should be opened with these credentials. If the phone vibrates, bluetooth should manually
+be connected in the emulator.
 
 ## Questions or Comments ?
 

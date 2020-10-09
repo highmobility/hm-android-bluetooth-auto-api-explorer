@@ -90,7 +90,7 @@ fun getTopMostActivity(): Activity {
     return currentActivity[0]!!
 }
 
-val ACTIVITY_VISIBLE_TIMEOUT = 5000L
+val ACTIVITY_VISIBLE_TIMEOUT = 20000L
 
 inline fun <reified T : Activity> waitUntilActivityVisible() {
     val startTime = System.currentTimeMillis()
@@ -106,7 +106,8 @@ inline fun <reified T : Activity> isVisible(): Boolean {
     val am = InstrumentationRegistry.getInstrumentation().targetContext.getSystemService(
         ACTIVITY_SERVICE
     ) as ActivityManager
-    val visibleActivityName = am.appTasks[0].taskInfo.baseActivity.className
+
+    val visibleActivityName = am.appTasks.elementAtOrNull(0)?.taskInfo?.baseActivity?.className
     return visibleActivityName == T::class.java.name
 }
 
@@ -137,5 +138,4 @@ fun getView(viewMatcher: Matcher<View>): View? {
     val finder = finderField[viewInteraction] as ViewFinder
     val view = finder.view
     return view
-
 }

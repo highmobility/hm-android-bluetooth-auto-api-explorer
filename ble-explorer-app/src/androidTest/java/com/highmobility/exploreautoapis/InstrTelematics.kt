@@ -42,13 +42,14 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class InstrTelematics : BaseConnectedVehicle() {
+class InstrTelematics : BaseConnectedActivityTest() {
     private lateinit var scenario: ActivityScenario<TelematicsExplorerActivity>
     override fun getActivity() = getTopMostActivity()
 
     @Before
     fun setup() {
         scenario = launchActivity()
+        waitForActivity()
     }
 
     @After
