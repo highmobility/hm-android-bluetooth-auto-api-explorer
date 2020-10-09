@@ -35,6 +35,7 @@ import androidx.test.espresso.IdlingResource
 import androidx.test.espresso.ViewFinder
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.internal.runner.junit4.statement.UiThreadStatement
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
@@ -79,14 +80,12 @@ private fun getViewMessage(v: View, marginOffset: Int): String {
 fun getTopMostActivity(): Activity {
     val currentActivity = arrayOf<Activity?>(null)
 
-    InstrumentationRegistry.getInstrumentation().runOnMainSync {
-        val resumedActivity = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(
-            Stage.RESUMED
-        )
+    UiThreadStatement.runOnUiThread {
+        val resumedActivity =
+            ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
         val it = resumedActivity.iterator()
         currentActivity[0] = it.next()
     }
-
     return currentActivity[0]!!
 }
 
@@ -111,24 +110,22 @@ inline fun <reified T : Activity> isVisible(): Boolean {
     return visibleActivityName == T::class.java.name
 }
 
-fun waitViewShown(matcher: Matcher<View?>?) {
-    val idlingResource: IdlingResource = ViewShownIdlingResource(matcher, true) ///
+fun waitViewShown(
+    matcher: Matcher<View>,
+    shown: Boolean = true,
+    notifyWaitingInput: Boolean = false
+) {
+    val idlingResource: IdlingResource = ViewShownIdlingResource(matcher, shown, notifyWaitingInput)
     try {
         IdlingRegistry.getInstance().register(idlingResource)
-        onView(matcher).check(matches(isDisplayed()))
+        onView(matcher).check(matches(if (shown) isDisplayed() else not(isDisplayed())))
     } finally {
         IdlingRegistry.getInstance().unregister(idlingResource)
     }
 }
 
-fun waitViewNotShown(matcher: Matcher<View?>?) {
-    val idlingResource: IdlingResource = ViewShownIdlingResource(matcher, false) ///
-    try {
-        IdlingRegistry.getInstance().register(idlingResource)
-        onView(matcher).check(matches(not(isDisplayed())))
-    } finally {
-        IdlingRegistry.getInstance().unregister(idlingResource)
-    }
+fun waitViewNotShown(matcher: Matcher<View>) {
+    waitViewShown(matcher, shown = false)
 }
 
 fun getView(viewMatcher: Matcher<View>): View? {

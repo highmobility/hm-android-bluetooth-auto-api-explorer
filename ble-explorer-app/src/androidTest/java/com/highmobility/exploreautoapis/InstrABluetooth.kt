@@ -39,6 +39,8 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.highmobility.hmkit.HMKit
+import com.highmobility.hmkit.Link
+import org.hamcrest.CoreMatchers.containsString
 import org.junit.After
 import org.junit.Before
 import org.junit.FixMethodOrder
@@ -97,7 +99,7 @@ class InstrABluetooth : BaseConnectedActivityTest() {
 
         // start broadcast > verify broadcasting > ble off > verify shows ble unavailable > turn on again
         //
-        waitViewNotShown(withId(R.id.progress_bar_connected))
+        waitViewShown(withId(R.id.progress_bar_connected), shown = false)
         onView(withId(R.id.looking_for_links)).check(
             matches(
                 withSubstring(
@@ -131,12 +133,8 @@ class InstrABluetooth : BaseConnectedActivityTest() {
         IdlingPolicies.setMasterPolicyTimeout(10, TimeUnit.MINUTES)
         IdlingPolicies.setIdlingResourceTimeout(10, TimeUnit.MINUTES)
 
-        // notify that its time to connect in emulator
-        val effect = VibrationEffect.createOneShot(
-            500, VibrationEffect.DEFAULT_AMPLITUDE
-        )
-
-        (getActivity().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(effect)
+        // wait for the authentication process to start
+        waitViewShown(withId(R.id.broadcast_serial_view), shown = false, notifyWaitingInput = true)
 
         super.testCommands()
 
