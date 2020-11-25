@@ -38,9 +38,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 
-/**
- * Created by ttiganik on 30/03/2017.
- */
 class ExteriorListItemTest {
     val resources = Mockito.mock(Resources::class.java)
 

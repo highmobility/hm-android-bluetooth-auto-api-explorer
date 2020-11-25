@@ -32,10 +32,6 @@ import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.widget.ImageButton;
 
-/**
- * Created by root on 08/06/2017.
- */
-
 public class CircleButton extends ImageButton {
     Paint paint;
 

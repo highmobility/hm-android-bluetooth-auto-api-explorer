@@ -50,9 +50,6 @@ import java.util.List;
 
 import static timber.log.Timber.d;
 
-/**
- * Created by root on 02/06/2017.
- */
 public class RemoteControlController implements IRemoteControlController, ConnectedLinkListener,
         ITapToControlCommandConverter {
     public static final String LINK_IDENTIFIER_MESSAGE = "com.highmobility.digitalkeydemo" +

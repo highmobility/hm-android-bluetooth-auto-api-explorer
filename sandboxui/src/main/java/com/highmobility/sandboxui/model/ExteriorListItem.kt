@@ -29,9 +29,6 @@ import com.highmobility.autoapi.value.LockState
 import com.highmobility.sandboxui.R
 import java.util.*
 
-/**
- * Created by ttiganik on 15/03/2018.
- */
 class ExteriorListItem {
     var segmentCount = 0
     var title: String? = null // the cell title

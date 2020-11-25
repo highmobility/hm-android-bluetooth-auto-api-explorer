@@ -57,9 +57,6 @@ import static com.highmobility.sandboxui.model.VehicleState.propertiesToValues;
 import static timber.log.Timber.d;
 import static timber.log.Timber.e;
 
-/**
- * Created by root on 24/05/2017.
- */
 public class ConnectedVehicleController {
     public static final String EXTRA_SERIAL = "EXTRA_SERIAL";
     public static final String EXTRA_USE_BLE = "EXTRA_USE_BLE";

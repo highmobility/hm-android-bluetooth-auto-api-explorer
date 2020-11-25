@@ -31,10 +31,6 @@ import android.widget.ImageButton;
 
 import com.highmobility.sandboxui.R;
 
-/**
- * Created by root on 26/05/2017.
- */
-
 public class TapToMoveButton extends ImageButton {
     public TapToMoveButton(Context context, AttributeSet attrs) {
         super(context, attrs);

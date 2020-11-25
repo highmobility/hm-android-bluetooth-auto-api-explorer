@@ -36,9 +36,6 @@ import com.highmobility.value.Bytes;
 
 import javax.annotation.Nullable;
 
-/**
- * Created by root on 24/05/2017.
- */
 public class ConnectedVehicleTelematicsController extends ConnectedVehicleController {
     TelematicsCommandQueue queue;
 
