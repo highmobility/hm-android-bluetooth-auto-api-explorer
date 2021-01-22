@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply from: "https://raw.githubusercontent.com/tonisives/tools/master/gradle/test-shell-logging.gradle"
 
 android {
     compileSdkVersion ver.compileSdk
@@ -79,5 +80,3 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.3.0'
 }
-
-apply from: "https://raw.githubusercontent.com/tonisives/tools/master/gradle/test-shell-logging.gradle"
