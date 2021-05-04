@@ -1,3 +1,3 @@
 include ':ble-explorer-app', ':sandboxui', ':hmkit-auto-api', ':command-queue-android'
 
-project(':hmkit-auto-api').projectDir = new File('auto-api-java')
+project(':hmkit-auto-api').projectDir = new File('auto-api-java/auto-api-java')
