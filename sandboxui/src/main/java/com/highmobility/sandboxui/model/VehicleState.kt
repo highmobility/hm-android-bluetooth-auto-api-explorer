@@ -26,6 +26,7 @@ package com.highmobility.sandboxui.model
 import com.highmobility.autoapi.*
 import com.highmobility.autoapi.property.Property
 import com.highmobility.autoapi.value.ActiveState
+import com.highmobility.autoapi.value.Lock
 import com.highmobility.autoapi.value.LockState
 import com.highmobility.autoapi.value.Position
 import com.highmobility.crypto.value.DeviceSerial
@@ -69,7 +70,11 @@ class VehicleState {
             insideTemperature = command.insideTemperature.value?.value
             isWindshieldDefrostingActive = command.defrostingState.value == ActiveState.ACTIVE
         } else if (command is Doors.State) {
-            doorsLocked = command.locksState.value == LockState.LOCKED
+            if (command.locksState.value != null) {
+                doorsLocked = command.locksState.value == LockState.LOCKED
+            } else if (command.locks.size > 0) {
+                doorsLocked = command.locks[0].value?.lockState == LockState.LOCKED
+            }
         } else if (command is Trunk.State) {
             trunkLockState = command.lock.value
             trunkLockPosition = command.position.value
