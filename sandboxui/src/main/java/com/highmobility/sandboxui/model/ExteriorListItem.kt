@@ -197,6 +197,7 @@ class ExteriorListItem {
                         item.iconResId = R.drawable.ext_front_lights_on
                         item.selectedSegment = 1
                     }
+                    else -> {}
                 }
                 builder.add(item)
             }
